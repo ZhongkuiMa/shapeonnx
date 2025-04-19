@@ -50,3 +50,9 @@ pip install onnx==1.17.0 numpy==2.2.4
 📌 Note: Other versions may work, but we recommend not going too far below ONNX version 1.17.0.
 
 > ⚠️ Internally, we treat ONNX IR version 22.0.0 as the baseline for shape-related logic. We use the newest version of ONNX operators and take them as the baseline because the attributes and inputs of a node are not consistent in different versions 😰. We highly recommend converting your model to this version using `onnx.version_converter` before using ShapeONNX.
+
+## 🤝 Contributing
+
+We warmly welcome contributions from everyone! Whether it's fixing bugs 🐞, adding features ✨, improving documentation 📚, or just sharing ideas 💡—your input is appreciated!
+
+📌 Please note: Direct pushes to the `main` branch are restricted. Make sure to fork the repository and submit a Pull Request for any changes!
