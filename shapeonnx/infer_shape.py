@@ -964,7 +964,6 @@ INFER_SHAPE_FUNC_MAPPING = {
     "ScatterElements": _infer_shape_of_nochange_op,
     "ScatterND": _infer_shape_of_nochange_op,
     "Shape": _infer_shape_of_shape,
-    "Sin": _infer_shape_of_nochange_op,
     "Sigmoid": _infer_shape_of_nochange_op,
     "Sin": _infer_shape_of_nochange_op,
     "Slice": _infer_shape_of_slice,
