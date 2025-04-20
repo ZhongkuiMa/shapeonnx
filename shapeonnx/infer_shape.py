@@ -470,16 +470,16 @@ def _infer_shape_of_matmul(
         return
 
     if len(shape1) == 2 and len(shape2) == 1:
-        shape = shape1[:-1]
-    elif len(shape2) == 1 and len(shape1) == 1:
-        shape = shape2[:-1]
+        shape = [shape1[0]]
+    elif len(shape1) == 1 and len(shape2) == 2:
+        shape = [shape2[-1]]
     elif len(shape1) == 1 and len(shape2) == 1:
         shape = []
     elif len(shape1) == len(shape2):
         shape = [*shape1[:-1], shape2[-1]]
     else:
         raise RuntimeError(
-            f"Cannot matmul {node.op_type:<20} with shape {shape1} and {shape2}."
+            f"Cannot matmul {node.op_type} with shape {shape1} and {shape2}."
         )
 
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
@@ -937,17 +937,21 @@ INFER_SHAPE_FUNC_MAPPING = {
     "ConstantOfShape": _infer_shape_of_constant_of_shape,
     "Conv": _infer_shape_of_pool,
     "ConvTranspose": _infer_shape_of_convtranspose,
+    "Cos": _infer_shape_of_nochange_op,
     "Div": _infer_shape_of_binary_op,
+    "Dropout": _infer_shape_of_nochange_op,
     "Equal": _infer_shape_of_binary_op,
     "Expand": _infer_shape_of_expand,
     "Flatten": _infer_shape_of_flatten,
     "Gather": _infer_shape_of_gather,
     "Gemm": _infer_shape_of_gemm,
+    "LeakyRelu": _infer_shape_of_nochange_op,
     "MatMul": _infer_shape_of_matmul,
     "Max": _infer_shape_of_nochange_op,
     "MaxPool": _infer_shape_of_pool,
     "Min": _infer_shape_of_nochange_op,
     "Mul": _infer_shape_of_binary_op,
+    "Neg": _infer_shape_of_nochange_op,
     "Pad": _infer_shape_of_pad,
     "Range": _infer_shape_of_range,
     "ReduceMean": _infer_shape_of_reduce,
@@ -960,6 +964,7 @@ INFER_SHAPE_FUNC_MAPPING = {
     "ScatterND": _infer_shape_of_nochange_op,
     "Shape": _infer_shape_of_shape,
     "Sigmoid": _infer_shape_of_nochange_op,
+    "Sin": _infer_shape_of_nochange_op,
     "Slice": _infer_shape_of_slice,
     "Softmax": _infer_shape_of_nochange_op,
     "Squeeze": _infer_shape_of_squeeze,
