@@ -160,19 +160,48 @@ def _infer_shape_of_binary_op(
             _store_data_shape(shape, shapes, node.op_type, node.output[0])
         return
 
-    # Use a broadcast mechanism to calculate the output shape。
-    if len(shape1) < len(shape2):
-        shape1 = [1] * (len(shape2) - len(shape1)) + shape1
-    elif len(shape1) > len(shape2):
-        shape2 = [1] * (len(shape1) - len(shape2)) + shape2
-
-    shape = []
-    for i in range(len(shape1)):
-        if not (shape1[i] == shape2[i] or shape1[i] == 1 or shape2[i] == 1):
+    if (type(shape1) is int or len(shape1) == 0) and (
+        type(shape2) is int or len(shape2) == 0
+    ):
+        # This is a scalar, single item
+        if type(shape1) is list:
+            shape1 = onnx.numpy_helper.to_array(initializers[node.input[0]]).tolist()
+        if type(shape2) is list:
+            shape2 = onnx.numpy_helper.to_array(initializers[node.input[1]]).tolist()
+        # Operate the actual values
+        if node.op_type == "Add":
+            shape = shape1 + shape2
+        elif node.op_type == "Mul":
+            shape = shape1 * shape2
+        elif node.op_type == "Sub":
+            shape = shape1 - shape2
+        elif node.op_type == "Div":
+            shape = shape1 / shape2
+        else:
             raise RuntimeError(
-                f"Cannot broadcast {node.op_type:<20} with shape {shape1} and {shape2}."
+                f"Cannot calculate {node.op_type} with shape {shape1} and {shape2}."
             )
-        shape.append(max(shape1[i], shape2[i]))
+        shape = int(shape)
+
+    elif len(shape1) > 0 or len(shape2) > 0:
+        # Use a broadcast mechanism to calculate the output shape。
+        if len(shape1) < len(shape2):
+            shape1 = [1] * (len(shape2) - len(shape1)) + shape1
+        elif len(shape1) > len(shape2):
+            shape2 = [1] * (len(shape1) - len(shape2)) + shape2
+
+        shape = []
+        for i in range(len(shape1)):
+            if not (shape1[i] == shape2[i] or shape1[i] == 1 or shape2[i] == 1):
+                raise RuntimeError(
+                    f"Cannot broadcast {node.op_type} with shape {shape1} and {shape2}."
+                )
+            shape.append(max(shape1[i], shape2[i]))
+
+    else:
+        raise RuntimeError(
+            f"Cannot calculate {node.op_type} with shape {shape1} and {shape2}."
+        )
 
     if is_explicit:
         _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
@@ -237,9 +266,7 @@ def _infer_shape_of_concat(
             shape_i = _get_explicit_shape(name, initializers, explicit_shapes, False)
             if shape_i == [0]:
                 shape = [0]
-                _store_explicit_shape(
-                    shape, explicit_shapes, node.op_type, node.output[0]
-                )
+                _store_data_shape(shape, shapes, node.op_type, node.output[0])
                 return
             shape_list.append(shape_i)
         shape = np.concatenate(shape_list, axis=axis).tolist()
@@ -433,17 +460,8 @@ def _infer_shape_of_matmul(
     shapes: dict[str, list[int] | None],
     explicit_shapes: dict[str, int | list[int]],
 ):
-    shape1 = _get_shape(node.input[0], shapes, initializers, explicit_shapes, False)
-    shape2 = _get_shape(node.input[1], shapes, initializers, explicit_shapes, False)
-    if not (
-        len(shape1) != len(shape2)
-        and len(shape1) >= 2
-        and len(shape2) >= 2
-        and shape1[-1] == shape2[-2]
-    ):
-        raise NotImplementedError(
-            f"Not supported {node.op_type:<20} with shape {shape1} and {shape2}"
-        )
+    shape1, _ = _get_shape(node.input[0], shapes, initializers, explicit_shapes, False)
+    shape2, _ = _get_shape(node.input[1], shapes, initializers, explicit_shapes, False)
 
     if shape1 == [0] or shape2 == [0]:
         # This is a dynamic shape.
@@ -451,7 +469,18 @@ def _infer_shape_of_matmul(
         _store_data_shape(shape, shapes, node.op_type, node.output[0])
         return
 
-    shape = [*shape1[:-1], shape2[-1]]
+    if len(shape1) == 2 and len(shape2) == 1:
+        shape = shape1[:-1]
+    elif len(shape2) == 1 and len(shape1) == 1:
+        shape = shape2[:-1]
+    elif len(shape1) == 1 and len(shape2) == 1:
+        shape = []
+    elif len(shape1) == len(shape2):
+        shape = [*shape1[:-1], shape2[-1]]
+    else:
+        raise RuntimeError(
+            f"Cannot matmul {node.op_type:<20} with shape {shape1} and {shape2}."
+        )
 
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
@@ -489,12 +518,12 @@ def _infer_shape_of_pool(
 
     if len(node.input) > 1:
         # For Conv node, output channel is the first dim of weight.
-        weight_shape = list(initializers[node.input[1]].dims)
-        input_channel = input_shape[1]  # Remove batch dim
+        weight_shape, _ = _get_shape(
+            node.input[1], shapes, initializers, explicit_shapes, False
+        )
         output_channel = weight_shape[0]
     else:
         # For MaxPool or AvgPool node, output channel is the same as input.
-        input_channel = input_shape[1]  # Remove batch dim
         output_channel = input_shape[1]  # Remove batch dim
 
     # Calculate the output size
@@ -509,6 +538,38 @@ def _infer_shape_of_pool(
         shape.append(output_hw[i])
 
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
+
+
+def _infer_shape_of_pad(
+    node: NodeProto,
+    initializers: dict[str, TensorProto],
+    shapes: dict[str, list[int] | None],
+    explicit_shapes: dict[str, int | list[int]],
+):
+    input_shape, is_explicit = _get_shape(
+        node.input[0], shapes, initializers, explicit_shapes, False
+    )
+    if input_shape == [0]:
+        shape = [0]
+        if is_explicit:
+            _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
+        else:
+            _store_data_shape(shape, shapes, node.op_type, node.output[0])
+        return
+
+    pads = onnx.numpy_helper.to_array(initializers[node.input[1]]).tolist()
+    if len(node.input) == 4:
+        axes = onnx.numpy_helper.to_array(initializers[node.input[2]]).tolist()
+        raise NotImplementedError(f"Pad with axes={axes} is not supported.")
+
+    dim = int(len(pads) / 2)
+    pads = pads[:dim] + pads[dim:]
+    shape = [s + p for s, p in zip(input_shape, pads)]
+
+    if is_explicit:
+        _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
+    else:
+        _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
 
 def _infer_shape_of_range(
@@ -606,16 +667,8 @@ def _infer_shape_of_resize(
     mode = attrs["mode"]
     nearest_mode = attrs.get("nearest_mode")
 
-    if align_mode != "asymmetric":
-        raise NotImplementedError(
-            f"Resize with align_mode={align_mode} is not supported."
-        )
     if mode != "nearest":
         raise NotImplementedError(f"Resize with mode={mode} is not supported.")
-    if nearest_mode is not None and nearest_mode != "floor":
-        raise NotImplementedError(
-            f"Resize with nearest_mode={nearest_mode} is not supported."
-        )
 
     input_shape = _get_data_shape(node.input[0], shapes, False)
     if input_shape == [0]:
@@ -624,9 +677,30 @@ def _infer_shape_of_resize(
         _store_data_shape(shape, shapes, node.op_type, node.output[0])
         return
 
+    if nearest_mode == "floor":
+        op_round = floor
+    elif nearest_mode == "ceil":
+        op_round = ceil
+    elif nearest_mode == "round_prefer_floor":
+        op_round = lambda x: int(x + 0.4999999)
+    elif nearest_mode == "round_prefer_ceil":
+        op_round = lambda x: int(x + 0.5000001)
+    else:
+        raise NotImplementedError(
+            f"Resize with nearest_mode={nearest_mode} is not supported."
+        )
+
     scales = onnx.numpy_helper.to_array(initializers[node.input[2]]).tolist()
-    op_round = floor if nearest_mode == "floor" else ceil
-    shape = [op_round(dim * scale) for dim, scale in zip(input_shape, scales)]
+    if len(scales) == 0:
+        raise RuntimeError(f"Resize with scales={scales} is not supported.")
+
+    if align_mode in {"asymmetric", "half_pixel"}:
+        shape = [op_round(dim * scale) for dim, scale in zip(input_shape, scales)]
+    else:
+        raise NotImplementedError(
+            f"Resize with align_mode={align_mode} is not supported."
+        )
+
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
 
@@ -747,16 +821,25 @@ def _infer_shape_of_squeeze(
         _store_data_shape(shape, shapes, node.op_type, node.output[0])
         return
 
-    axes = _get_explicit_shape(node.input[1], initializers, explicit_shapes)
-    if axes is None:
-        axes = [i for i in range(len(input_shape)) if input_shape[i] == 1]
+    if len(node.input) > 1:
+        axes = _get_explicit_shape(node.input[1], initializers, explicit_shapes)
+        if axes is None:
+            axes = [i for i in range(len(input_shape)) if input_shape[i] == 1]
 
-    shape = []
-    for i in range(len(input_shape)):
-        if i in axes:
-            assert input_shape[i] == 1, f"Invalid axis {i} for squeeze {input_shape}"
-            continue
-        shape.append(input_shape[i])
+        shape = []
+        for i in range(len(input_shape)):
+            if i in axes:
+                assert (
+                    input_shape[i] == 1
+                ), f"Invalid axis {i} for squeeze {input_shape}"
+                continue
+            shape.append(input_shape[i])
+    else:
+        # Squeeze all 1 dims
+        shape = [s for s in input_shape if s != 1]
+        if len(shape) != 0:
+            # Add batch dim
+            shape = [input_shape[0]] + shape
 
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
@@ -846,6 +929,7 @@ def _infer_shape_of_where(
 INFER_SHAPE_FUNC_MAPPING = {
     "Add": _infer_shape_of_binary_op,
     "ArgMax": _infer_shape_of_argmax,
+    "AveragePool": _infer_shape_of_pool,
     "BatchNormalization": _infer_shape_of_batch_norm,
     "Cast": _infer_shape_of_nochange_op,
     "Clip": _infer_shape_of_nochange_op,
@@ -864,6 +948,7 @@ INFER_SHAPE_FUNC_MAPPING = {
     "MaxPool": _infer_shape_of_pool,
     "Min": _infer_shape_of_nochange_op,
     "Mul": _infer_shape_of_binary_op,
+    "Pad": _infer_shape_of_pad,
     "Range": _infer_shape_of_range,
     "ReduceMean": _infer_shape_of_reduce,
     "ReduceSum": _infer_shape_of_reduce,
@@ -879,6 +964,7 @@ INFER_SHAPE_FUNC_MAPPING = {
     "Softmax": _infer_shape_of_nochange_op,
     "Squeeze": _infer_shape_of_squeeze,
     "Sub": _infer_shape_of_binary_op,
+    "Tanh": _infer_shape_of_nochange_op,
     "Transpose": _infer_shape_of_transpose,
     "Unsqueeze": _infer_shape_of_unsqueeze,
     "Where": _infer_shape_of_where,
