@@ -966,6 +966,7 @@ INFER_SHAPE_FUNC_MAPPING = {
     "Shape": _infer_shape_of_shape,
     "Sin": _infer_shape_of_nochange_op,
     "Sigmoid": _infer_shape_of_nochange_op,
+    "Sin": _infer_shape_of_nochange_op,
     "Slice": _infer_shape_of_slice,
     "Softmax": _infer_shape_of_nochange_op,
     "Squeeze": _infer_shape_of_squeeze,
