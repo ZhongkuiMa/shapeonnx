@@ -475,7 +475,7 @@ def _infer_shape_of_matmul(
         shape = [shape2[-1]]
     elif len(shape1) == 1 and len(shape2) == 1:
         shape = []
-    elif len(shape1) == len(shape2):
+    elif len(shape1) >= len(shape2):
         shape = [*shape1[:-1], shape2[-1]]
     else:
         raise RuntimeError(
