@@ -812,6 +812,44 @@ def _infer_shape_of_slice(
     _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
 
 
+def _infer_shape_of_split(
+    node: NodeProto,
+    initializers: dict[str, TensorProto],
+    shapes: dict[str, list[int] | None],
+    explicit_shapes: dict[str, int | list[int]],
+):
+    shape = _get_data_shape(node.input[0], shapes, False)
+    if shape == [0]:
+        # This is a dynamic shape.
+        for output_name in node.output:
+            _store_data_shape([0], shapes, node.op_type, output_name)
+        return
+
+    attrs = get_onnx_attrs(node, initializers)
+    axis = attrs["axis"]
+    if attrs["num_outputs"] is not None:
+        raise NotImplementedError(
+            f"Split node with num_outputs={attrs['num_outputs']} has not be supported."
+        )
+    if node.input[1] not in initializers:
+        raise RuntimeError(
+            f"Split node with input[1]={node.input[1]} is not supported."
+        )
+
+    split_sizes = onnx.numpy_helper.to_array(initializers[node.input[1]]).tolist()
+    shape = _get_data_shape(node.input[0], shapes)
+
+    output_shapes = []
+    if axis < 0:
+        axis += len(shape)
+    for split_size in split_sizes:
+        output_shape = shape[:axis] + [split_size] + shape[axis + 1 :]
+        output_shapes.append(output_shape)
+
+    for output_name, output_shape in zip(node.output, output_shapes):
+        _store_data_shape(output_shape, shapes, node.op_type, output_name)
+
+
 def _infer_shape_of_squeeze(
     node: NodeProto,
     initializers: dict[str, TensorProto],
@@ -973,6 +1011,7 @@ INFER_SHAPE_FUNC_MAPPING = {
     "Sigmoid": _infer_shape_of_nochange_op,
     "Sin": _infer_shape_of_nochange_op,
     "Slice": _infer_shape_of_slice,
+    "Split": _infer_shape_of_split,
     "Softmax": _infer_shape_of_nochange_op,
     "Squeeze": _infer_shape_of_squeeze,
     "Sub": _infer_shape_of_binary_op,
