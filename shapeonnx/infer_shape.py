@@ -163,25 +163,30 @@ def _infer_shape_of_binary_op(
     if (type(shape1) is int or len(shape1) == 0) and (
         type(shape2) is int or len(shape2) == 0
     ):
-        # This is a scalar, single item
+        # This is a scalar, single item, try to find the static value.
         if type(shape1) is list:
-            shape1 = onnx.numpy_helper.to_array(initializers[node.input[0]]).tolist()
+            shape1 = _get_explicit_shape(node.input[0], initializers, explicit_shapes)
         if type(shape2) is list:
-            shape2 = onnx.numpy_helper.to_array(initializers[node.input[1]]).tolist()
-        # Operate the actual values
-        if node.op_type == "Add":
-            shape = shape1 + shape2
-        elif node.op_type == "Mul":
-            shape = shape1 * shape2
-        elif node.op_type == "Sub":
-            shape = shape1 - shape2
-        elif node.op_type == "Div":
-            shape = shape1 / shape2
+            shape2 = _get_explicit_shape(node.input[1], initializers, explicit_shapes)
+
+        if shape1 is None or shape2 is None:
+            # This is a dynamic shape.
+            shape = [0]
         else:
-            raise RuntimeError(
-                f"Cannot calculate {node.op_type} with shape {shape1} and {shape2}."
-            )
-        shape = int(shape)
+            # Operate the actual values
+            if node.op_type == "Add":
+                shape = shape1 + shape2
+            elif node.op_type == "Mul":
+                shape = shape1 * shape2
+            elif node.op_type == "Sub":
+                shape = shape1 - shape2
+            elif node.op_type == "Div":
+                shape = shape1 / shape2
+            else:
+                raise RuntimeError(
+                    f"Cannot calculate {node.op_type} with shape {shape1} and {shape2}."
+                )
+            shape = int(shape)
 
     elif len(shape1) > 0 or len(shape2) > 0:
         # Use a broadcast mechanism to calculate the output shape。
@@ -626,8 +631,9 @@ def _infer_shape_of_reshape(
     data_shape, _ = _get_shape(
         node.input[0], shapes, initializers, explicit_shapes, False
     )
-    shape = _get_explicit_shape(node.input[1], initializers, explicit_shapes, False)
-    if (data_shape == [0] and -1 in shape) or shape == [0]:  # This is a dynamic reshape
+    shape = _get_explicit_shape(node.input[1], initializers, explicit_shapes)
+    if shape is None or shape == [0] or (data_shape == [0] and -1 in shape):
+        # This is a dynamic reshape
         shape = [0]
         _store_data_shape(shape, shapes, node.op_type, node.output[0])
         return
