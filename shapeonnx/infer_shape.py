@@ -454,7 +454,13 @@ def _infer_shape_of_gemm(
         shape1 = shape1[:-2] + [shape1[-1], shape1[-2]]
     if transB:
         shape2 = shape2[:-2] + [shape2[-1], shape2[-2]]
-    shape = shape1[:-1] + shape2[-1:]
+
+    if len(shape1) == 0:
+        # The first input is a scalar
+        assert shape2[0] == 1
+        shape = shape2
+    else:
+        shape = shape1[:-1] + shape2[-1:]
 
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
@@ -502,25 +508,20 @@ def _infer_shape_of_pool(
     pads = attrs["pads"]
     strides = attrs["strides"]
     ceil_mode = attrs.get("ceil_mode", False)
-    if (
-        not len(kernel_shape) == 2
-        and len(dilations) == 2
-        and len(pads) == 4
-        and len(strides) == 2
-    ):
-        raise NotImplementedError(
-            f"We have not supported Conv node with "
-            f"kernel_shape={kernel_shape}, dilations={dilations}, "
-            f"pads={pads}, strides={strides}."
-        )
+    dim = len(kernel_shape)
+    assert len(dilations) == dim
+    assert len(pads) == dim * 2
+    assert len(strides) == dim
 
     input_shape = _get_data_shape(node.input[0], shapes)
+
     if input_shape == [0]:
         # This is a dynamic shape.
         shape = [0]
         _store_data_shape(shape, shapes, node.op_type, node.output[0])
         return
 
+    # Get the output channel
     if len(node.input) > 1:
         # For Conv node, output channel is the first dim of weight.
         weight_shape, _ = _get_shape(
@@ -532,14 +533,15 @@ def _infer_shape_of_pool(
         output_channel = input_shape[1]  # Remove batch dim
 
     # Calculate the output size
-    temp1 = [pads[0] + pads[1], pads[2] + pads[3]]
-    temp2 = [dilations[0] * (kernel_shape[0] - 1), dilations[1] * (kernel_shape[1] - 1)]
-    output_hw = [0, 0]
-    for i in range(2):
-        output_hw[i] = (input_shape[i + 2] + temp1[i] - temp2[i] - 1) / strides[i] + 1
+    dim = len(kernel_shape)
+    output_hw = [0] * dim
+    for i in range(dim):
+        temp1 = pads[i] + pads[i + dim]
+        temp2 = dilations[i] * (kernel_shape[i] - 1)
+        output_hw[i] = (input_shape[i + 2] + temp1 - temp2 - 1) / strides[i] + 1
         output_hw[i] = ceil(output_hw[i]) if ceil_mode else floor(output_hw[i])
     shape = [input_shape[0], output_channel]  # (Batch, Channel)
-    for i in range(2):
+    for i in range(dim):
         shape.append(output_hw[i])
 
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
