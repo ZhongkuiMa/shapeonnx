@@ -1,12 +1,17 @@
-# 🔷 **ShapeONNX**: Shape Inference for ONNX Models
+# ShapeONNX: Precise Shape Inference for Complex ONNX Models
 
-**ShapeONNX** is a lightweight and handy tool for performing **shape inference** on ONNX models—especially in cases where the standard ONNX inference tools fall short. 🧠📐
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![ONNX 1.17](https://img.shields.io/badge/ONNX-1.17-brightgreen.svg)](https://onnx.ai)
+[![NumPy 2.2](https://img.shields.io/badge/NumPy-2.2-green.svg)](https://numpy.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
+**ShapeONNX** resolves shape inference challenges in complex ONNX models where standard tools fail, enabling reliable analysis and optimization.
 
 > 🧩 Sure, you can use [`onnx.shape_inference.infer_shapes`](https://onnx.ai/onnx/api/shape_inference.html), and in most cases, it does the job.  
 > But ONNX is an **open and loosely defined protocol**. With its **inconsistent versions**, **non-standard conversions** between frameworks (hello, PyTorch 👋), and the way shapes are sometimes handled as constants, sometimes as inputs... things quickly get messy 😵‍💫.  
 > That’s where **ShapeONNX** comes in—filling the gap, providing flexibility, and keeping you sane! 🛠️✨
-
----
 
 ## ❓ Why Do You Need ShapeONNX?
 
@@ -21,8 +26,6 @@ Here are some scenarios where ShapeONNX shines:
 - 🧪 You need shape info to simulate or analyze how tensors flow through complex control structures, even before the actual data is available.
 
 In short, if you're working with **non-trivial ONNX models**, you’ll eventually hit a wall where native shape inference isn't enough. That’s when **ShapeONNX** becomes your best friend. 🤝
-
----
 
 ## ⚙️ How It Works
 
