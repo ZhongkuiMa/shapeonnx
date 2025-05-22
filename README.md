@@ -9,6 +9,8 @@
 
 **ShapeONNX** resolves shape inference challenges in complex ONNX models where standard tools fail, enabling reliable analysis and optimization.
 
+> ⚠️ This repo is still under fast development and there maybe some bugs.
+
 > 🧩 Sure, you can use [`onnx.shape_inference.infer_shapes`](https://onnx.ai/onnx/api/shape_inference.html), and in most cases, it does the job.  
 > But ONNX is an **open and loosely defined protocol**. With its **inconsistent versions**, **non-standard conversions** between frameworks (hello, PyTorch 👋), and the way shapes are sometimes handled as constants, sometimes as inputs... things quickly get messy 😵‍💫.  
 > That’s where **ShapeONNX** comes in—filling the gap, providing flexibility, and keeping you sane! 🛠️✨
