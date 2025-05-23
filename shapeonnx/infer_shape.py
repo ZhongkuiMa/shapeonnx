@@ -129,6 +129,30 @@ def _broadcast_shapes(shape1: list[int], shape2: list[int]) -> list[int]:
     if len(shape2) == 0:
         return shape1.copy()
 
+    # Aligh some dims if possible.
+
+    if all(s2 in shape1 for s2 in shape2):
+        new_shape2 = [1] * max(len(shape1), len(shape2))
+        j = 0
+        for i in range(len(shape1)):
+            if shape1[i] == shape2[j]:
+                new_shape2[i] = shape2[j]
+                j += 1
+                if j >= len(shape2):
+                    break
+        shape2 = new_shape2
+    elif all(s1 in shape2 for s1 in shape1):
+        new_shape1 = [1] * max(len(shape1), len(shape2))
+        j = 0
+        for i in range(len(shape2)):
+            if shape2[i] == shape1[j]:
+                new_shape1[i] = shape1[j]
+                j += 1
+                if j >= len(shape1):
+                    break
+        shape1 = new_shape1
+
+    # If there is no same dims, it means one of the shape is all-ones.
     # Apply right-alignment
     if len(shape1) < len(shape2):
         shape1 = [1] * (len(shape2) - len(shape1)) + shape1
@@ -232,7 +256,8 @@ def _infer_shape_of_binary_op(
         def _need_operate_shapes(name: str) -> list[int] | None:
             e_shape = _get_explicit_shape(name, initializers, explicit_shapes, True)
             if e_shape is None or not (
-                isinstance(e_shape, int) or isinstance(e_shape[0], int)
+                isinstance(e_shape, int)
+                or (isinstance(e_shape, list) and isinstance(e_shape[0], int))
             ):
                 return None
             return e_shape
@@ -246,10 +271,14 @@ def _infer_shape_of_binary_op(
 
         if node.op_type == "Mul":
             if isinstance(e_shape1, int):
-                assert isinstance(e_shape2, list), f"Invalid shape {e_shape2}"
+                assert isinstance(e_shape2, list) and isinstance(
+                    e_shape2[0], int
+                ), f"Invalid shape {e_shape2}"
                 shape = [e_shape1 * s for s in e_shape2]
             elif isinstance(e_shape2, int):
-                assert isinstance(e_shape1, list), f"Invalid shape {e_shape1}"
+                assert isinstance(e_shape1, list) and isinstance(
+                    e_shape1[0], int
+                ), f"Invalid shape {e_shape1}"
                 shape = [e_shape2 * s for s in e_shape1]
             else:
                 raise NotImplementedError(
@@ -1019,6 +1048,7 @@ def _infer_shape_of_unsqueeze(
     def _infer_unsqueeze_shape(ori_shape_: list[int], axes_: list[int]) -> list[int]:
         new_shape = list(ori_shape_)
         for axis in sorted(axes_, reverse=True):
+            print(axis)
             if axis < 0:
                 axis += len(ori_shape_) + 1
             new_shape.insert(axis, 1)
