@@ -494,8 +494,6 @@ def _infer_shape_of_gather(
     axis = get_onnx_attrs(node, initializers)["axis"]
     indices = onnx.numpy_helper.to_array(initializers[node.input[1]]).tolist()
     is_int_indices = type(indices) is int
-    if is_int_indices:
-        indices = [indices]
 
     # When the input is a variable.
     shape = _get_data_shape(node.input[0], shapes)
@@ -699,6 +697,7 @@ def _infer_shape_of_range(
         # This is a dynamic shape.
         shape = [0]
         _store_data_shape(shape, shapes, node.op_type, node.output[0])
+        return
 
     if delta > 0:
         length = max(0, (limit - start + delta - 1) // delta)
@@ -1048,7 +1047,6 @@ def _infer_shape_of_unsqueeze(
     def _infer_unsqueeze_shape(ori_shape_: list[int], axes_: list[int]) -> list[int]:
         new_shape = list(ori_shape_)
         for axis in sorted(axes_, reverse=True):
-            print(axis)
             if axis < 0:
                 axis += len(ori_shape_) + 1
             new_shape.insert(axis, 1)
