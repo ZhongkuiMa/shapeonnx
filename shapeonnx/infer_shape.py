@@ -372,10 +372,20 @@ def _infer_shape_of_concat(
             return
         shape_list.append(shape_i)
 
+    # Sometimes, it concats initializers (without batch dim) with variables (with
+    # batch dim), so we need to add the batch dim.
+    max_ndim = max(len(s) for s in shape_list)
+    for s in shape_list:
+        assert len(s) == max_ndim or len(s) == max_ndim - 1, f"Invalid shape {s}"
+        if len(s) == max_ndim - 1:
+            # Add the batch dim
+            s.insert(0, 1)
+
     # Calculate the output shape
     shape = shape_list[0]
     for i in range(1, len(shape_list)):
         shape[axis] += shape_list[i][axis]
+
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
 
