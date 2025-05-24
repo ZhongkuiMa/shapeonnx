@@ -129,8 +129,7 @@ def _broadcast_shapes(shape1: list[int], shape2: list[int]) -> list[int]:
     if len(shape2) == 0:
         return shape1.copy()
 
-    # Aligh some dims if possible.
-
+    # Align some dims if possible.
     if all(s2 in shape1 for s2 in shape2):
         new_shape2 = [1] * max(len(shape1), len(shape2))
         j = 0
@@ -152,12 +151,12 @@ def _broadcast_shapes(shape1: list[int], shape2: list[int]) -> list[int]:
                     break
         shape1 = new_shape1
 
-    # If there is no same dims, it means one of the shape is all-ones.
-    # Apply right-alignment
-    if len(shape1) < len(shape2):
-        shape1 = [1] * (len(shape2) - len(shape1)) + shape1
-    elif len(shape2) < len(shape1):
-        shape2 = [1] * (len(shape1) - len(shape2)) + shape2
+    # The following code is about the expand operator in ONNX.
+    # When one of the shape has some 1s, we need to expand the dimension to the real
+    # value. For example, [411].expand([1, 1]) => [1, 411]
+    # Apply right-alignment and fill the missing dims with 1s.
+    shape1 = [1] * (len(shape2) - len(shape1)) + shape1
+    shape2 = [1] * (len(shape1) - len(shape2)) + shape2
 
     new_shape = []
     for s1, s2 in zip(shape1, shape2):
