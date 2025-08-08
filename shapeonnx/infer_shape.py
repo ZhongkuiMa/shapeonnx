@@ -1131,6 +1131,7 @@ INFER_SHAPE_FUNC_MAPPING = {
     "Floor": _infer_shape_of_nochange_op,
     "Gather": _infer_shape_of_gather,
     "Gemm": _infer_shape_of_gemm,
+    "GlobalAveragePool": _infer_shape_of_nochange_op,
     "LeakyRelu": _infer_shape_of_nochange_op,
     "MatMul": _infer_shape_of_matmul,
     "Max": _infer_shape_of_nochange_op,
