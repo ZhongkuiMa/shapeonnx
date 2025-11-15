@@ -15,30 +15,48 @@ from slimonnx.slimonnx.utils import reformat_io_shape
 _VERBOSE = False
 
 
-def _get_input_shape(input_nodes: list[ValueInfoProto], shapes: dict[str, list[int]]):
+def _get_input_shape(
+    input_nodes: list[ValueInfoProto], shapes: dict[str, list[int]], has_batch_dim: bool
+):
+    if _VERBOSE:
+        print("Infer input shape(s)...")
+        print(f"{'Name':<20} Shape")
+
     for input_node in input_nodes:
-        shape = reformat_io_shape(input_node)
+        shape = reformat_io_shape(input_node, has_batch_dim)
         shapes[input_node.name] = shape
         if _VERBOSE:
-            print(f"Input {input_node.name:<50} Shape={shape}")
+            print(f"{input_node.name:<20} {shape}")
 
 
-def _get_output_shape(output_nodes: list[ValueInfoProto], shapes: dict[str, list[int]]):
+def _get_output_shape(
+    output_nodes: list[ValueInfoProto],
+    shapes: dict[str, list[int]],
+    has_batch_dim: bool,
+):
+    if _VERBOSE:
+        print("Infer output shape(s)...")
+        print(f"{'Name':<20} Shape")
+
     for output_node in output_nodes:
-        shape = reformat_io_shape(output_node)
+        shape = reformat_io_shape(output_node, has_batch_dim)
         shapes[output_node.name] = shape
         if _VERBOSE:
-            print(f"Output {output_node.name:<50} Shape={shape}")
+            print(f"{output_node.name:<20} {shape}")
 
 
 def _get_initializer_shape(
     initializers: dict[str, TensorProto], shapes: dict[str, list[int]]
 ):
+    if _VERBOSE:
+        print("Infer initializer shape(s)...")
+        print(f"{'Name':<20} Shape")
+
     for initializer in initializers.values():
         shape = [int(x) for x in initializer.dims]
         shapes[initializer.name] = shape
         if _VERBOSE:
-            print(f"Initializer {initializer.name:<50} Shape={shape}")
+            print(f"{initializer.name:<20} {shape}")
 
 
 def _get_data_shape(
@@ -105,7 +123,7 @@ def _store_data_shape(
 ):
     shapes[name] = shape
     if _VERBOSE:
-        print(f"Node {op_type:<20} {name:<40} shape={shape}")
+        print(f"{op_type:<20} {name:<20} {shape}")
 
 
 def _store_explicit_shape(
@@ -116,7 +134,7 @@ def _store_explicit_shape(
 ):
     explicit_shapes[name] = shape
     if _VERBOSE:
-        print(f"Node {op_type:<20} {name:<40} value={shape}")
+        print(f"{op_type:<20} {name:<20} {shape}")
 
 
 def _broadcast_shapes(shape1: list[int], shape2: list[int]) -> list[int]:
@@ -209,7 +227,16 @@ def _infer_shape_of_binary_op(
             _store_data_shape(shape, shapes, node.op_type, node.output[0])
         return
 
-    if (type(shape1) is int or len(shape1) == 0) and (
+    if (
+        type(shape1) is list
+        and type(shape2) is list
+        and len(shape1) == 0
+        and len(shape2) == 0
+    ):
+        # Both are scalar shapes
+        shape = []
+
+    elif (type(shape1) is int or len(shape1) == 0) and (
         type(shape2) is int or len(shape2) == 0
     ):
         # This is a scalar, single item, try to find the static value.
@@ -866,8 +893,8 @@ def _infer_shape_of_slice(
         return
 
     starts = initializers[node.input[1]]
-    ends = initializers[node.input[2]]
     starts = onnx.numpy_helper.to_array(starts).tolist()
+    ends = initializers[node.input[2]]
     ends = onnx.numpy_helper.to_array(ends).tolist()
 
     n_inputs = len(node.input)
@@ -1170,6 +1197,7 @@ def infer_onnx_shape(
     output_nodes: list[ValueInfoProto],
     nodes: list[NodeProto],
     initializers: dict[str, TensorProto],
+    has_batch_dim: bool = True,
     verbose: bool = False,
 ) -> dict[str, list[int]]:
     global _VERBOSE
@@ -1184,28 +1212,19 @@ def infer_onnx_shape(
     data_shapes = {}
     explicit_shapes = {}
 
-    if verbose:
-        print("Inferring shape of input(s)...")
-    _get_input_shape(input_nodes, data_shapes)
-
-    if verbose:
-        print("Inferring shape of output(s)...")
-    _get_output_shape(output_nodes, data_shapes)
-
-    if verbose:
-        print("Inferring shape of initializer(s)...")
+    _get_input_shape(input_nodes, data_shapes, has_batch_dim)
+    _get_output_shape(output_nodes, data_shapes, has_batch_dim)
     _get_initializer_shape(initializers, data_shapes)
 
     if verbose:
         print("Inferring shape of node(s)...")
+        print(f"{'Op Type':20} {'Name':20} Output Shape")
     for node in nodes:
-        if verbose:
-            print(node.name)
         op_type = node.op_type
         if op_type == "Constant":
             raise RuntimeError(
                 "There are constant nodes in the model, and you should convert them to "
-                "initializers first by argument constant_to_initializer=True."
+                "initializers first."
             )
         _infer_shape = INFER_SHAPE_FUNC_MAPPING[op_type]
         _infer_shape(node, initializers, data_shapes, explicit_shapes)
