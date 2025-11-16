@@ -49,26 +49,24 @@ def _get_initializer_shape(
     initializers: dict[str, TensorProto], shapes: dict[str, list[int]]
 ):
     if _VERBOSE:
-        print("Infer initializer shape(s)...")
-        print(f"{'Name':<20} Shape")
+        print(f"Infer initializer shape(s)...\n{'Name':<20} Shape")
 
-    for initializer in initializers.values():
-        shape = [int(x) for x in initializer.dims]
-        shapes[initializer.name] = shape
+    for name, initializer in initializers.items():
+        shape = list(map(int, initializer.dims))
+        shapes[name] = shape
         if _VERBOSE:
-            print(f"{initializer.name:<20} {shape}")
+            print(f"{name:<20} {shape}")
 
 
 def _get_data_shape(
     name: str, shapes: dict[str, list[int]], silent: bool = True
 ) -> int | list[int] | None:
     shape = shapes.get(name)
-    if shape is not None:
-        # The data shape must be a list of int
+    if shape:
         return shape.copy()
-    if silent:
-        return None
-    raise RuntimeError(f"Cannot get data shape of {name}.")
+    if not silent:
+        raise RuntimeError(f"Cannot get data shape of {name}.")
+    return None
 
 
 def _get_explicit_shape(
@@ -77,19 +75,13 @@ def _get_explicit_shape(
     explicit_shapes: dict[str, int | list[int]],
     silent: bool = True,
 ) -> int | list[int] | None:
-    shape = initializers.get(name)
-    if shape is not None:
-        shape = onnx.numpy_helper.to_array(shape).tolist()
-        return shape
-    shape = explicit_shapes.get(name)
-    if shape is not None:
-        # The explicit shape either is a list of int or a single int
-        if type(shape) is not int:
-            shape = shape.copy()
-        return shape
-    if silent:
-        return None
-    raise RuntimeError(f"Cannot get explicit shape of {name}.")
+    if name in initializers:
+        return onnx.numpy_helper.to_array(initializers[name]).tolist()
+    if shape := explicit_shapes.get(name):
+        return shape.copy() if isinstance(shape, list) else shape
+    if not silent:
+        raise RuntimeError(f"Cannot get explicit shape of {name}.")
+    return None
 
 
 def _get_shape(
@@ -99,23 +91,19 @@ def _get_shape(
     explicit_shapes: dict[str, int | list[int]],
     silent: bool = True,
 ) -> tuple[int | list[int] | None, bool]:
-    shape = shapes.get(name)
-    if shape is not None:
-        # The data shape must be a list of int
+    if (shape := shapes.get(name)) is not None:
         return shape.copy(), False
-    shape = initializers.get(name)
-    if shape is not None:
-        shape = onnx.numpy_helper.to_array(shape).tolist()
-        return shape, True
-    shape = explicit_shapes.get(name)
-    if shape is not None:
-        # The explicit shape either is a list of int or a single int
-        if type(shape) is not int:
-            shape = shape.copy()
-        return shape, True
-    if silent:
-        return None, False
-    raise RuntimeError(f"Cannot get shape of {name}.")
+    if (initializer := initializers.get(name)) is not None:
+        return onnx.numpy_helper.to_array(initializer).tolist(), True
+    if (explicit_shape := explicit_shapes.get(name)) is not None:
+        return (
+            explicit_shape.copy()
+            if isinstance(explicit_shape, list)
+            else explicit_shape
+        ), True
+    if not silent:
+        raise RuntimeError(f"Cannot get shape of {name}.")
+    return None, False
 
 
 def _store_data_shape(
@@ -137,53 +125,59 @@ def _store_explicit_shape(
         print(f"{op_type:<20} {name:<20} {shape}")
 
 
+def _align_shapes(base: list[int], target: list[int]) -> list[int]:
+    aligned = [1] * max(len(base), len(target))
+    j = 0
+    for i in range(len(base)):
+        if base[i] == target[j]:
+            aligned[i] = target[j]
+            j += 1
+            if j >= len(target):
+                break
+    return aligned
+
+
+def _right_align_shapes(
+    shape1: list[int], shape2: list[int]
+) -> tuple[list[int], list[int]]:
+    max_len = max(len(shape1), len(shape2))
+    shape1 = [1] * (max_len - len(shape1)) + shape1
+    shape2 = [1] * (max_len - len(shape2)) + shape2
+    return shape1, shape2
+
+
+def _compute_broadcasted_shape(shape1: list[int], shape2: list[int]) -> list[int]:
+    result = []
+    for s1, s2 in zip(shape1, shape2):
+        if s1 != s2 and s1 != 1 and s2 != 1:
+            raise RuntimeError(f"Cannot broadcast {shape1} and {shape2}.")
+        result.append(max(s1, s2))
+    return result
+
+
 def _broadcast_shapes(shape1: list[int], shape2: list[int]) -> list[int]:
-    if shape1 == [0] or shape2 == [0]:
-        # This is a dynamic shape.
+    if [0] in (shape1, shape2):
         return [0]
 
-    if len(shape1) == 0:
+    if not shape1:
         return shape2.copy()
-    if len(shape2) == 0:
+    if not shape2:
         return shape1.copy()
 
-    # Align some dims if possible.
+    # Align dimensions if possible
     if all(s2 in shape1 for s2 in shape2):
-        new_shape2 = [1] * max(len(shape1), len(shape2))
-        j = 0
-        for i in range(len(shape1)):
-            if shape1[i] == shape2[j]:
-                new_shape2[i] = shape2[j]
-                j += 1
-                if j >= len(shape2):
-                    break
-        shape2 = new_shape2
+        shape2 = _align_shapes(shape1, shape2)
     elif all(s1 in shape2 for s1 in shape1):
-        new_shape1 = [1] * max(len(shape1), len(shape2))
-        j = 0
-        for i in range(len(shape2)):
-            if shape2[i] == shape1[j]:
-                new_shape1[i] = shape1[j]
-                j += 1
-                if j >= len(shape1):
-                    break
-        shape1 = new_shape1
+        shape1 = _align_shapes(shape2, shape1)
 
+    # Right-align and expand dimensions
     # The following code is about the expand operator in ONNX.
     # When one of the shape has some 1s, we need to expand the dimension to the real
     # value. For example, [411].expand([1, 1]) => [1, 411]
     # Apply right-alignment and fill the missing dims with 1s.
-    shape1 = [1] * (len(shape2) - len(shape1)) + shape1
-    shape2 = [1] * (len(shape1) - len(shape2)) + shape2
-
-    new_shape = []
-    for s1, s2 in zip(shape1, shape2):
-        if s1 != s2 and s1 != 1 and s2 != 1:
-            raise RuntimeError(f"Cannot broadcast {shape1} and {shape2}.")
-        s = max(s1, s2)
-        new_shape.append(s)
-
-    return new_shape
+    shape1, shape2 = _right_align_shapes(shape1, shape2)
+    # Compute the broadcasted shape
+    return _compute_broadcasted_shape(shape1, shape2)
 
 
 def _infer_shape_of_nochange_op(
@@ -192,10 +186,10 @@ def _infer_shape_of_nochange_op(
     shapes: dict[str, list[int]],
     explicit_shapes: dict[str, int | list[int]],
 ):
-    shape, is_e = _get_shape(
+    shape, is_explicit = _get_shape(
         node.input[0], shapes, initializers, explicit_shapes, False
     )
-    if is_e:
+    if is_explicit:
         _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
     else:
         _store_data_shape(shape, shapes, node.op_type, node.output[0])
@@ -221,24 +215,10 @@ def _infer_shape_of_binary_op(
         # This is a dynamic shape, and we use [0] to represent the shape.
         # Because there may need to be a broadcast operation.
         shape = [0]
-        if is_explicit:
-            _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
-        else:
-            _store_data_shape(shape, shapes, node.op_type, node.output[0])
-        return
-
-    if (
-        type(shape1) is list
-        and type(shape2) is list
-        and len(shape1) == 0
-        and len(shape2) == 0
-    ):
+    elif type(shape1) is list and type(shape2) is list and not shape1 and not shape2:
         # Both are scalar shapes
         shape = []
-
-    elif (type(shape1) is int or len(shape1) == 0) and (
-        type(shape2) is int or len(shape2) == 0
-    ):
+    elif (type(shape1) is int or not shape1) and (type(shape2) is int or not shape2):
         # This is a scalar, single item, try to find the static value.
         if type(shape1) is list:
             shape1 = _get_explicit_shape(node.input[0], initializers, explicit_shapes)
@@ -250,24 +230,21 @@ def _infer_shape_of_binary_op(
             shape = [0]
         else:
             # Operate the actual values
-            if node.op_type == "Add":
-                shape = shape1 + shape2
-            elif node.op_type == "Mul":
-                shape = shape1 * shape2
-            elif node.op_type == "Sub":
-                shape = shape1 - shape2
-            elif node.op_type == "Div":
-                shape = shape1 / shape2
-            else:
-                raise RuntimeError(
+            shape = {
+                "Add": shape1 + shape2,
+                "Mul": shape1 * shape2,
+                "Sub": shape1 - shape2,
+                "Div": shape1 / shape2,
+            }.get(
+                node.op_type,
+                RuntimeError(
                     f"Cannot calculate {node.op_type} with shape {shape1} and {shape2}."
-                )
+                ),
+            )
             shape = int(shape)
-
-    elif len(shape1) > 0 or len(shape2) > 0:
+    elif shape1 or shape2:
         # Use a broadcast mechanism to calculate the output shape。
         shape = _broadcast_shapes(shape1, shape2)
-
     else:
         raise RuntimeError(
             f"Cannot calculate {node.op_type} with shape {shape1} and {shape2}."
@@ -275,52 +252,40 @@ def _infer_shape_of_binary_op(
 
     if is_explicit:
         _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
-    else:
-        _store_data_shape(shape, shapes, node.op_type, node.output[0])
+        return
 
-        # There maybe an explicit shape calculation in the same time.
-        def _need_operate_shapes(name: str) -> list[int] | None:
-            e_shape = _get_explicit_shape(name, initializers, explicit_shapes, True)
-            if e_shape is None or not (
-                isinstance(e_shape, int)
-                or (isinstance(e_shape, list) and isinstance(e_shape[0], int))
-            ):
-                return None
-            return e_shape
+    _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
-        e_shape1 = _need_operate_shapes(node.input[0])
-        if e_shape1 is None:
-            return
-        e_shape2 = _need_operate_shapes(node.input[1])
-        if e_shape2 is None:
-            return
+    # There maybe an explicit shape calculation at the same time.
+    def _need_operate_shapes(name: str) -> list[int] | None:
+        e_shape = _get_explicit_shape(name, initializers, explicit_shapes, True)
+        return e_shape if isinstance(e_shape, (int, list)) else None
 
-        if node.op_type == "Mul":
-            if isinstance(e_shape1, int):
-                assert isinstance(e_shape2, list) and isinstance(
-                    e_shape2[0], int
-                ), f"Invalid shape {e_shape2}"
-                shape = [e_shape1 * s for s in e_shape2]
-            elif isinstance(e_shape2, int):
-                assert isinstance(e_shape1, list) and isinstance(
-                    e_shape1[0], int
-                ), f"Invalid shape {e_shape1}"
-                shape = [e_shape2 * s for s in e_shape1]
-            else:
-                raise NotImplementedError(
-                    f"Cannot calculate exlicit shape of {e_shape1} and {e_shape2}."
-                )
-        elif node.op_type == "Equal":
-            assert len(e_shape1) == len(e_shape2)
-            shape = [
-                1 if e_shape1[i] == e_shape2[i] else 0 for i in range(len(e_shape1))
-            ]
+    e_shape1 = _need_operate_shapes(node.input[0])
+    if e_shape1 is None:
+        return
+    e_shape2 = _need_operate_shapes(node.input[1])
+    if e_shape2 is None:
+        return
+
+    if node.op_type == "Mul":
+        if isinstance(e_shape1, int):
+            shape = [e_shape1 * s for s in e_shape2]
+        elif isinstance(e_shape2, int):
+            shape = [e_shape2 * s for s in e_shape1]
         else:
             raise NotImplementedError(
-                f"Cannot calculate exlicit shape of {node.op_type} "
-                f"with {e_shape1} and {e_shape2}."
+                f"Cannot calculate exlicit shape of {e_shape1} and {e_shape2}."
             )
-        _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
+    elif node.op_type == "Equal":
+        assert len(e_shape1) == len(e_shape2)
+        shape = [1 if e_shape1[i] == e_shape2[i] else 0 for i in range(len(e_shape1))]
+    else:
+        raise NotImplementedError(
+            f"Cannot calculate exlicit shape of {node.op_type} "
+            f"with {e_shape1} and {e_shape2}."
+        )
+    _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
 
 
 def _infer_shape_of_argmax(
@@ -330,8 +295,7 @@ def _infer_shape_of_argmax(
     explicit_shapes: dict[str, int | list[int]],
 ):
     attrs = get_onnx_attrs(node, initializers)
-    axis = attrs["axis"]
-    keepdims = attrs["keepdims"]
+    axis, keepdims = attrs["axis"], attrs["keepdims"]
 
     shape = _get_data_shape(node.input[0], shapes, False)
     if shape != [0]:
@@ -371,32 +335,27 @@ def _infer_shape_of_concat(
     """
     is_explicit = any(name in explicit_shapes for name in node.input)
 
-    if is_explicit:
-        # We will calculate the explicit shapes with initializers.
-        # This is to concatenate several 1d lists of int by order
-        # and the axis must be 0.
-        shape_list = []
-        for name in node.input:
-            shape_i = _get_explicit_shape(name, initializers, explicit_shapes, False)
-            if shape_i == [0]:
-                shape = [0]
-                _store_data_shape(shape, shapes, node.op_type, node.output[0])
-                return
-            shape_list.append(shape_i)
-        shape = np.concatenate(shape_list, axis=axis).tolist()
-        _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
-        return
-
-    # We will calculate the shapes of tensors
+    # (1) We will calculate the explicit shapes with initializers.
+    # This is to concatenate several 1d lists of int by order and the axis must be 0.
+    # (2) We will calculate the shapes of tensors.
     # This is to calculate the size sum of the specified axis.
+
     shape_list = []
     for name in node.input:
-        shape_i, _ = _get_shape(name, shapes, initializers, explicit_shapes, False)
+        if is_explicit:
+            shape_i = _get_explicit_shape(name, initializers, explicit_shapes, False)
+        else:
+            shape_i = _get_shape(name, shapes, initializers, explicit_shapes, False)
         if shape_i == [0]:
             shape = [0]
             _store_data_shape(shape, shapes, node.op_type, node.output[0])
             return
         shape_list.append(shape_i)
+
+    if is_explicit:
+        shape = np.concatenate(shape_list, axis=axis).tolist()
+        _store_explicit_shape(shape, explicit_shapes, node.op_type, node.output[0])
+        return
 
     # Sometimes, it concats initializers (without batch dim) with variables (with
     # batch dim), so we need to add the batch dim.
@@ -409,8 +368,8 @@ def _infer_shape_of_concat(
 
     # Calculate the output shape
     shape = shape_list[0]
-    for i in range(1, len(shape_list)):
-        shape[axis] += shape_list[i][axis]
+    for other_shape in shape_list[1:]:
+        shape[axis] += other_shape[axis]
 
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
@@ -424,8 +383,7 @@ def _infer_shape_of_constant_of_shape(
     shape = _get_explicit_shape(node.input[0], initializers, explicit_shapes, False)
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
-    attrs = get_onnx_attrs(node, initializers)
-    value = attrs["value"]
+    value = get_onnx_attrs(node, initializers)["value"]
     if np.issubdtype(value.dtype, np.integer):
         # This may be an explicit shape
         constant = np.full(shape, value, dtype=value.dtype).tolist()
@@ -439,14 +397,16 @@ def _infer_shape_of_convtranspose(
     explicit_shapes: dict[str, int | list[int]],
 ):
     attrs = get_onnx_attrs(node, initializers)
-    kernel_shape = attrs["kernel_shape"]
-    dilations = attrs["dilations"]
-    output_padding = attrs["output_padding"]
-    pads = attrs["pads"]
-    strides = attrs["strides"]
-    if (
-        not len(kernel_shape) == 2
-        and len(dilations) == 2
+    kernel_shape, dilations, output_padding, pads, strides = (
+        attrs["kernel_shape"],
+        attrs["dilations"],
+        attrs["output_padding"],
+        attrs["pads"],
+        attrs["strides"],
+    )
+
+    if not (
+        len(kernel_shape) == len(dilations) == 2
         and len(pads) == 4
         and len(strides) == 2
     ):
@@ -459,29 +419,24 @@ def _infer_shape_of_convtranspose(
     input_shape = _get_data_shape(node.input[0], shapes)
     if input_shape == [0]:
         # This is a dynamic shape.
-        shape = [0]
-        _store_data_shape(shape, shapes, node.op_type, node.output[0])
+        _store_data_shape([0], shapes, node.op_type, node.output[0])
         return
 
     weight_shape = list(initializers[node.input[1]].dims)
     # Calculate the output size
     temp1 = [pads[0] + pads[1], pads[2] + pads[3]]
-    temp2 = [dilations[0] * (kernel_shape[0] - 1), dilations[1] * (kernel_shape[1] - 1)]
-    output_hw = [0, 0]
-    ceil_mode = True
-    for i in range(2):
-        output_hw[i] = (
+    temp2 = [dilations[i] * (kernel_shape[i] - 1) for i in range(2)]
+    output_hw = [
+        ceil(
             (input_shape[i + 2] - 1) * strides[i]
             - temp1[i]
             + temp2[i]
             + output_padding[i]
             + 1
         )
-        output_hw[i] = ceil(output_hw[i]) if ceil_mode else floor(output_hw[i])
-    shape = [input_shape[0], weight_shape[1]]
-    for i in range(2):
-        shape.append(output_hw[i])
-
+        for i in range(2)
+    ]
+    shape = [input_shape[0], weight_shape[1], *output_hw]
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
 
@@ -512,9 +467,8 @@ def _infer_shape_of_flatten(
     shapes: dict[str, list[int] | None],
     explicit_shapes: dict[str, int | list[int]],
 ):
-    axis = get_onnx_attrs(node, initializers)["axis"]
-
     shape = _get_data_shape(node.input[0], shapes, False)
+    axis = get_onnx_attrs(node, initializers)["axis"]
     if shape != [0]:
         shape = shape[:axis] + [int(math.prod(shape) / math.prod(shape[:axis]))]
 
@@ -529,24 +483,19 @@ def _infer_shape_of_gather(
 ):
     axis = get_onnx_attrs(node, initializers)["axis"]
     indices = onnx.numpy_helper.to_array(initializers[node.input[1]]).tolist()
-    is_int_indices = type(indices) is int
+    is_int_indices = isinstance(indices, int)
 
     # When the input is a variable.
     shape = _get_data_shape(node.input[0], shapes)
     if shape is not None:
         if shape != [0]:
-            new_shape = []
-            for i in range(len(shape)):
-                if i == axis:
-                    if is_int_indices:
-                        # If the indices is a single int, we need to remove the axis
-                        continue
-                    else:
-                        # If the indices is a list, we need to keep the axis
-                        new_shape.append(len(indices))
-                else:
-                    new_shape.append(shape[i])
-            shape = new_shape
+            # If the indices is a single int, we need to remove the axis
+            # If the indices is a list, we need to keep the axis
+            shape = [
+                len(indices) if i == axis and not is_int_indices else shape[i]
+                for i in range(len(shape))
+                if not (i == axis and is_int_indices)
+            ]
         _store_data_shape(shape, shapes, node.op_type, node.output[0])
         return
 
@@ -554,16 +503,11 @@ def _infer_shape_of_gather(
     e_shape = _get_explicit_shape(node.input[0], initializers, explicit_shapes, False)
     if e_shape != [0]:
         assert axis == 0, f"Invalid axis {axis}"
-        new_e_shape = []
-        for i in range(len(e_shape)):
-            if is_int_indices:
-                if i == indices:
-                    new_e_shape = e_shape[i]
-                    break
-            else:
-                if i in indices:
-                    new_e_shape.append(e_shape[i])
-        e_shape = new_e_shape
+        e_shape = (
+            e_shape[indices]
+            if is_int_indices
+            else [e_shape[i] for i in indices if i < len(e_shape)]
+        )
         # Here we do not consider the scalar shape because gather may extract some
         # useful value to serve for the next node. So we cannot use [] to represent the
         # shape of the output. In another word, for explicit shape, we do not need to
@@ -579,28 +523,21 @@ def _infer_shape_of_gemm(
     explicit_shapes: dict[str, int | list[int]],
 ):
     attrs = get_onnx_attrs(node, initializers)
-    transA = attrs["transA"]
-    transB = attrs["transB"]
+    transA, transB = attrs["transA"], attrs["transB"]
     shape1, _ = _get_shape(node.input[0], shapes, initializers, explicit_shapes, False)
     shape2, _ = _get_shape(node.input[1], shapes, initializers, explicit_shapes, False)
 
-    if shape1 == [0] or shape2 == [0]:
-        # This is a dynamic shape.
-        shape = [0]
-        _store_data_shape(shape, shapes, node.op_type, node.output[0])
+    if [0] in (shape1, shape2):
+        _store_data_shape([0], shapes, node.op_type, node.output[0])
         return
 
     if transA:
-        shape1 = shape1[:-2] + [shape1[-1], shape1[-2]]
+        shape1[-2:], shape1[-1] = shape1[-1], shape1[-2]
     if transB:
-        shape2 = shape2[:-2] + [shape2[-1], shape2[-2]]
+        shape2[-2:], shape2[-1] = shape2[-1], shape2[-2]
 
-    if len(shape1) == 0:
-        # The first input is a scalar
-        assert shape2[0] == 1
-        shape = shape2
-    else:
-        shape = shape1[:-1] + shape2[-1:]
+    # The first input is a scalar
+    shape = shape2 if not shape1 else shape1[:-1] + shape2[-1:]
 
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
@@ -614,10 +551,8 @@ def _infer_shape_of_matmul(
     shape1, _ = _get_shape(node.input[0], shapes, initializers, explicit_shapes, False)
     shape2, _ = _get_shape(node.input[1], shapes, initializers, explicit_shapes, False)
 
-    if shape1 == [0] or shape2 == [0]:
-        # This is a dynamic shape.
-        shape = [0]
-        _store_data_shape(shape, shapes, node.op_type, node.output[0])
+    if [0] in (shape1, shape2):
+        _store_data_shape([0], shapes, node.op_type, node.output[0])
         return
 
     if len(shape1) == 2 and len(shape2) == 1:
@@ -643,34 +578,32 @@ def _infer_shape_of_pool(
     explicit_shapes: dict[str, int | list[int]],
 ):
     attrs = get_onnx_attrs(node, initializers)
-    kernel_shape = attrs["kernel_shape"]
-    dilations = attrs["dilations"]
-    pads = attrs["pads"]
-    strides = attrs["strides"]
+    kernel_shape, dilations, pads, strides = (
+        attrs["kernel_shape"],
+        attrs["dilations"],
+        attrs["pads"],
+        attrs["strides"],
+    )
     ceil_mode = attrs.get("ceil_mode", False)
+
     dim = len(kernel_shape)
     assert len(dilations) == dim
     assert len(pads) == dim * 2
     assert len(strides) == dim
 
     input_shape = _get_data_shape(node.input[0], shapes)
-
     if input_shape == [0]:
-        # This is a dynamic shape.
-        shape = [0]
-        _store_data_shape(shape, shapes, node.op_type, node.output[0])
+        _store_data_shape([0], shapes, node.op_type, node.output[0])
         return
 
     # Get the output channel
-    if len(node.input) > 1:
-        # For Conv node, output channel is the first dim of weight.
-        weight_shape, _ = _get_shape(
-            node.input[1], shapes, initializers, explicit_shapes, False
-        )
-        output_channel = weight_shape[0]
-    else:
-        # For MaxPool or AvgPool node, output channel is the same as input.
-        output_channel = input_shape[1]  # Remove batch dim
+    # For Conv node, output channel is the first dim of weight.
+    # For MaxPool or AvgPool node, output channel is the same as input.
+    output_channel = (
+        _get_shape(node.input[1], shapes, initializers, explicit_shapes, False)[0][0]
+        if len(node.input) > 1
+        else input_shape[1]
+    )
 
     # Calculate the output size
     dim = len(kernel_shape)
@@ -680,10 +613,8 @@ def _infer_shape_of_pool(
         temp2 = dilations[i] * (kernel_shape[i] - 1)
         output_hw[i] = (input_shape[i + 2] + temp1 - temp2 - 1) / strides[i] + 1
         output_hw[i] = ceil(output_hw[i]) if ceil_mode else floor(output_hw[i])
-    shape = [input_shape[0], output_channel]  # (Batch, Channel)
-    for i in range(dim):
-        shape.append(output_hw[i])
 
+    shape = [input_shape[0], output_channel, *output_hw]
     _store_data_shape(shape, shapes, node.op_type, node.output[0])
 
 
