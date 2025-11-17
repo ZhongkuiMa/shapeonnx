@@ -1,0 +1,40 @@
+{
+  "embeddings": [
+    1,
+    30
+  ],
+  "predictions": [
+    1,
+    2
+  ],
+  "StatefulPartitionedCall/model_2/predictions/MatMul/ReadVariableOp:0": [
+    128,
+    2
+  ],
+  "StatefulPartitionedCall/model_2/predictions/BiasAdd/ReadVariableOp:0": [
+    2
+  ],
+  "StatefulPartitionedCall/model_2/dense_1/MatMul/ReadVariableOp:0": [
+    30,
+    128
+  ],
+  "StatefulPartitionedCall/model_2/dense_1/BiasAdd/ReadVariableOp:0": [
+    128
+  ],
+  "StatefulPartitionedCall/model_2/dense_1/MatMul:0": [
+    1,
+    128
+  ],
+  "StatefulPartitionedCall/model_2/dense_1/BiasAdd:0": [
+    1,
+    128
+  ],
+  "StatefulPartitionedCall/model_2/dense_1/Relu:0": [
+    1,
+    128
+  ],
+  "StatefulPartitionedCall/model_2/predictions/MatMul:0": [
+    1,
+    2
+  ]
+}

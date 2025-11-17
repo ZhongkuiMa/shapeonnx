@@ -263,11 +263,11 @@ if __name__ == "__main__":
     # success = compare_baseline(model, baselines_dir="baselines")
 
     # Example 3: Create baselines for all VNNComp benchmarks
-    # update_all_benchmarks(
-    #     benchmark_dir="benchmarks",
-    #     baselines_dir="baselines",
-    #     max_per_benchmark=20,
-    # )
+    update_all_benchmarks(
+        benchmark_dir="benchmarks",
+        baselines_dir="baselines",
+        max_per_benchmark=20,
+    )
 
     # Example 4: Verify all benchmarks against baselines
     verify_all_benchmarks(

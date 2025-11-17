@@ -1,0 +1,97 @@
+{
+  "onnx::Gemm_8": [
+    1,
+    792
+  ],
+  "cls/output": [
+    1,
+    10
+  ],
+  "fc.0.weight": [
+    200,
+    792
+  ],
+  "fc.0.bias": [
+    200
+  ],
+  "fc.2.weight": [
+    784,
+    200
+  ],
+  "fc.2.bias": [
+    784
+  ],
+  "cls/fc1.weight": [
+    32,
+    784
+  ],
+  "cls/fc1.bias": [
+    32
+  ],
+  "cls/fc2.weight": [
+    32,
+    32
+  ],
+  "cls/fc2.bias": [
+    32
+  ],
+  "cls/fc3.weight": [
+    10,
+    32
+  ],
+  "cls/fc3.bias": [
+    10
+  ],
+  "onnx::Reshape_13": [
+    -1,
+    1,
+    28,
+    28
+  ],
+  "cls/onnx::Reshape_7": [
+    -1,
+    784
+  ],
+  "input.1": [
+    1,
+    200
+  ],
+  "onnx::Gemm_10": [
+    1,
+    200
+  ],
+  "x_z": [
+    1,
+    784
+  ],
+  "onnx::Reshape_12": [
+    1,
+    784
+  ],
+  "output": [
+    1,
+    1,
+    28,
+    28
+  ],
+  "cls/onnx::Gemm_8": [
+    1,
+    784
+  ],
+  "cls/onnx::Relu_9": [
+    1,
+    32
+  ],
+  "cls/onnx::Gemm_10": [
+    1,
+    32
+  ],
+  "cls/onnx::Relu_11": [
+    1,
+    32
+  ],
+  "cls/onnx::Gemm_12": [
+    1,
+    32
+  ]
+}
