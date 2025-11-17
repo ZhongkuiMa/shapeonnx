@@ -121,12 +121,14 @@ if __name__ == "__main__":
     print(f"Collect {len(onnx_paths)} ONNX models.")
 
     # onnx_paths = [
-    #     "..\\..\\..\\vnncomp2024_benchmarks\\benchmarks\\cgan_2023\\onnx\\cGAN_imgSz32_nCh_3_small_transformer.onnx"
+    #     "..\\..\\..\\vnncomp2024_benchmarks\\benchmarks\\cctsdb_yolo_2023\\onnx\\patch-1.onnx"
+    #     #     "..\\..\\..\\vnncomp2024_benchmarks\\benchmarks\\ml4acopf_2023\\onnx\\118_ieee_ml4acopf.onnx"
     # ]
 
     import time
 
     failed_onnx_paths = []
+    # verbose = True
     verbose = False
 
     success_count = 0
