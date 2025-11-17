@@ -327,29 +327,28 @@ def infer_binary_op_shape(
     is_explicit = is_e1 or is_e2
     result = {"data": {}, "explicit": {}}
 
+    # Cache type checks to avoid redundant isinstance calls
+    is_list1 = isinstance(shape1, list)
+    is_list2 = isinstance(shape2, list)
+    is_int1 = isinstance(shape1, int)
+    is_int2 = isinstance(shape2, int)
+
     # Handle dynamic shapes
     if shape1 == [0] or shape2 == [0]:
         shape = [0]
     # Both are scalar shapes
-    elif (
-        isinstance(shape1, list)
-        and isinstance(shape2, list)
-        and not shape1
-        and not shape2
-    ):
+    elif is_list1 and is_list2 and not shape1 and not shape2:
         shape = []
     # Scalar arithmetic
-    elif (isinstance(shape1, int) or (isinstance(shape1, list) and not shape1)) and (
-        isinstance(shape2, int) or (isinstance(shape2, list) and not shape2)
-    ):
+    elif (is_int1 or (is_list1 and not shape1)) and (is_int2 or (is_list2 and not shape2)):
         val1 = (
             shape1
-            if isinstance(shape1, int)
+            if is_int1
             else get_explicit_shape(node.input[0], ctx.explicit_shapes)
         )
         val2 = (
             shape2
-            if isinstance(shape2, int)
+            if is_int2
             else get_explicit_shape(node.input[1], ctx.explicit_shapes)
         )
         if (
@@ -362,7 +361,7 @@ def infer_binary_op_shape(
         else:
             shape = int(compute_binary_op_value(node.op_type, val1, val2))
     # Broadcast tensor shapes
-    elif isinstance(shape1, list) and isinstance(shape2, list):
+    elif is_list1 and is_list2:
         shape = broadcast_shapes(shape1, shape2)
     else:
         raise RuntimeError(
@@ -1417,10 +1416,10 @@ def infer_onnx_shape(
                 "Constant nodes must be converted to initializers before shape inference."
             )
 
-        if node.op_type not in INFER_SHAPE_FUNC_MAPPING:
+        infer_func = INFER_SHAPE_FUNC_MAPPING.get(node.op_type)
+        if infer_func is None:
             raise NotImplementedError(f"Operator {node.op_type} is not supported.")
 
-        infer_func = INFER_SHAPE_FUNC_MAPPING[node.op_type]
         try:
             result = infer_func(node, ctx)
         except Exception as e:
@@ -1428,17 +1427,17 @@ def infer_onnx_shape(
                 f"Failed to infer shape for node {node.name} ({node.op_type}): {e}"
             ) from e
 
-        # Update shapes
+        # Update shapes directly
         if "data" in result:
-            for name, shape in result["data"].items():
-                store_data_shape(shape, data_shapes, name)
-                if verbose:
+            data_shapes.update(result["data"])
+            if verbose:
+                for name, shape in result["data"].items():
                     print(f"{node.op_type:<20} {name:<20} {shape}")
 
         if "explicit" in result:
-            for name, shape in result["explicit"].items():
-                store_explicit_shape(shape, explicit_shapes, name)
-                if verbose:
+            explicit_shapes.update(result["explicit"])
+            if verbose:
+                for name, shape in result["explicit"].items():
                     print(f"{node.op_type:<20} {name:<20} {shape} (explicit)")
 
     data_shapes.update(explicit_shapes)
