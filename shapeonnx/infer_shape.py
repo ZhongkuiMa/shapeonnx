@@ -5,7 +5,6 @@ import math
 import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
 import onnx
@@ -234,21 +233,18 @@ def broadcast_shapes(shape1: list[int], shape2: list[int]) -> list[int]:
 
 def infer_nochange_op_shape(
     node: NodeProto, ctx: ShapeInferenceContext
-) -> dict[str, Any]:
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for operators that preserve input shape.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape, is_explicit = get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
-    result = {}
     if is_explicit:
-        result["explicit"] = {node.output[0]: shape}
-    else:
-        result["data"] = {node.output[0]: shape}
-    return result
+        return [(None, shape)]
+    return [(shape, None)]
 
 
 def compute_binary_op_value(
@@ -314,18 +310,17 @@ def compute_explicit_binary_shape(
 
 def infer_binary_op_shape(
     node: NodeProto, ctx: ShapeInferenceContext
-) -> dict[str, Any]:
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for binary operators.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape1, is_e1 = get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
     shape2, is_e2 = get_shape(node.input[1], ctx.data_shapes, ctx.explicit_shapes)
     is_explicit = is_e1 or is_e2
-    result = {"data": {}, "explicit": {}}
 
     # Cache type checks to avoid redundant isinstance calls
     is_list1 = isinstance(shape1, list)
@@ -340,7 +335,9 @@ def infer_binary_op_shape(
     elif is_list1 and is_list2 and not shape1 and not shape2:
         shape = []
     # Scalar arithmetic
-    elif (is_int1 or (is_list1 and not shape1)) and (is_int2 or (is_list2 and not shape2)):
+    elif (is_int1 or (is_list1 and not shape1)) and (
+        is_int2 or (is_list2 and not shape2)
+    ):
         val1 = (
             shape1
             if is_int1
@@ -369,31 +366,30 @@ def infer_binary_op_shape(
         )
 
     if is_explicit:
-        result["explicit"][node.output[0]] = shape
-        return result
-
-    result["data"][node.output[0]] = shape
+        return [(None, shape)]
 
     # Check for explicit shape calculation
     e_shape1 = get_explicit_shape(node.input[0], ctx.explicit_shapes)
-    if e_shape1 is None or not isinstance(e_shape1, (int, list)):
-        return result
-    e_shape2 = get_explicit_shape(node.input[1], ctx.explicit_shapes)
-    if e_shape2 is None or not isinstance(e_shape2, (int, list)):
-        return result
+    if e_shape1 is not None and isinstance(e_shape1, (int, list)):
+        e_shape2 = get_explicit_shape(node.input[1], ctx.explicit_shapes)
+        if e_shape2 is not None and isinstance(e_shape2, (int, list)):
+            explicit_shape = compute_explicit_binary_shape(
+                node.op_type, e_shape1, e_shape2
+            )
+            return [(shape, explicit_shape)]
 
-    explicit_shape = compute_explicit_binary_shape(node.op_type, e_shape1, e_shape2)
-    result["explicit"][node.output[0]] = explicit_shape
-    return result
+    return [(shape, None)]
 
 
-def infer_argmax_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_argmax_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for ArgMax operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = get_onnx_attrs(node, ctx.initializers)
     axis, keepdims = attrs["axis"], attrs["keepdims"]
@@ -409,32 +405,34 @@ def infer_argmax_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str,
         if all(s == 1 for s in shape):
             shape = []
 
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
 def infer_batch_norm_shape(
     node: NodeProto, ctx: ShapeInferenceContext
-) -> dict[str, Any]:
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for BatchNormalization operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape = get_data_shape(node.input[0], ctx.data_shapes)
     if shape is None:
         raise RuntimeError(f"Cannot get shape of {node.input[0]}.")
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
-def infer_concat_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_concat_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Concat operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = get_onnx_attrs(node, ctx.initializers)
     axis = attrs["axis"]
@@ -450,53 +448,52 @@ def infer_concat_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str,
         else:
             shape_i, _ = get_shape(name, ctx.data_shapes, ctx.explicit_shapes)
         if shape_i == [0]:
-            return {"data": {node.output[0]: [0]}}
+            return [([0], None)]
         shape_list.append(shape_i)
 
     if is_explicit:
         shape = np.concatenate(shape_list, axis=axis).tolist()
-        return {"explicit": {node.output[0]: shape}}
+        return [(None, shape)]
 
-    # Handle mixed batch dimensions
+    # Handle mixed batch dimensions without mutating input shapes
     max_ndim = max(len(s) for s in shape_list)
+    normalized_shapes = []
     for s in shape_list:
-        if len(s) not in (max_ndim, max_ndim - 1):
+        s_len = len(s)
+        if s_len not in (max_ndim, max_ndim - 1):
             raise ValueError(f"Invalid shape {s}")
-        if len(s) == max_ndim - 1:
-            s.insert(0, 1)
+        normalized_shapes.append([1, *s] if s_len == max_ndim - 1 else s)
 
     # Sum along concat axis
-    shape = shape_list[0].copy()
-    for other_shape in shape_list[1:]:
+    shape = normalized_shapes[0].copy()
+    for other_shape in normalized_shapes[1:]:
         shape[axis] += other_shape[axis]
 
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
 def infer_constant_of_shape_shape(
     node: NodeProto, ctx: ShapeInferenceContext
-) -> dict[str, Any]:
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for ConstantOfShape operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape = get_explicit_shape(node.input[0], ctx.explicit_shapes)
     if shape is None:
         raise RuntimeError(f"Cannot get explicit shape of {node.input[0]}.")
-
-    result = {"data": {node.output[0]: shape}}
 
     if shape != [0]:
         # Check if value is constant integer, Maybe we create a shape constant
         value = get_onnx_attrs(node, ctx.initializers)["value"]
         if np.issubdtype(value.dtype, np.integer):
             constant = np.full(shape, value, dtype=value.dtype).tolist()
-            result["explicit"] = {node.output[0]: constant}
+            return [(shape, constant)]
 
-    return result
+    return [(shape, None)]
 
 
 def compute_convtranspose_output_hw(
@@ -538,13 +535,13 @@ def compute_convtranspose_output_hw(
 
 def infer_convtranspose_shape(
     node: NodeProto, ctx: ShapeInferenceContext
-) -> dict[str, Any]:
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for ConvTranspose operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = get_onnx_attrs(node, ctx.initializers)
     kernel_shape = attrs["kernel_shape"]
@@ -567,7 +564,7 @@ def infer_convtranspose_shape(
     if input_shape is None:
         raise RuntimeError(f"Cannot get shape of {node.input[0]}.")
     if input_shape == [0]:
-        return {"data": {node.output[0]: [0]}}
+        return [([0], None)]
 
     weight_shape = list(ctx.initializers[node.input[1]].dims)
     output_hw = compute_convtranspose_output_hw(
@@ -580,16 +577,18 @@ def infer_convtranspose_shape(
         strides,
     )
     shape = [input_shape[0], weight_shape[1], *output_hw]
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
-def infer_expand_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_expand_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Expand operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape1, is_e1 = get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
     shape2 = get_explicit_shape(node.input[1], ctx.explicit_shapes)
@@ -604,17 +603,19 @@ def infer_expand_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str,
     shape = broadcast_shapes(shape1, shape2)
 
     if is_e1:
-        return {"explicit": {node.output[0]: shape}}
-    return {"data": {node.output[0]: shape}}
+        return [(None, shape)]
+    return [(shape, None)]
 
 
-def infer_flatten_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_flatten_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Flatten operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape = get_data_shape(node.input[0], ctx.data_shapes)
     if shape is None:
@@ -626,16 +627,18 @@ def infer_flatten_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str
         prefix = math.prod(shape[:axis])
         shape = shape[:axis] + [total // prefix]
 
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
-def infer_gather_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_gather_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Gather operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     axis = get_onnx_attrs(node, ctx.initializers)["axis"]
     indices = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
@@ -650,7 +653,7 @@ def infer_gather_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str,
                 for i in range(len(shape))
                 if not (i == axis and is_int_indices)
             ]
-        return {"data": {node.output[0]: shape}}
+        return [(shape, None)]
 
     # Gather from explicit shape
     e_shape = get_explicit_shape(node.input[0], ctx.explicit_shapes)
@@ -671,16 +674,18 @@ def infer_gather_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str,
                 if isinstance(indices, list) and i < len(e_shape)
             ]
 
-    return {"explicit": {node.output[0]: e_shape}}
+    return [(None, e_shape)]
 
 
-def infer_gemm_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_gemm_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Gemm operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = get_onnx_attrs(node, ctx.initializers)
     trans_a, trans_b = attrs["transA"], attrs["transB"]
@@ -689,7 +694,7 @@ def infer_gemm_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, A
     shape2, _ = get_shape(node.input[1], ctx.data_shapes, ctx.explicit_shapes)
 
     if [0] in (shape1, shape2):
-        return {"data": {node.output[0]: [0]}}
+        return [([0], None)]
 
     if not isinstance(shape1, list) or not isinstance(shape2, list):
         raise RuntimeError(f"Cannot perform Gemm with shapes {shape1} and {shape2}.")
@@ -702,23 +707,25 @@ def infer_gemm_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, A
         shape2[-2], shape2[-1] = shape2[-1], shape2[-2]
 
     shape = shape2 if not shape1 else shape1[:-1] + shape2[-1:]
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
-def infer_matmul_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_matmul_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for MatMul operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape1, _ = get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
     shape2, _ = get_shape(node.input[1], ctx.data_shapes, ctx.explicit_shapes)
     assert isinstance(shape1, list) and isinstance(shape2, list)
 
     if [0] in (shape1, shape2):
-        return {"data": {node.output[0]: [0]}}
+        return [([0], None)]
 
     if len(shape2) <= 2:  # *-Vector, *-Matrix MatMul
         shape = [*shape1[:-1], *shape2[1:]]
@@ -728,7 +735,7 @@ def infer_matmul_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str,
     else:
         raise ValueError(f"Invalid shapes {shape1} and {shape2} for MatMul.")
 
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
 def compute_pool_output_hw(
@@ -760,13 +767,15 @@ def compute_pool_output_hw(
     return output_hw
 
 
-def infer_pool_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_pool_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for pooling operators (Conv, MaxPool, AveragePool).
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = get_onnx_attrs(node, ctx.initializers)
     kernel_shape = attrs["kernel_shape"]
@@ -786,7 +795,7 @@ def infer_pool_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, A
     if input_shape is None:
         raise RuntimeError(f"Cannot get shape of {node.input[0]}.")
     if input_shape == [0]:
-        return {"data": {node.output[0]: [0]}}
+        return [([0], None)]
 
     # Output channel: from weight for Conv, same as input for pooling
     if len(node.input) > 1:
@@ -801,23 +810,26 @@ def infer_pool_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, A
         input_shape, kernel_shape, dilations, pads, strides, ceil_mode
     )
     shape = [input_shape[0], output_channel, *output_hw]
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
-def infer_pad_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_pad_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Pad operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     input_shape, is_explicit = get_shape(
         node.input[0], ctx.data_shapes, ctx.explicit_shapes
     )
     if input_shape == [0]:
-        result = {"explicit" if is_explicit else "data": {node.output[0]: [0]}}
-        return result
+        if is_explicit:
+            return [(None, [0])]
+        return [([0], None)]
 
     if not isinstance(input_shape, list):
         raise RuntimeError(f"Input shape must be a list, got {input_shape}.")
@@ -831,17 +843,20 @@ def infer_pad_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, An
     combined_pads = [pads[i] + pads[i + dim] for i in range(dim)]
     shape = [s + p for s, p in zip(input_shape, combined_pads)]
 
-    result = {"explicit" if is_explicit else "data": {node.output[0]: shape}}
-    return result
+    if is_explicit:
+        return [(None, shape)]
+    return [(shape, None)]
 
 
-def infer_range_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_range_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Range operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     start = get_explicit_shape(node.input[0], ctx.explicit_shapes)
     limit = get_explicit_shape(node.input[1], ctx.explicit_shapes)
@@ -850,7 +865,7 @@ def infer_range_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, 
     if not (
         isinstance(start, int) and isinstance(limit, int) and isinstance(delta, int)
     ):
-        return {"data": {node.output[0]: [0]}}
+        return [([0], None)]
 
     if delta > 0:
         length = max(0, (limit - start + delta - 1) // delta)
@@ -859,16 +874,18 @@ def infer_range_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, 
     else:
         raise ValueError("Range step delta cannot be 0.")
 
-    return {"data": {node.output[0]: [length]}}
+    return [([length], None)]
 
 
-def infer_reduce_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_reduce_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for reduction operators (ReduceMean, ReduceSum).
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     keepdims = get_onnx_attrs(node, ctx.initializers)["keepdims"]
     axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
@@ -882,7 +899,7 @@ def infer_reduce_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str,
             shape[axis] = 1 if keepdims else 0
         shape = [x for x in shape if x != 0]
 
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
 def infer_reshape_output_shape(ori_shape: list[int], new_shape: list[int]) -> list[int]:
@@ -910,25 +927,27 @@ def infer_reshape_output_shape(ori_shape: list[int], new_shape: list[int]) -> li
     return result
 
 
-def infer_reshape_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_reshape_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Reshape operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     data_shape, _ = get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
     target_shape = get_explicit_shape(node.input[1], ctx.explicit_shapes)
 
     if not isinstance(data_shape, list) or not isinstance(target_shape, list):
-        return {"data": {node.output[0]: [0]}}
+        return [([0], None)]
 
     if target_shape == [0] or (data_shape == [0] and -1 in target_shape):
-        return {"data": {node.output[0]: [0]}}
+        return [([0], None)]
 
     shape = infer_reshape_output_shape(data_shape, target_shape)
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
 def create_resize_rounding_op(nearest_mode: str):
@@ -950,13 +969,15 @@ def create_resize_rounding_op(nearest_mode: str):
     raise NotImplementedError(f"Resize nearest_mode={nearest_mode} is not supported.")
 
 
-def infer_resize_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_resize_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Resize operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = get_onnx_attrs(node, ctx.initializers)
     align_mode = attrs["coordinate_transformation_mode"]
@@ -970,7 +991,7 @@ def infer_resize_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str,
     if input_shape is None:
         raise RuntimeError(f"Cannot get shape of {node.input[0]}.")
     if input_shape == [0]:
-        return {"data": {node.output[0]: [0]}}
+        return [([0], None)]
 
     op_round = create_resize_rounding_op(nearest_mode)
 
@@ -982,23 +1003,25 @@ def infer_resize_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str,
         raise NotImplementedError(f"Resize align_mode={align_mode} is not supported.")
 
     shape = [op_round(dim * scale) for dim, scale in zip(input_shape, scales)]
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
-def infer_shape_op_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_shape_op_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Shape operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape, is_explicit = get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
 
     if not is_explicit:
         if not isinstance(shape, list):
             raise RuntimeError(f"Expected list shape, got {shape}.")
-        return {"explicit": {node.output[0]: shape}}
+        return [(None, shape)]
 
     if isinstance(shape, int):
         result_shape = []
@@ -1009,7 +1032,7 @@ def infer_shape_op_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[st
     else:
         raise RuntimeError(f"Unexpected explicit shape type {type(shape)}.")
 
-    return {"explicit": {node.output[0]: result_shape}}
+    return [(None, result_shape)]
 
 
 def infer_sliced_shape(
@@ -1042,18 +1065,21 @@ def infer_sliced_shape(
     return new_shape
 
 
-def infer_slice_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_slice_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Slice operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     if any(name not in ctx.initializers for name in node.input[1:]):
         shape = [0]
-        key = "explicit" if node.input[0] in ctx.explicit_shapes else "data"
-        return {key: {node.output[0]: shape}}
+        if node.input[0] in ctx.explicit_shapes:
+            return [(None, shape)]
+        return [(shape, None)]
 
     starts = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
     ends = onnx.numpy_helper.to_array(ctx.initializers[node.input[2]]).tolist()
@@ -1077,7 +1103,7 @@ def infer_slice_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, 
             if shape != [0]
             else [0]
         )
-        return {"data": {node.output[0]: shape}}
+        return [(shape, None)]
 
     # Slice explicit shape
     e_shape = get_explicit_shape(node.input[0], ctx.explicit_shapes)
@@ -1091,23 +1117,25 @@ def infer_slice_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, 
         raise ValueError(f"Invalid axes {axes} for explicit shape slice.")
 
     e_shape = e_shape[starts[0] : ends[0] : steps[0]] if e_shape != [0] else [0]
-    return {"explicit": {node.output[0]: e_shape}}
+    return [(None, e_shape)]
 
 
-def infer_split_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_split_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Split operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape = get_data_shape(node.input[0], ctx.data_shapes)
     if shape is None:
         raise RuntimeError(f"Cannot get shape of {node.input[0]}.")
 
     if shape == [0]:
-        return {"data": {name: [0] for name in node.output}}
+        return [([0], None) for _ in node.output]
 
     attrs = get_onnx_attrs(node, ctx.initializers)
     axis = attrs["axis"]
@@ -1122,25 +1150,27 @@ def infer_split_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, 
     if axis < 0:
         axis += len(shape)
 
-    output_shapes = {}
+    output_shapes = []
     for split_size, output_name in zip(split_sizes, node.output):
         output_shape = shape[:axis] + [split_size] + shape[axis + 1 :]
-        output_shapes[output_name] = output_shape
+        output_shapes.append((output_shape, None))
 
-    return {"data": output_shapes}
+    return output_shapes
 
 
-def infer_squeeze_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_squeeze_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Squeeze operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     input_shape, _ = get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
     if input_shape == [0]:
-        return {"data": {node.output[0]: [0]}}
+        return [([0], None)]
 
     if not isinstance(input_shape, list):
         raise RuntimeError(f"Input shape must be a list, got {input_shape}.")
@@ -1167,18 +1197,18 @@ def infer_squeeze_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str
         if shape:
             shape = [input_shape[0]] + shape
 
-    return {"data": {node.output[0]: shape}}
+    return [(shape, None)]
 
 
 def infer_transpose_shape(
     node: NodeProto, ctx: ShapeInferenceContext
-) -> dict[str, Any]:
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Transpose operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = get_onnx_attrs(node, ctx.initializers)
     perm = attrs["perm"]
@@ -1190,7 +1220,7 @@ def infer_transpose_shape(
             shape = [shape[0], 1]
         else:
             shape = [shape[i] for i in perm] if shape != [0] else [0]
-        return {"data": {node.output[0]: shape}}
+        return [(shape, None)]
 
     # Transpose explicit shape
     e_shape = get_explicit_shape(node.input[0], ctx.explicit_shapes)
@@ -1204,7 +1234,7 @@ def infer_transpose_shape(
         e_shape = [e_shape[0], 1]
     else:
         e_shape = [e_shape[i] for i in perm] if e_shape != [0] else [0]
-    return {"explicit": {node.output[0]: e_shape}}
+    return [(None, e_shape)]
 
 
 def infer_unsqueeze_output_shape(ori_shape: list[int], axes: list[int]) -> list[int]:
@@ -1225,13 +1255,13 @@ def infer_unsqueeze_output_shape(ori_shape: list[int], axes: list[int]) -> list[
 
 def infer_unsqueeze_shape(
     node: NodeProto, ctx: ShapeInferenceContext
-) -> dict[str, Any]:
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Unsqueeze operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape, is_explicit = get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
     axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
@@ -1241,7 +1271,7 @@ def infer_unsqueeze_shape(
         if axes != [0]:
             raise ValueError(f"Invalid axes {axes} for scalar unsqueeze.")
         result_shape = [shape]
-        return {"explicit": {node.output[0]: result_shape}}
+        return [(None, result_shape)]
 
     if not isinstance(shape, list):
         raise RuntimeError(f"Expected list shape for unsqueeze, got {shape}.")
@@ -1249,17 +1279,20 @@ def infer_unsqueeze_shape(
     if shape != [0]:
         shape = infer_unsqueeze_output_shape(shape, axes)
 
-    key = "explicit" if is_explicit else "data"
-    return {key: {node.output[0]: shape}}
+    if is_explicit:
+        return [(None, shape)]
+    return [(shape, None)]
 
 
-def infer_where_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, Any]:
+def infer_where_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
     Infer shape for Where operator.
 
     :param node: ONNX node
     :param ctx: Shape inference context
-    :return: Updated shapes dictionary
+    :return: List of (data_shape, explicit_shape) tuples
     """
     shape1, is_e = get_shape(node.input[1], ctx.data_shapes, ctx.explicit_shapes)
     shape2, _ = get_shape(node.input[2], ctx.data_shapes, ctx.explicit_shapes)
@@ -1269,27 +1302,35 @@ def infer_where_shape(node: NodeProto, ctx: ShapeInferenceContext) -> dict[str, 
     else:
         shape = shape1 if shape1 != [0] else (shape2 if shape2 != [0] else [0])
 
-    result = {"explicit" if is_e else "data": {node.output[0]: shape}}
+    # If is_e, return explicit update
+    if is_e:
+        return [(None, shape)]
 
-    if not is_e:
-        # Try explicit shape calculation
-        condition = get_explicit_shape(node.input[0], ctx.explicit_shapes)
-        value1 = get_explicit_shape(node.input[1], ctx.explicit_shapes)
-        value2 = get_explicit_shape(node.input[2], ctx.explicit_shapes)
+    # Not explicit - return data update, but also try explicit shape calculation
+    # Try explicit shape calculation
+    condition = get_explicit_shape(node.input[0], ctx.explicit_shapes)
+    value1 = get_explicit_shape(node.input[1], ctx.explicit_shapes)
+    value2 = get_explicit_shape(node.input[2], ctx.explicit_shapes)
 
-        # Process the where operation if all inputs have explicit shapes
-        if all(isinstance(v, list) for v in [condition, value1, value2]):
-            new_shape = value1.copy()
-            for i in range(len(condition)):
-                if condition[i] == 0:
-                    new_shape[i] = value2[i]
-            result["explicit"] = {node.output[0]: new_shape}
+    # Process the where operation if all inputs have explicit shapes
+    if all(isinstance(v, list) for v in [condition, value1, value2]):
+        new_shape = value1.copy()
+        for i in range(len(condition)):
+            if condition[i] == 0:
+                new_shape[i] = value2[i]
+        return [(shape, new_shape)]
 
-    return result
+    return [(shape, None)]
 
 
 # Operator inference function mapping
-ShapeInferFunc = Callable[[NodeProto, ShapeInferenceContext], dict[str, Any]]
+# Return type: list of (data_shape, explicit_shape) tuples
+# - Single-output ops: list with 1 element [(data_shape, explicit_shape)]
+# - Multi-output ops: list with N elements, one per output
+ShapeInferFunc = Callable[
+    [NodeProto, ShapeInferenceContext],
+    list[tuple[int | list[int] | None, int | list[int] | None]],
+]
 INFER_SHAPE_FUNC_MAPPING: dict[str, ShapeInferFunc] = {
     "Add": infer_binary_op_shape,
     "ArgMax": infer_argmax_shape,
@@ -1413,7 +1454,8 @@ def infer_onnx_shape(
     for node in nodes:
         if node.op_type == "Constant":
             raise RuntimeError(
-                "Constant nodes must be converted to initializers before shape inference."
+                "Constant nodes must be converted to initializers before "
+                "shape inference."
             )
 
         infer_func = INFER_SHAPE_FUNC_MAPPING.get(node.op_type)
@@ -1421,24 +1463,26 @@ def infer_onnx_shape(
             raise NotImplementedError(f"Operator {node.op_type} is not supported.")
 
         try:
-            result = infer_func(node, ctx)
+            results = infer_func(node, ctx)
         except Exception as e:
             raise RuntimeError(
                 f"Failed to infer shape for node {node.name} ({node.op_type}): {e}"
             ) from e
 
-        # Update shapes directly
-        if "data" in result:
-            data_shapes.update(result["data"])
-            if verbose:
-                for name, shape in result["data"].items():
-                    print(f"{node.op_type:<20} {name:<20} {shape}")
+        # Assign shapes to outputs - zip results with output names
+        for output_name, (data_shape, explicit_shape) in zip(node.output, results):
+            if data_shape is not None:
+                data_shapes[output_name] = data_shape
+                if verbose:
+                    print(f"{node.op_type:<20} {output_name:<20} {data_shape}")
 
-        if "explicit" in result:
-            explicit_shapes.update(result["explicit"])
-            if verbose:
-                for name, shape in result["explicit"].items():
-                    print(f"{node.op_type:<20} {name:<20} {shape} (explicit)")
+            if explicit_shape is not None:
+                explicit_shapes[output_name] = explicit_shape
+                if verbose:
+                    print(
+                        f"{node.op_type:<20} {output_name:<20} {explicit_shape} "
+                        f"(explicit)"
+                    )
 
     data_shapes.update(explicit_shapes)
     return data_shapes
