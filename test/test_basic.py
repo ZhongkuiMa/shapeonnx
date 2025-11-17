@@ -1,15 +1,13 @@
-"""
-Basic functionality test for shapeonnx optimizations.
+"""Basic functionality test for shapeonnx optimizations.
+
 Tests that the performance improvements don't break functionality.
 """
 
 import sys
 
-# Add parent directory to path
-sys.path.insert(0, "../..")
-
-import onnx
 import numpy as np
+import onnx
+
 from shapeonnx import infer_onnx_shape
 from shapeonnx.shapeonnx.utils import (
     get_input_nodes,
@@ -20,7 +18,10 @@ from shapeonnx.shapeonnx.utils import (
 
 
 def create_simple_model():
-    """Create a simple ONNX model for testing."""
+    """Create a simple ONNX model for testing.
+
+    :return: ONNX ModelProto for testing
+    """
     # Input
     input_tensor = onnx.helper.make_tensor_value_info(
         "input", onnx.TensorProto.FLOAT, [1, 3, 224, 224]
@@ -90,7 +91,11 @@ def create_simple_model():
 
 
 def test_basic_inference():
-    """Test basic shape inference."""
+    """Test basic shape inference.
+
+    :return: True if test passes
+    :raises AssertionError: If shapes don't match expected values
+    """
     print("Creating test model...")
     model = create_simple_model()
 
