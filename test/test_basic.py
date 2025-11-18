@@ -1,7 +1,7 @@
-"""Basic functionality test for shapeonnx optimizations.
+"""Basic functionality test for shapeonnx optimizations."""
 
-Tests that the performance improvements don't break functionality.
-"""
+__docformat__ = "restructuredtext"
+__all__ = []
 
 import sys
 
@@ -10,43 +10,38 @@ import onnx
 
 from shapeonnx import infer_onnx_shape
 from shapeonnx.shapeonnx.utils import (
+    convert_constant_to_initializer,
+    get_initializers,
     get_input_nodes,
     get_output_nodes,
-    get_initializers,
-    convert_constant_to_initializer,
 )
 
 
 def create_simple_model():
-    """Create a simple ONNX model for testing.
+    """
+    Create a simple ONNX model for testing.
 
     :return: ONNX ModelProto for testing
     """
-    # Input
     input_tensor = onnx.helper.make_tensor_value_info(
         "input", onnx.TensorProto.FLOAT, [1, 3, 224, 224]
     )
 
-    # Output
     output_tensor = onnx.helper.make_tensor_value_info(
         "output", onnx.TensorProto.FLOAT, [1, 10]
     )
 
-    # Weights for first layer
     w1 = np.random.randn(64, 3, 7, 7).astype(np.float32)
     w1_init = onnx.numpy_helper.from_array(w1, name="w1")
 
-    # Weights for second layer (Gemm)
-    w2 = np.random.randn(12544, 10).astype(np.float32)  # 64*14*14 = 12544
+    w2 = np.random.randn(12544, 10).astype(np.float32)
     b2 = np.random.randn(10).astype(np.float32)
     w2_init = onnx.numpy_helper.from_array(w2, name="w2")
     b2_init = onnx.numpy_helper.from_array(b2, name="b2")
 
-    # Shape constant for reshape
     shape_const = np.array([1, -1], dtype=np.int64)
     shape_init = onnx.numpy_helper.from_array(shape_const, name="shape_const")
 
-    # Nodes
     conv = onnx.helper.make_node(
         "Conv",
         inputs=["input", "w1"],
@@ -74,7 +69,6 @@ def create_simple_model():
         "Gemm", inputs=["reshape_out", "w2", "b2"], outputs=["output"]
     )
 
-    # Graph
     graph = onnx.helper.make_graph(
         [conv, relu, maxpool, reshape, gemm],
         "test_model",
@@ -83,7 +77,6 @@ def create_simple_model():
         [w1_init, w2_init, b2_init, shape_init],
     )
 
-    # Model
     model = onnx.helper.make_model(graph)
     model.opset_import[0].version = 21
 
@@ -91,30 +84,29 @@ def create_simple_model():
 
 
 def test_basic_inference():
-    """Test basic shape inference.
+    """
+    Test basic shape inference.
 
     :return: True if test passes
-    :raises AssertionError: If shapes don't match expected values
     """
-    print("Creating test model...")
+    print("Creating test model")
     model = create_simple_model()
 
-    print("Extracting model components...")
+    print("Extracting model components")
     initializers = get_initializers(model)
     input_nodes = get_input_nodes(model, initializers, has_batch_dim=True)
     output_nodes = get_output_nodes(model, has_batch_dim=True)
     nodes = convert_constant_to_initializer(list(model.graph.node), initializers)
 
-    print("Running shape inference...")
+    print("Running shape inference")
     shapes = infer_onnx_shape(
         input_nodes, output_nodes, nodes, initializers, has_batch_dim=True, verbose=True
     )
 
-    print("\n=== Inferred Shapes ===")
+    print("\nInferred Shapes")
     for name, shape in shapes.items():
         print(f"{name:20} {shape}")
 
-    # Verify expected shapes
     assert shapes["input"] == [
         1,
         3,
@@ -143,10 +135,9 @@ def test_basic_inference():
         1,
         200704,
     ], f"Reshape output shape mismatch: {shapes['reshape_out']}"
-    # Note: Gemm output will depend on actual inference
 
-    print("\nAll assertions passed!")
-    print("Performance optimizations are working correctly!")
+    print("\nAll assertions passed")
+    print("Performance optimizations are working correctly")
     return True
 
 
@@ -158,7 +149,7 @@ if __name__ == "__main__":
         print("=" * 50)
         sys.exit(0)
     except Exception as e:
-        print(f"\n✗ Test failed with error: {e}")
+        print(f"\nTest failed with error: {e}")
         import traceback
 
         traceback.print_exc()

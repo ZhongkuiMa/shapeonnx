@@ -1,13 +1,16 @@
+"""ONNX node attribute extraction and validation."""
+
 __docformat__ = "restructuredtext"
 __all__ = ["get_onnx_attrs"]
 
+from collections.abc import Callable
 from typing import Any
 
 import onnx
 from onnx import NodeProto, TensorProto
 
 # Attribute type extractors
-EXTRACT_ATTR_MAP: dict[int, callable] = {
+EXTRACT_ATTR_MAP: dict[int, Any] = {
     0: lambda x: None,  # UNDEFINED
     1: lambda x: x.f,  # FLOAT
     2: lambda x: x.i,  # INT
@@ -30,38 +33,38 @@ def scan_attrs(default_attrs: dict[str, Any], attrs) -> dict[str, Any]:
     :param default_attrs: Default attribute values
     :param attrs: ONNX node attributes
     :return: Extracted attributes merged with defaults
-    :raises NotImplementedError: If attribute type is not supported
     """
     result = default_attrs.copy()
     for attr in attrs:
         extract = EXTRACT_ATTR_MAP.get(attr.type)
         if extract is None:
-            raise NotImplementedError(f"{attr} with type {attr.type} is not supported.")
+            raise NotImplementedError(
+                f"Attribute {attr.name} with type {attr.type} is not supported"
+            )
         result[attr.name] = extract(attr)
     return result
 
 
-def check_pads_symmetric(pads: tuple[int]) -> None:
+def check_pads_symmetric(pads: tuple[int, ...]) -> None:
     """
-    Verify that padding is symmetric (start pad equals end pad).
+    Verify that padding is symmetric.
 
     :param pads: Padding tuple
-    :raises ValueError: If pads are not symmetric
     """
     dims = len(pads) // 2
     for i in range(dims):
         if pads[i] != pads[i + dims]:
             raise ValueError(
-                f"Asymmetric padding {pads} is not supported. "
-                f"Start and end padding must be equal."
+                f"Asymmetric padding {pads} is not supported; "
+                "start and end padding must be equal"
             )
 
 
 def infer_kernel_defaults(
-    attrs: dict[str, Any], kernel_shape: tuple[int]
+    attrs: dict[str, Any], kernel_shape: tuple[int, ...]
 ) -> dict[str, Any]:
     """
-    Infer default values for dilations, strides, and pads based on kernel shape.
+    Infer default values for dilations, strides, and pads.
 
     :param attrs: Attribute dictionary
     :param kernel_shape: Kernel dimensions
@@ -83,10 +86,9 @@ def validate_auto_pad(auto_pad: str, op_name: str) -> None:
 
     :param auto_pad: auto_pad value
     :param op_name: Operator name for error message
-    :raises ValueError: If auto_pad is not NOTSET
     """
     if auto_pad != "NOTSET":
-        raise ValueError(f"{op_name} with auto_pad={auto_pad} is not supported.")
+        raise ValueError(f"{op_name} with auto_pad={auto_pad} is not supported")
 
 
 def get_attrs_argmax(
@@ -99,7 +101,7 @@ def get_attrs_argmax(
     if attrs["select_last_index"] != 0:
         raise ValueError(
             f"ArgMax with select_last_index={attrs['select_last_index']} "
-            "is not supported."
+            "is not supported"
         )
     return attrs
 
@@ -121,7 +123,7 @@ def get_attrs_avgpool(
         node.attribute,
     )
     if attrs["kernel_shape"] is None:
-        raise ValueError("AveragePool kernel_shape is required.")
+        raise ValueError("AveragePool kernel_shape is required")
     validate_auto_pad(attrs["auto_pad"], "AveragePool")
     infer_kernel_defaults(attrs, attrs["kernel_shape"])
     check_pads_symmetric(attrs["pads"])
@@ -138,11 +140,11 @@ def get_attrs_batchnorm(
     if attrs["training_mode"] != 0:
         raise ValueError(
             f"BatchNormalization with training_mode={attrs['training_mode']} "
-            "is not supported."
+            "is not supported"
         )
     if len(node.output) > 1:
         raise ValueError(
-            f"BatchNormalization with {len(node.output)} outputs is not supported."
+            f"BatchNormalization with {len(node.output)} outputs is not supported"
         )
     return attrs
 
@@ -153,9 +155,9 @@ def get_attrs_cast(
     """Extract Cast operator attributes."""
     attrs = scan_attrs({"saturate": 1, "to": None}, node.attribute)
     if attrs["to"] is None:
-        raise ValueError("Cast 'to' attribute is required.")
+        raise ValueError("Cast 'to' attribute is required")
     if attrs["saturate"] != 1:
-        raise ValueError(f"Cast with saturate={attrs['saturate']} is not supported.")
+        raise ValueError(f"Cast with saturate={attrs['saturate']} is not supported")
     return attrs
 
 
@@ -165,7 +167,7 @@ def get_attrs_concat(
     """Extract Concat operator attributes."""
     attrs = scan_attrs({"axis": None}, node.attribute)
     if attrs["axis"] is None:
-        raise ValueError("Concat axis is required.")
+        raise ValueError("Concat axis is required")
     return attrs
 
 
@@ -186,7 +188,6 @@ def get_attrs_conv(
     )
     validate_auto_pad(attrs["auto_pad"], "Conv")
 
-    # Infer kernel_shape from weight if not specified
     if attrs["kernel_shape"] is None:
         weight = initializers[node.input[1]]
         attrs["kernel_shape"] = tuple(weight.dims[2:])
@@ -197,9 +198,9 @@ def get_attrs_conv(
 
 
 def get_attrs_constant(*args, **kwargs) -> dict[str, Any]:
-    """Extract Constant operator attributes (not supported)."""
+    """Extract Constant operator attributes."""
     raise RuntimeError(
-        "Constant nodes are not supported. Convert them to initializers first."
+        "Constant nodes are not supported; convert them to initializers first"
     )
 
 
@@ -221,10 +222,9 @@ def get_attrs_convtranspose(
         node.attribute,
     )
     if attrs["group"] != 1:
-        raise ValueError(f"ConvTranspose with group={attrs['group']} is not supported.")
+        raise ValueError(f"ConvTranspose with group={attrs['group']} is not supported")
     validate_auto_pad(attrs["auto_pad"], "ConvTranspose")
 
-    # Infer kernel_shape from weight if not specified
     if attrs["kernel_shape"] is None:
         weight = initializers[node.input[1]]
         attrs["kernel_shape"] = tuple(weight.dims[2:])
@@ -242,11 +242,11 @@ def get_attrs_constantofshape(
     """Extract ConstantOfShape operator attributes."""
     attrs = scan_attrs({"value": None}, node.attribute)
     if attrs["value"] is None:
-        raise ValueError("ConstantOfShape value is required.")
+        raise ValueError("ConstantOfShape value is required")
     return attrs
 
 
-def get_attrs_simple(defaults: dict[str, Any]):
+def get_attrs_simple(defaults: dict[str, Any]) -> Callable:
     """
     Create a simple attribute extractor for operators with only defaults.
 
@@ -254,7 +254,9 @@ def get_attrs_simple(defaults: dict[str, Any]):
     :return: Attribute extraction function
     """
 
-    def extractor(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
+    def extractor(
+        node: NodeProto, initializers: dict[str, TensorProto]
+    ) -> dict[str, Any]:
         return scan_attrs(defaults, node.attribute)
 
     return extractor
@@ -277,21 +279,21 @@ def get_attrs_maxpool(
         node.attribute,
     )
     if attrs["kernel_shape"] is None:
-        raise ValueError("MaxPool kernel_shape is required.")
+        raise ValueError("MaxPool kernel_shape is required")
     if attrs["storage_order"] != 0:
         raise ValueError(
-            f"MaxPool with storage_order={attrs['storage_order']} is not supported."
+            f"MaxPool with storage_order={attrs['storage_order']} is not supported"
         )
     validate_auto_pad(attrs["auto_pad"], "MaxPool")
     infer_kernel_defaults(attrs, attrs["kernel_shape"])
     check_pads_symmetric(attrs["pads"])
 
     if len(node.output) > 1:
-        raise ValueError(f"MaxPool with {len(node.output)} outputs is not supported.")
+        raise ValueError(f"MaxPool with {len(node.output)} outputs is not supported")
     return attrs
 
 
-def get_attrs_reduce(op_name: str):
+def get_attrs_reduce(op_name: str) -> Callable:
     """
     Create attribute extractor for reduce operators.
 
@@ -299,12 +301,14 @@ def get_attrs_reduce(op_name: str):
     :return: Attribute extraction function
     """
 
-    def extractor(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
+    def extractor(
+        node: NodeProto, initializers: dict[str, TensorProto]
+    ) -> dict[str, Any]:
         attrs = scan_attrs({"keepdims": 1, "noop_with_empty_axes": 0}, node.attribute)
         if attrs["noop_with_empty_axes"] != 0:
             raise ValueError(
                 f"{op_name} with noop_with_empty_axes={attrs['noop_with_empty_axes']} "
-                "is not supported."
+                "is not supported"
             )
         return attrs
 
@@ -317,7 +321,9 @@ def get_attrs_reshape(
     """Extract Reshape operator attributes."""
     attrs = scan_attrs({"allowzero": 0}, node.attribute)
     if attrs["allowzero"] != 0:
-        raise ValueError(f"Reshape with allowzero={attrs['allowzero']} is not supported.")
+        raise ValueError(
+            f"Reshape with allowzero={attrs['allowzero']} is not supported"
+        )
     return attrs
 
 
@@ -344,7 +350,7 @@ def get_attrs_resize(
 def get_attrs_scatter(
     node: NodeProto, initializers: dict[str, TensorProto]
 ) -> dict[str, Any]:
-    """Extract Scatter operator attributes (delegates to ScatterElements)."""
+    """Extract Scatter operator attributes."""
     return get_attrs_scatterelement(node, initializers)
 
 
@@ -355,7 +361,7 @@ def get_attrs_scatterelement(
     attrs = scan_attrs({"axis": 0, "reduction": "none"}, node.attribute)
     if attrs["reduction"] != "none":
         raise ValueError(
-            f"ScatterElements with reduction={attrs['reduction']} is not supported."
+            f"ScatterElements with reduction={attrs['reduction']} is not supported"
         )
     return attrs
 
@@ -367,7 +373,7 @@ def get_attrs_scatternd(
     attrs = scan_attrs({"reduction": "none"}, node.attribute)
     if attrs["reduction"] != "none":
         raise ValueError(
-            f"ScatterND with reduction={attrs['reduction']} is not supported."
+            f"ScatterND with reduction={attrs['reduction']} is not supported"
         )
     return attrs
 
@@ -378,9 +384,9 @@ def get_attrs_shape(
     """Extract Shape operator attributes."""
     attrs = scan_attrs({"end": -1, "start": 0}, node.attribute)
     if attrs["end"] != -1:
-        raise ValueError(f"Shape with end={attrs['end']} is not supported.")
+        raise ValueError(f"Shape with end={attrs['end']} is not supported")
     if attrs["start"] != 0:
-        raise ValueError(f"Shape with start={attrs['start']} is not supported.")
+        raise ValueError(f"Shape with start={attrs['start']} is not supported")
     return attrs
 
 
@@ -390,12 +396,13 @@ def get_attrs_transpose(
     """Extract Transpose operator attributes."""
     attrs = scan_attrs({"perm": None}, node.attribute)
     if attrs["perm"] is None:
-        raise ValueError("Transpose perm is required.")
+        raise ValueError("Transpose perm is required")
     return attrs
 
 
-# Operator attribute extraction mapping
-EXTRACT_ATTRS_MAP: dict[str, callable] = {
+EXTRACT_ATTRS_MAP: dict[
+    str, Callable[[NodeProto, dict[str, TensorProto]], dict[str, Any]]
+] = {
     "ArgMax": get_attrs_argmax,
     "AveragePool": get_attrs_avgpool,
     "BatchNormalization": get_attrs_batchnorm,
@@ -438,7 +445,6 @@ def get_onnx_attrs(
     :param node: ONNX node
     :param initializers: Model initializers
     :return: Dictionary of extracted attributes
-    :raises NotImplementedError: If operator is not supported
     """
     extractor = EXTRACT_ATTRS_MAP.get(node.op_type)
     if extractor is None:

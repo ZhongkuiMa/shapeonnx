@@ -1,19 +1,15 @@
-"""Baseline management for ShapeONNX regression testing.
+"""Baseline management for ShapeONNX regression testing."""
 
-This module provides functions to create and compare shape inference baselines.
-Each ONNX model has its own JSON baseline file containing inferred shapes.
-
-Usage::
-
-    # Create/update baseline for one model
-    update_baseline("path/to/model.onnx")
-
-    # Compare one model against baseline
-    compare_baseline("path/to/model.onnx")
-
-    # Batch: Create baselines for all VNNComp benchmarks
-    update_all_benchmarks()
-"""
+__docformat__ = "restructuredtext"
+__all__ = [
+    "get_baseline_path",
+    "load_baseline_shapes",
+    "save_baseline_shapes",
+    "update_baseline",
+    "compare_baseline",
+    "update_all_benchmarks",
+    "verify_all_benchmarks",
+]
 
 import json
 import os
@@ -21,44 +17,39 @@ import time
 
 from shapeonnx import infer_onnx_shape
 from shapeonnx.shapeonnx.utils import (
+    convert_constant_to_initializer,
     get_initializers,
     get_input_nodes,
     get_output_nodes,
-    convert_constant_to_initializer,
 )
 from utils import (
-    load_onnx_model,
-    if_has_batch_dim,
-    find_benchmarks_folders,
     find_all_onnx_files,
+    find_benchmarks_folders,
     get_benchmark_name,
+    if_has_batch_dim,
+    load_onnx_model,
 )
 
 
 def get_baseline_path(onnx_path: str, baselines_dir: str = "baselines") -> str:
-    """Get baseline JSON path for an ONNX model with benchmark subdirectory.
-
-    The baseline file is stored in a subdirectory matching the benchmark name.
-    For example: benchmarks/acasxu_2023/model.onnx -> baselines/acasxu_2023/model.json
+    """
+    Get baseline JSON path for an ONNX model.
 
     :param onnx_path: Path to ONNX model file
     :param baselines_dir: Root directory to store baseline files
     :return: Path to baseline JSON file
     """
-    # Extract benchmark name from path
     benchmark_name = get_benchmark_name(onnx_path)
-
-    # Get model basename without .onnx extension
     basename = os.path.basename(onnx_path)
     if basename.endswith(".onnx"):
         basename = basename[:-5]
 
-    # Create path with benchmark subdirectory
     return os.path.join(baselines_dir, benchmark_name, f"{basename}.json")
 
 
-def load_baseline_shapes(baseline_path: str):
-    """Load shapes from baseline JSON file.
+def load_baseline_shapes(baseline_path: str) -> dict[str, list[int]] | None:
+    """
+    Load shapes from baseline JSON file.
 
     :param baseline_path: Path to baseline JSON file
     :return: Dictionary of shapes, or None if file not found
@@ -69,8 +60,9 @@ def load_baseline_shapes(baseline_path: str):
         return json.load(f)
 
 
-def save_baseline_shapes(shapes: dict, baseline_path: str):
-    """Save shapes dict to baseline JSON file.
+def save_baseline_shapes(shapes: dict[str, list[int]], baseline_path: str) -> None:
+    """
+    Save shapes dict to baseline JSON file.
 
     :param shapes: Dictionary mapping tensor names to shapes
     :param baseline_path: Path to baseline JSON file
@@ -80,8 +72,11 @@ def save_baseline_shapes(shapes: dict, baseline_path: str):
         json.dump(shapes, f, indent=2)
 
 
-def update_baseline(onnx_path: str, baselines_dir: str = "baselines"):
-    """Create or update baseline for ONE ONNX model.
+def update_baseline(
+    onnx_path: str, baselines_dir: str = "baselines"
+) -> dict[str, list[int]]:
+    """
+    Create or update baseline for one ONNX model.
 
     :param onnx_path: Path to ONNX model file
     :param baselines_dir: Root directory to store baseline files
@@ -116,7 +111,8 @@ def update_baseline(onnx_path: str, baselines_dir: str = "baselines"):
 
 
 def compare_baseline(onnx_path: str, baselines_dir: str = "baselines") -> bool:
-    """Compare ONE ONNX model's shapes against its baseline.
+    """
+    Compare one ONNX model against its baseline.
 
     :param onnx_path: Path to ONNX model file
     :param baselines_dir: Root directory containing baseline files
@@ -164,11 +160,10 @@ def compare_baseline(onnx_path: str, baselines_dir: str = "baselines") -> bool:
 
 
 def update_all_benchmarks(
-    benchmark_dir: str,
-    baselines_dir: str,
-    max_per_benchmark: int = 20,
-):
-    """Helper to create/update baselines for all VNNComp models.
+    benchmark_dir: str, baselines_dir: str, max_per_benchmark: int = 20
+) -> None:
+    """
+    Create or update baselines for all VNNComp models.
 
     :param benchmark_dir: Root directory of benchmarks
     :param baselines_dir: Root directory to store baseline files
@@ -204,11 +199,10 @@ def update_all_benchmarks(
 
 
 def verify_all_benchmarks(
-    benchmark_dir: str,
-    baselines_dir: str,
-    max_per_benchmark: int = 20,
-):
-    """Helper to verify all VNNComp models against baselines.
+    benchmark_dir: str, baselines_dir: str, max_per_benchmark: int = 20
+) -> None:
+    """
+    Verify all VNNComp models against baselines.
 
     :param benchmark_dir: Root directory of benchmarks
     :param baselines_dir: Root directory containing baseline files
