@@ -7,8 +7,8 @@ import os
 import time
 
 from utils import (
-    find_all_onnx_files,
     find_benchmarks_folders,
+    get_all_onnx_files,
     if_has_batch_dim,
     infer_shape,
     load_onnx_model,
@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     benchmark_dirs = find_benchmarks_folders(dir_name)
     print(f"Collected {len(benchmark_dirs)} benchmark directories")
-    onnx_paths = find_all_onnx_files(benchmark_dirs)
+    onnx_paths = get_all_onnx_files(benchmark_dirs)
     print(f"Collected {len(onnx_paths)} ONNX models")
 
     failed_onnx_paths = []

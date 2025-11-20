@@ -23,8 +23,8 @@ from shapeonnx.shapeonnx.utils import (
     get_output_nodes,
 )
 from utils import (
-    find_all_onnx_files,
     find_benchmarks_folders,
+    get_all_onnx_files,
     get_benchmark_name,
     if_has_batch_dim,
     load_onnx_model,
@@ -39,12 +39,11 @@ def get_baseline_path(onnx_path: str, baselines_dir: str = "baselines") -> str:
     :param baselines_dir: Root directory to store baseline files
     :return: Path to baseline JSON file
     """
-    benchmark_name = get_benchmark_name(onnx_path)
-    basename = os.path.basename(onnx_path)
-    if basename.endswith(".onnx"):
-        basename = basename[:-5]
-
-    return os.path.join(baselines_dir, benchmark_name, f"{basename}.json")
+    return (
+        onnx_path.replace("benchmarks", baselines_dir)
+        .replace(".onnx", ".json")
+        .replace(f"onnx{os.sep}", "")
+    )
 
 
 def load_baseline_shapes(baseline_path: str) -> dict[str, list[int]] | None:
@@ -170,7 +169,7 @@ def update_all_benchmarks(
     :param max_per_benchmark: Maximum models per benchmark to process
     """
     benchmark_dirs = find_benchmarks_folders(benchmark_dir)
-    onnx_files = find_all_onnx_files(benchmark_dirs, num_limit=max_per_benchmark)
+    onnx_files = get_all_onnx_files(benchmark_dirs, max_per_benchmark)
     print(f"Creating baselines for {len(onnx_files)} models")
 
     success = 0
@@ -209,7 +208,7 @@ def verify_all_benchmarks(
     :param max_per_benchmark: Maximum models per benchmark to verify
     """
     benchmark_dirs = find_benchmarks_folders(benchmark_dir)
-    onnx_files = find_all_onnx_files(benchmark_dirs, num_limit=max_per_benchmark)
+    onnx_files = get_all_onnx_files(benchmark_dirs, max_per_benchmark)
     print(f"Verifying {len(onnx_files)} models")
 
     passed = 0
@@ -257,11 +256,11 @@ if __name__ == "__main__":
     # success = compare_baseline(model, baselines_dir="baselines")
 
     # Example 3: Create baselines for all VNNComp benchmarks
-    # update_all_benchmarks(
-    #     benchmark_dir="benchmarks",
-    #     baselines_dir="baselines",
-    #     max_per_benchmark=20,
-    # )
+    update_all_benchmarks(
+        benchmark_dir="benchmarks",
+        baselines_dir="baselines",
+        max_per_benchmark=20,
+    )
 
     # Example 4: Verify all benchmarks against baselines
     verify_all_benchmarks(

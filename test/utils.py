@@ -3,8 +3,7 @@
 __docformat__ = "restructuredtext"
 __all__ = [
     "find_benchmarks_folders",
-    "find_onnx_folders",
-    "find_all_onnx_files",
+    "get_onnx_files_from_instances",
     "get_benchmark_name",
     "load_onnx_model",
     "if_has_batch_dim",
@@ -12,7 +11,9 @@ __all__ = [
     "infer_shape",
 ]
 
+import csv
 import os
+from pathlib import Path
 
 import onnx
 
@@ -43,50 +44,54 @@ def find_benchmarks_folders(base_dir: str) -> list[str]:
     return benchmark_dirs
 
 
-def find_onnx_folders(benchmark_dirs: list[str]) -> list[str]:
+def get_onnx_files_from_instances(
+    benchmark_dir: str, max_instances: int | None = None
+) -> list[str]:
     """
-    Find ONNX subdirectories in benchmark directories.
+    Get unique ONNX file paths from instances.csv in a benchmark directory.
+
+    :param benchmark_dir: Benchmark directory path
+    :param max_instances: Maximum unique instances to load (None = all)
+    :return: List of absolute ONNX file paths (deduplicated)
+    """
+    instances_csv = Path(benchmark_dir) / "instances.csv"
+    if not instances_csv.exists():
+        return []
+
+    onnx_files = []
+    seen_onnx = set()
+
+    with open(instances_csv, "r") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row:
+                onnx_rel_path = row[0]
+                if onnx_rel_path not in seen_onnx:
+                    seen_onnx.add(onnx_rel_path)
+                    onnx_abs_path = os.path.normpath(
+                        os.path.join(benchmark_dir, onnx_rel_path)
+                    )
+                    if os.path.exists(onnx_abs_path):
+                        onnx_files.append(onnx_abs_path)
+                        if max_instances and len(onnx_files) >= max_instances:
+                            break
+
+    return onnx_files
+
+
+def get_all_onnx_files(
+    benchmark_dirs: list[str], max_per_benchmark: int | None = 20
+) -> list[str]:
+    """
+    Get all ONNX files from benchmark directories using instances.csv.
 
     :param benchmark_dirs: List of benchmark directory paths
-    :return: List of ONNX subdirectory paths
-    """
-    onnx_dirs = []
-    for bdir in benchmark_dirs:
-        onnx_subdir = os.path.join(bdir, "onnx")
-        if os.path.isdir(onnx_subdir):
-            onnx_dirs.append(onnx_subdir)
-    return onnx_dirs
-
-
-def find_all_onnx_files(benchmark_dirs: list[str], num_limit: int = 20) -> list[str]:
-    """
-    Find all ONNX files in benchmark directories.
-
-    :param benchmark_dirs: List of benchmark directory paths
-    :param num_limit: Maximum ONNX files per benchmark directory
+    :param max_per_benchmark: Maximum ONNX files per benchmark
     :return: List of ONNX file paths
     """
     onnx_files = []
     for bdir in benchmark_dirs:
-        i = 0
-        for entry in os.listdir(bdir):
-            if entry.endswith(".onnx"):
-                onnx_path = os.path.normpath(os.path.join(bdir, entry))
-                onnx_files.append(onnx_path)
-                i += 1
-                if i >= num_limit:
-                    break
-
-        if i == 0:
-            onnx_subdir = os.path.join(bdir, "onnx")
-            if os.path.isdir(onnx_subdir):
-                for entry in os.listdir(onnx_subdir):
-                    if entry.endswith(".onnx"):
-                        onnx_path = os.path.normpath(os.path.join(onnx_subdir, entry))
-                        onnx_files.append(onnx_path)
-                        i += 1
-                        if i >= num_limit:
-                            break
+        onnx_files.extend(get_onnx_files_from_instances(bdir, max_per_benchmark))
     return onnx_files
 
 
