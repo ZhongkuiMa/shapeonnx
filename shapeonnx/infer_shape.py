@@ -391,8 +391,6 @@ def infer_argmax_shape(
         shape[axis] = 1
         if not keepdims:
             shape.pop(axis)
-        if all(s == 1 for s in shape):
-            shape = []
 
     return [(shape, None)]
 
