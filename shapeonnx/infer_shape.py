@@ -874,6 +874,8 @@ def infer_reduce_shape(
     if shape is None:
         raise RuntimeError(f"Cannot get shape of {node.input[0]}")
 
+    # Copy to avoid mutating the original shape in data_shapes
+    shape = shape.copy()
     if shape != [0]:
         for axis in axes:
             shape[axis] = 1 if keepdims else 0
