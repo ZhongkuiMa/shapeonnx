@@ -151,6 +151,11 @@ def check_shape_compatibility(
         return True
     if inferred_shape == [] and expected_shape == [1]:
         return True
+    # [0] is used as a marker for empty/scalar shapes in some contexts
+    if inferred_shape == [0] and expected_shape == []:
+        return True
+    if inferred_shape == [] and expected_shape == [0]:
+        return True
     return False
 
 

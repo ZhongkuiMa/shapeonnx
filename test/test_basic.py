@@ -84,11 +84,7 @@ def create_simple_model():
 
 
 def test_basic_inference():
-    """
-    Test basic shape inference.
-
-    :return: True if test passes
-    """
+    """Test basic shape inference."""
     print("Creating test model")
     model = create_simple_model()
 
@@ -138,7 +134,6 @@ def test_basic_inference():
 
     print("\nAll assertions passed")
     print("Performance optimizations are working correctly")
-    return True
 
 
 if __name__ == "__main__":

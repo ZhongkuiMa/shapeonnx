@@ -443,36 +443,65 @@ def infer_concat_shape(
     attrs = get_onnx_attrs(node, ctx.initializers)
     axis = attrs["axis"]
 
-    is_explicit = any(name in ctx.explicit_shapes for name in node.input)
-
     shape_list = []
+    all_explicit = True  # Track if all inputs have explicit shapes
+    any_explicit = False  # Track if any input has explicit shape
+
     for name in node.input:
-        if is_explicit:
+        # Try explicit shape first
+        if name in ctx.explicit_shapes:
             shape_i = get_explicit_shape(name, ctx.explicit_shapes)
-            if shape_i is None:
-                raise RuntimeError(f"Cannot get explicit shape of {name}")
-        else:
-            shape_i, _ = get_shape(name, ctx.data_shapes, ctx.explicit_shapes)
+            if shape_i is not None:
+                any_explicit = True
+                shape_list.append(shape_i)
+                if shape_i == [0]:
+                    return [([0], None)]
+                continue
+
+        # Fallback to data shape
+        all_explicit = False
+        shape_i, _ = get_shape(name, ctx.data_shapes, ctx.explicit_shapes)
+        if shape_i is None:
+            raise RuntimeError(f"Cannot infer shape for Concat input {name}")
         if shape_i == [0]:
             return [([0], None)]
         shape_list.append(shape_i)
 
-    if is_explicit:
+    if all_explicit:
         shape = np.concatenate(shape_list, axis=axis).tolist()
         return [(None, shape)]
 
-    max_ndim = max(len(s) for s in shape_list)
-    normalized_shapes = []
-    for s in shape_list:
-        s_len = len(s)
-        if s_len not in (max_ndim, max_ndim - 1):
-            raise ValueError(f"Invalid shape {s}")
-        normalized_shapes.append([1, *s] if s_len == max_ndim - 1 else s)
+    # Check if all shapes have the same rank
+    if len(set(len(s) for s in shape_list)) == 1:
+        # All same rank - simple concatenation
+        shape = shape_list[0].copy()
+        for other_shape in shape_list[1:]:
+            if axis < len(shape):
+                shape[axis] += other_shape[axis]
+    else:
+        # Different ranks - try to normalize by prepending 1s
+        max_ndim = max(len(s) for s in shape_list)
+        normalized_shapes = []
+        for s in shape_list:
+            s_len = len(s)
+            # Prepend 1s to match max_ndim
+            diff = max_ndim - s_len
+            normalized = [1] * diff + s
+            normalized_shapes.append(normalized)
 
-    shape = normalized_shapes[0].copy()
-    for other_shape in normalized_shapes[1:]:
-        shape[axis] += other_shape[axis]
+        shape = normalized_shapes[0].copy()
+        for other_shape in normalized_shapes[1:]:
+            if axis < len(shape):
+                shape[axis] += other_shape[axis]
 
+    # Only mark as explicit if we had any explicit inputs (shape tensors)
+    # AND the result is concrete. Data concatenations stay as data shapes.
+    if any_explicit:
+        is_concrete = all(isinstance(d, int) and d >= 0 for d in shape)
+        if is_concrete:
+            return [(None, shape)]  # Mark as explicit (shape tensor)
+
+    # Default: return as data shape
     return [(shape, None)]
 
 
@@ -647,6 +676,26 @@ def infer_gather_shape(
     indices = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
     is_int_indices = isinstance(indices, int)
 
+    # Check for explicit shape first (for shape tensors like from Shape op)
+    e_shape = get_explicit_shape(node.input[0], ctx.explicit_shapes)
+    if e_shape is not None:
+        # Gathering from a shape tensor (explicit shape)
+        if e_shape != [0]:
+            if axis != 0:
+                raise ValueError(f"Invalid axis {axis} for gather from explicit shape")
+            if not isinstance(e_shape, list):
+                raise RuntimeError(f"Cannot gather from non-list explicit shape {e_shape}")
+            if is_int_indices:
+                e_shape = e_shape[indices]
+            else:
+                e_shape = [
+                    e_shape[i]
+                    for i in indices
+                    if isinstance(indices, list) and i < len(e_shape)
+                ]
+        return [(None, e_shape)]
+
+    # Fallback to data shape (for regular data tensors)
     shape = get_data_shape(node.input[0], ctx.data_shapes)
     if shape is not None:
         if shape != [0]:
@@ -657,25 +706,7 @@ def infer_gather_shape(
             ]
         return [(shape, None)]
 
-    e_shape = get_explicit_shape(node.input[0], ctx.explicit_shapes)
-    if e_shape is None:
-        raise RuntimeError(f"Cannot get explicit shape of {node.input[0]}")
-
-    if e_shape != [0]:
-        if axis != 0:
-            raise ValueError(f"Invalid axis {axis} for gather from explicit shape")
-        if not isinstance(e_shape, list):
-            raise RuntimeError(f"Cannot gather from non-list explicit shape {e_shape}")
-        if is_int_indices:
-            e_shape = e_shape[indices]
-        else:
-            e_shape = [
-                e_shape[i]
-                for i in indices
-                if isinstance(indices, list) and i < len(e_shape)
-            ]
-
-    return [(None, e_shape)]
+    raise RuntimeError(f"Cannot get shape of {node.input[0]}")
 
 
 def infer_gemm_shape(
@@ -1028,7 +1059,8 @@ def infer_shape_op_shape(
     elif isinstance(shape, list) and shape == [0]:
         result_shape = [0]
     elif isinstance(shape, list):
-        result_shape = [1, len(shape)]
+        # Return the actual shape values, not [1, len(shape)]
+        result_shape = shape
     else:
         raise RuntimeError(f"Unexpected explicit shape type {type(shape)}")
 
@@ -1095,6 +1127,19 @@ def infer_slice_shape(
         else [1] * len(axes)
     )
 
+    # Check for explicit shape first (for shape tensors like from Shape op)
+    e_shape = get_explicit_shape(node.input[0], ctx.explicit_shapes)
+    if e_shape is not None:
+        if not isinstance(e_shape, list):
+            raise RuntimeError(f"Expected list for explicit shape slice, got {e_shape}")
+
+        if axes != [0]:
+            raise ValueError(f"Invalid axes {axes} for explicit shape slice")
+
+        e_shape = e_shape[starts[0] : ends[0] : steps[0]] if e_shape != [0] else [0]
+        return [(None, e_shape)]
+
+    # Fallback to data shape (for regular data tensors)
     shape = get_data_shape(node.input[0], ctx.data_shapes)
     if shape is not None:
         shape = (
@@ -1104,18 +1149,7 @@ def infer_slice_shape(
         )
         return [(shape, None)]
 
-    e_shape = get_explicit_shape(node.input[0], ctx.explicit_shapes)
-    if e_shape is None:
-        raise RuntimeError(f"Cannot get explicit shape of {node.input[0]}")
-
-    if not isinstance(e_shape, list):
-        raise RuntimeError(f"Expected list for explicit shape slice, got {e_shape}")
-
-    if axes != [0]:
-        raise ValueError(f"Invalid axes {axes} for explicit shape slice")
-
-    e_shape = e_shape[starts[0] : ends[0] : steps[0]] if e_shape != [0] else [0]
-    return [(None, e_shape)]
+    raise RuntimeError(f"Cannot get shape of {node.input[0]}")
 
 
 def infer_split_shape(

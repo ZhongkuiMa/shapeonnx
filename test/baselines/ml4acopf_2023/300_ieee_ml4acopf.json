@@ -1,1456 +1,1226 @@
 {
-  "onnx::Gemm_0": [
-    1,
-    402
-  ],
-  "194": [
-    1,
-    3804
-  ],
-  "layers.0.weight": [
-    256,
-    402
-  ],
-  "layers.0.bias": [
-    256
-  ],
-  "layers.2.weight": [
-    256,
-    256
-  ],
-  "layers.2.bias": [
-    256
-  ],
-  "layers.4.weight": [
-    512,
-    256
-  ],
-  "layers.4.bias": [
-    512
-  ],
-  "layers.6.weight": [
-    738,
-    512
-  ],
-  "layers.6.bias": [
-    738
-  ],
-  "layers.7.lower_bound": [
-    438
-  ],
-  "onnx::Mul_195": [
-    438
-  ],
-  "/layers.7/Constant_output_0": [
-    1
-  ],
-  "/layers.7/Constant_1_output_0": [
-    0
-  ],
-  "/layers.7/Constant_2_output_0": [
-    438
-  ],
-  "/layers.7/Constant_3_output_0": [
-    1
-  ],
-  "/layers.7/Constant_4_output_0": [
-    1
-  ],
-  "/layers.7/Constant_5_output_0": [
-    438
-  ],
-  "/layers.7/Constant_6_output_0": [
-    9223372036854775807
-  ],
-  "/layers.7/Constant_7_output_0": [
-    1
-  ],
-  "/Constant_output_0": [
-    1
-  ],
-  "/Constant_1_output_0": [
-    0
-  ],
-  "/Constant_2_output_0": [
-    201
-  ],
-  "/Constant_3_output_0": [
-    1
-  ],
-  "/Constant_4_output_0": [
-    1
-  ],
-  "/Constant_5_output_0": [
-    201
-  ],
-  "/Constant_6_output_0": [
-    402
-  ],
-  "/Constant_7_output_0": [
-    1
-  ],
-  "/Constant_8_output_0": [
-    1
-  ],
-  "/Constant_9_output_0": [
-    0
-  ],
-  "/Constant_10_output_0": [
-    69
-  ],
-  "/Constant_11_output_0": [
-    1
-  ],
-  "/Constant_12_output_0": [
-    1
-  ],
-  "/Constant_13_output_0": [
-    69
-  ],
-  "/Constant_14_output_0": [
-    138
-  ],
-  "/Constant_15_output_0": [
-    1
-  ],
-  "/Constant_16_output_0": [
-    1
-  ],
-  "/Constant_17_output_0": [
-    138
-  ],
-  "/Constant_18_output_0": [
-    438
-  ],
-  "/Constant_19_output_0": [
-    1
-  ],
-  "/Constant_20_output_0": [
-    1
-  ],
-  "/Constant_21_output_0": [
-    438
-  ],
-  "/Constant_22_output_0": [
-    738
-  ],
-  "/Constant_23_output_0": [
-    1
-  ],
-  "onnx::Gather_63": [
-    30,
-    265,
-    265,
-    265,
-    269,
-    269,
-    269,
-    269,
-    269,
-    270,
-    270,
-    270,
-    272,
-    272,
-    266,
-    273,
-    273,
-    266,
-    275,
-    275,
-    271,
-    271,
-    271,
-    267,
-    267,
-    267,
-    267,
-    290,
-    268,
-    268,
-    268,
-    267,
-    267,
-    267,
-    267,
-    267,
-    272,
-    293,
-    0,
-    1,
-    1,
-    2,
-    2,
-    2,
-    3,
-    4,
-    6,
-    6,
-    7,
-    7,
-    8,
-    10,
-    11,
-    12,
-    13,
-    14,
-    14,
-    14,
-    15,
-    17,
-    17,
-    18,
-    18,
-    19,
-    20,
-    21,
-    22,
-    23,
-    24,
-    24,
-    26,
-    26,
-    26,
-    26,
-    27,
-    28,
-    28,
-    28,
-    29,
-    30,
-    30,
-    30,
-    30,
-    30,
-    30,
-    31,
-    31,
-    32,
-    33,
-    34,
-    34,
-    34,
-    35,
-    36,
-    36,
-    36,
-    37,
-    37,
-    38,
-    38,
-    39,
-    40,
-    40,
-    41,
-    42,
-    43,
-    44,
-    45,
-    46,
-    47,
-    48,
-    48,
-    49,
-    50,
-    51,
-    53,
-    53,
-    54,
-    56,
-    56,
-    57,
-    57,
-    58,
-    58,
-    59,
-    59,
-    60,
-    60,
-    61,
-    61,
-    62,
-    63,
-    63,
-    63,
-    63,
-    64,
-    64,
-    65,
-    66,
-    67,
-    67,
-    69,
-    70,
-    70,
-    73,
-    74,
-    75,
-    75,
-    76,
-    76,
-    77,
-    78,
-    78,
-    78,
-    79,
-    79,
-    80,
-    80,
-    80,
-    80,
-    81,
-    82,
-    83,
-    84,
-    84,
-    85,
-    85,
-    87,
-    88,
-    88,
-    88,
-    89,
-    90,
-    93,
-    94,
-    95,
-    96,
-    96,
-    244,
-    96,
-    97,
-    97,
-    100,
-    100,
-    101,
-    101,
-    103,
-    104,
-    104,
-    104,
-    104,
-    104,
-    104,
-    105,
-    105,
-    105,
-    106,
-    106,
-    107,
-    107,
-    108,
-    108,
-    108,
-    108,
-    111,
-    111,
-    111,
-    111,
-    112,
-    112,
-    113,
-    114,
-    114,
-    115,
-    115,
-    115,
-    115,
-    117,
-    118,
-    118,
-    118,
-    118,
-    118,
-    118,
-    119,
-    120,
-    121,
-    121,
-    123,
-    123,
-    124,
-    126,
-    126,
-    130,
-    131,
-    132,
-    132,
-    133,
-    135,
-    136,
-    136,
-    140,
-    140,
-    141,
-    143,
-    145,
-    150,
-    150,
-    151,
-    151,
-    151,
-    153,
-    153,
-    154,
-    155,
-    156,
-    156,
-    159,
-    159,
-    162,
-    164,
-    165,
-    166,
-    167,
-    167,
-    168,
-    168,
-    169,
-    170,
-    171,
-    171,
-    172,
-    172,
-    173,
-    174,
-    174,
-    175,
-    175,
-    176,
-    176,
-    176,
-    176,
-    177,
-    177,
-    178,
-    179,
-    181,
-    182,
-    183,
-    184,
-    184,
-    190,
-    191,
-    192,
-    192,
-    193,
-    194,
-    195,
-    195,
-    195,
-    197,
-    198,
-    198,
-    198,
-    199,
-    200,
-    202,
-    202,
-    203,
-    204,
-    205,
-    206,
-    206,
-    206,
-    207,
-    209,
-    209,
-    210,
-    212,
-    212,
-    213,
-    219,
-    218,
-    220,
-    220,
-    221,
-    221,
-    222,
-    223,
-    223,
-    224,
-    225,
-    226,
-    227,
-    2,
-    2,
-    2,
-    6,
-    6,
-    9,
-    11,
-    14,
-    15,
-    19,
-    22,
-    29,
-    38,
-    38,
-    53,
-    54,
-    60,
-    67,
-    69,
-    70,
-    71,
-    92,
-    94,
-    99,
-    100,
-    108,
-    108,
-    110,
-    119,
-    120,
-    121,
-    121,
-    123,
-    129,
-    131,
-    133,
-    137,
-    138,
-    141,
-    142,
-    160,
-    167,
-    171,
-    173,
-    178,
-    179,
-    180,
-    182,
-    187,
-    189,
-    196,
-    201,
-    207,
-    212,
-    216,
-    174,
-    97,
-    98,
-    247,
-    248,
-    259,
-    260,
-    264,
-    253,
-    246,
-    262,
-    249,
-    252,
-    256,
-    263,
-    250,
-    251,
-    254,
-    258,
-    255,
-    257,
-    261
-  ],
-  "onnx::Gather_65": [
-    265,
-    269,
-    270,
-    272,
-    291,
-    292,
-    293,
-    294,
-    295,
-    271,
-    267,
-    267,
-    266,
-    266,
-    273,
-    275,
-    274,
-    276,
-    277,
-    278,
-    296,
-    297,
-    267,
-    279,
-    280,
-    281,
-    290,
-    268,
-    287,
-    288,
-    289,
-    282,
-    283,
-    284,
-    285,
-    286,
-    298,
-    299,
-    4,
-    5,
-    7,
-    6,
-    17,
-    128,
-    15,
-    8,
-    11,
-    109,
-    10,
-    13,
-    10,
-    12,
-    19,
-    18,
-    14,
-    30,
-    73,
-    74,
-    35,
-    19,
-    71,
-    20,
-    25,
-    22,
-    21,
-    23,
-    230,
-    24,
-    25,
-    231,
-    27,
-    31,
-    33,
-    34,
-    35,
-    59,
-    62,
-    63,
-    72,
-    31,
-    33,
-    34,
-    42,
-    73,
-    74,
-    34,
-    36,
-    35,
-    41,
-    35,
-    42,
-    43,
-    39,
-    37,
-    41,
-    45,
-    40,
-    46,
-    51,
-    61,
-    67,
-    60,
-    91,
-    86,
-    43,
-    44,
-    47,
-    46,
-    47,
-    48,
-    49,
-    54,
-    50,
-    52,
-    53,
-    55,
-    122,
-    235,
-    189,
-    65,
-    58,
-    236,
-    59,
-    60,
-    63,
-    237,
-    62,
-    65,
-    72,
-    239,
-    63,
-    64,
-    66,
-    238,
-    240,
-    65,
-    68,
-    189,
-    189,
-    172,
-    173,
-    70,
-    71,
-    233,
-    75,
-    76,
-    77,
-    78,
-    83,
-    85,
-    78,
-    81,
-    82,
-    83,
-    81,
-    82,
-    86,
-    87,
-    88,
-    89,
-    82,
-    84,
-    85,
-    87,
-    232,
-    86,
-    89,
-    234,
-    89,
-    91,
-    92,
-    90,
-    92,
-    100,
-    98,
-    96,
-    97,
-    244,
-    98,
-    99,
-    98,
-    99,
-    101,
-    103,
-    102,
-    103,
-    104,
-    105,
-    107,
-    110,
-    135,
-    136,
-    147,
-    106,
-    112,
-    146,
-    108,
-    111,
-    108,
-    111,
-    110,
-    129,
-    145,
-    146,
-    115,
-    146,
-    147,
-    149,
-    113,
-    162,
-    114,
-    115,
-    130,
-    118,
-    159,
-    164,
-    166,
-    150,
-    119,
-    120,
-    123,
-    124,
-    125,
-    160,
-    124,
-    121,
-    123,
-    127,
-    124,
-    127,
-    125,
-    156,
-    157,
-    131,
-    139,
-    134,
-    161,
-    139,
-    137,
-    137,
-    138,
-    142,
-    143,
-    142,
-    144,
-    147,
-    151,
-    152,
-    152,
-    153,
-    154,
-    154,
-    157,
-    155,
-    156,
-    157,
-    158,
-    116,
-    165,
-    163,
-    166,
-    166,
-    116,
-    186,
-    187,
-    209,
-    218,
-    170,
-    203,
-    183,
-    186,
-    197,
-    241,
-    197,
-    175,
-    188,
-    176,
-    189,
-    180,
-    181,
-    188,
-    189,
-    178,
-    188,
-    188,
-    182,
-    189,
-    183,
-    184,
-    185,
-    186,
-    193,
-    192,
-    193,
-    220,
-    194,
-    195,
-    196,
-    197,
-    198,
-    215,
-    196,
-    199,
-    216,
-    201,
-    215,
-    203,
-    204,
-    169,
-    209,
-    209,
-    207,
-    209,
-    212,
-    168,
-    210,
-    215,
-    211,
-    213,
-    215,
-    216,
-    215,
-    229,
-    223,
-    225,
-    222,
-    223,
-    224,
-    224,
-    225,
-    225,
-    226,
-    227,
-    228,
-    0,
-    1,
-    3,
-    4,
-    5,
-    10,
-    9,
-    16,
-    14,
-    18,
-    21,
-    28,
-    37,
-    39,
-    52,
-    55,
-    61,
-    72,
-    80,
-    82,
-    77,
-    185,
-    102,
-    93,
-    135,
-    109,
-    128,
-    148,
-    152,
-    153,
-    122,
-    126,
-    158,
-    148,
-    161,
-    134,
-    95,
-    102,
-    115,
-    133,
-    117,
-    188,
-    174,
-    190,
-    226,
-    56,
-    189,
-    245,
-    176,
-    190,
-    197,
-    202,
-    208,
-    214,
-    217,
-    245,
-    242,
-    243,
-    1,
-    2,
-    52,
-    53,
-    144,
-    22,
-    0,
-    108,
-    10,
-    21,
-    42,
-    117,
-    11,
-    16,
-    32,
-    48,
-    37,
-    47,
-    58
-  ],
-  "/Constant_24_output_0": [],
-  "/Constant_25_output_0": [],
-  "/Constant_26_output_0": [
-    411
-  ],
-  "/Constant_27_output_0": [
-    411
-  ],
-  "/Constant_28_output_0": [
-    411
-  ],
-  "/Constant_29_output_0": [
-    411
-  ],
-  "/Constant_30_output_0": [
-    411
-  ],
-  "/Constant_31_output_0": [
-    411
-  ],
-  "/Constant_32_output_0": [
-    411
-  ],
-  "/Constant_33_output_0": [
-    411
-  ],
-  "/Constant_34_output_0": [
-    411
-  ],
-  "/Constant_35_output_0": [
-    411
-  ],
-  "/Constant_36_output_0": [
-    411
-  ],
-  "/Constant_37_output_0": [
-    1,
-    -1
-  ],
-  "/Constant_38_output_0": [
-    2
-  ],
-  "/Constant_39_output_0": -1,
-  "/Constant_40_output_0": [
-    1,
-    -1
-  ],
-  "/Constant_41_output_0": [
-    2
-  ],
-  "/Constant_42_output_0": -1,
-  "/Constant_43_output_0": [],
-  "/Constant_44_output_0": [],
-  "/Constant_45_output_0": [],
-  "/Constant_46_output_0": [],
-  "/Constant_47_output_0": [
-    300,
-    201
-  ],
-  "/Constant_48_output_0": [
-    300,
-    69
-  ],
-  "onnx::MatMul_166": [
-    300,
-    411
-  ],
-  "onnx::MatMul_170": [
-    300,
-    411
-  ],
-  "/Constant_49_output_0": [],
-  "/Constant_50_output_0": [
-    300
-  ],
-  "/Constant_51_output_0": [
-    300
-  ],
-  "/layers.0/Gemm_output_0": [
-    1,
-    256
-  ],
-  "/layers.1/Relu_output_0": [
-    1,
-    256
-  ],
-  "/layers.2/Gemm_output_0": [
-    1,
-    256
-  ],
-  "/layers.3/Relu_output_0": [
-    1,
-    256
-  ],
-  "/layers.4/Gemm_output_0": [
-    1,
-    512
-  ],
-  "/layers.5/Relu_output_0": [
-    1,
-    512
-  ],
-  "/layers.6/Gemm_output_0": [
-    1,
-    738
-  ],
-  "/layers.7/Slice_output_0": [
-    1,
-    438
-  ],
-  "/layers.7/Sigmoid_output_0": [
-    1,
-    438
-  ],
-  "/layers.7/Mul_output_0": [
-    1,
-    438
-  ],
-  "/layers.7/Add_output_0": [
-    1,
-    438
-  ],
-  "/layers.7/Slice_1_output_0": [
-    1,
-    300
-  ],
-  "/layers.7/Concat_output_0": [
-    1,
-    738
-  ],
-  "/Slice_output_0": [
-    1,
-    201
-  ],
-  "/Slice_1_output_0": [
-    1,
-    201
-  ],
-  "/Slice_2_output_0": [
-    1,
-    69
-  ],
-  "/Slice_3_output_0": [
-    1,
-    69
-  ],
-  "/Slice_4_output_0": [
-    1,
-    300
-  ],
-  "/Slice_5_output_0": [
-    1,
-    300
-  ],
-  "/Gather_output_0": [
-    1,
-    411
-  ],
-  "/Gather_1_output_0": [
-    1,
-    411
-  ],
-  "/Sub_output_0": [
-    1,
-    411
-  ],
-  "/Gather_2_output_0": [
-    1,
-    411
-  ],
-  "/Gather_3_output_0": [
-    1,
-    411
-  ],
-  "/Pow_output_0": [
-    1,
-    411
-  ],
-  "/Pow_1_output_0": [
-    1,
-    411
-  ],
-  "/Cos_output_0": [
-    1,
-    411
-  ],
-  "/Sin_output_0": [
-    1,
-    411
-  ],
-  "/Mul_output_0": [
-    1,
-    411
-  ],
-  "/Mul_1_output_0": [
-    1,
-    411
-  ],
-  "/Mul_2_output_0": [
-    1,
-    411
-  ],
-  "/Neg_output_0": [
-    1,
-    411
-  ],
-  "/Mul_3_output_0": [
-    1,
-    411
-  ],
-  "/Mul_4_output_0": [
-    1,
-    411
-  ],
-  "/Add_output_0": [
-    1,
-    411
-  ],
-  "/Mul_5_output_0": [
-    1,
-    411
-  ],
-  "/Add_1_output_0": [
-    1,
-    411
-  ],
-  "/Mul_6_output_0": [
-    1,
-    411
-  ],
-  "/Mul_7_output_0": [
-    1,
-    411
-  ],
-  "/Sub_1_output_0": [
-    1,
-    411
-  ],
-  "/Mul_8_output_0": [
-    1,
-    411
-  ],
-  "/Add_2_output_0": [
-    1,
-    411
-  ],
-  "/Mul_9_output_0": [
-    1,
-    411
-  ],
-  "/Add_3_output_0": [
-    1,
-    411
-  ],
-  "/Mul_10_output_0": [
-    1,
-    411
-  ],
-  "/Add_4_output_0": [
-    1,
-    411
-  ],
-  "/Mul_11_output_0": [
-    1,
-    411
-  ],
-  "/Sub_2_output_0": [
-    1,
-    411
-  ],
-  "/Mul_12_output_0": [
-    1,
-    411
-  ],
-  "/Add_5_output_0": [
-    1,
-    411
-  ],
-  "/ConstantOfShape_output_0": [
-    1,
-    1
-  ],
-  "/Mul_13_output_0": [
-    -1,
-    -1
-  ],
-  "/Equal_output_0": [
-    0,
-    1
-  ],
-  "/Where_output_0": [
-    1,
-    1
-  ],
-  "/Expand_output_0": [
-    1,
-    411
-  ],
-  "/ConstantOfShape_1_output_0": [
-    1,
-    1
-  ],
-  "/Mul_14_output_0": [
-    -1,
-    -1
-  ],
-  "/Equal_1_output_0": [
-    0,
-    1
-  ],
-  "/Where_1_output_0": [
-    1,
-    1
-  ],
-  "/Expand_1_output_0": [
-    1,
-    411
-  ],
-  "/Pow_2_output_0": [
-    1,
-    411
-  ],
-  "/Pow_3_output_0": [
-    1,
-    411
-  ],
-  "/Add_6_output_0": [
-    1,
-    411
-  ],
-  "/Sub_3_output_0": [
-    1,
-    411
-  ],
-  "/Pow_4_output_0": [
-    1,
-    411
-  ],
-  "/Pow_5_output_0": [
-    1,
-    411
-  ],
-  "/Add_7_output_0": [
-    1,
-    411
-  ],
-  "/Sub_4_output_0": [
-    1,
-    411
-  ],
-  "/Transpose_output_0": [
-    201,
-    1
-  ],
-  "/MatMul_output_0": [
-    300,
-    1
-  ],
-  "/Transpose_1_output_0": [
-    1,
-    300
-  ],
-  "/Transpose_2_output_0": [
-    201,
-    1
-  ],
-  "/MatMul_1_output_0": [
-    300,
-    1
-  ],
-  "/Transpose_3_output_0": [
-    1,
-    300
-  ],
-  "/Transpose_4_output_0": [
-    69,
-    1
-  ],
-  "/MatMul_2_output_0": [
-    300,
-    1
-  ],
-  "/Transpose_5_output_0": [
-    1,
-    300
-  ],
-  "/Transpose_6_output_0": [
-    69,
-    1
-  ],
-  "/MatMul_3_output_0": [
-    300,
-    1
-  ],
-  "/Transpose_7_output_0": [
-    1,
-    300
-  ],
-  "/Transpose_8_output_0": [
-    411,
-    1
-  ],
-  "/MatMul_4_output_0": [
-    300,
-    1
-  ],
-  "/Transpose_9_output_0": [
-    1,
-    300
-  ],
-  "/Transpose_10_output_0": [
-    411,
-    1
-  ],
-  "/MatMul_5_output_0": [
-    300,
-    1
-  ],
-  "/Transpose_11_output_0": [
-    1,
-    300
-  ],
-  "/Transpose_12_output_0": [
-    411,
-    1
-  ],
-  "/MatMul_6_output_0": [
-    300,
-    1
-  ],
-  "/Transpose_13_output_0": [
-    1,
-    300
-  ],
-  "/Transpose_14_output_0": [
-    411,
-    1
-  ],
-  "/MatMul_7_output_0": [
-    300,
-    1
-  ],
-  "/Transpose_15_output_0": [
-    1,
-    300
-  ],
-  "/Pow_6_output_0": [
-    1,
-    300
-  ],
-  "/Sub_5_output_0": [
-    1,
-    300
-  ],
-  "/Sub_6_output_0": [
-    1,
-    300
-  ],
-  "/Sub_7_output_0": [
-    1,
-    300
-  ],
-  "/Mul_15_output_0": [
-    1,
-    300
-  ],
-  "/Sub_8_output_0": [
-    1,
-    300
-  ],
-  "/Sub_9_output_0": [
-    1,
-    300
-  ],
-  "/Sub_10_output_0": [
-    1,
-    300
-  ],
-  "/Sub_11_output_0": [
-    1,
-    300
-  ],
-  "/Mul_16_output_0": [
-    1,
-    300
-  ],
-  "/Add_8_output_0": [
-    1,
-    300
-  ]
+  "shapeonnx_shapes": {
+    "onnx::Gemm_0": [
+      1,
+      402
+    ],
+    "194": [
+      1,
+      3804
+    ],
+    "layers.0.weight": [
+      256,
+      402
+    ],
+    "layers.0.bias": [
+      256
+    ],
+    "layers.2.weight": [
+      256,
+      256
+    ],
+    "layers.2.bias": [
+      256
+    ],
+    "layers.4.weight": [
+      512,
+      256
+    ],
+    "layers.4.bias": [
+      512
+    ],
+    "layers.6.weight": [
+      738,
+      512
+    ],
+    "layers.6.bias": [
+      738
+    ],
+    "layers.7.lower_bound": [
+      438
+    ],
+    "onnx::Mul_195": [
+      438
+    ],
+    "/layers.7/Constant_output_0": [
+      1
+    ],
+    "/layers.7/Constant_1_output_0": [
+      1
+    ],
+    "/layers.7/Constant_2_output_0": [
+      1
+    ],
+    "/layers.7/Constant_3_output_0": [
+      1
+    ],
+    "/layers.7/Constant_4_output_0": [
+      1
+    ],
+    "/layers.7/Constant_5_output_0": [
+      1
+    ],
+    "/layers.7/Constant_6_output_0": [
+      1
+    ],
+    "/layers.7/Constant_7_output_0": [
+      1
+    ],
+    "/Constant_output_0": [
+      1
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/Constant_4_output_0": [
+      1
+    ],
+    "/Constant_5_output_0": [
+      1
+    ],
+    "/Constant_6_output_0": [
+      1
+    ],
+    "/Constant_7_output_0": [
+      1
+    ],
+    "/Constant_8_output_0": [
+      1
+    ],
+    "/Constant_9_output_0": [
+      1
+    ],
+    "/Constant_10_output_0": [
+      1
+    ],
+    "/Constant_11_output_0": [
+      1
+    ],
+    "/Constant_12_output_0": [
+      1
+    ],
+    "/Constant_13_output_0": [
+      1
+    ],
+    "/Constant_14_output_0": [
+      1
+    ],
+    "/Constant_15_output_0": [
+      1
+    ],
+    "/Constant_16_output_0": [
+      1
+    ],
+    "/Constant_17_output_0": [
+      1
+    ],
+    "/Constant_18_output_0": [
+      1
+    ],
+    "/Constant_19_output_0": [
+      1
+    ],
+    "/Constant_20_output_0": [
+      1
+    ],
+    "/Constant_21_output_0": [
+      1
+    ],
+    "/Constant_22_output_0": [
+      1
+    ],
+    "/Constant_23_output_0": [
+      1
+    ],
+    "onnx::Gather_63": [
+      411
+    ],
+    "onnx::Gather_65": [
+      411
+    ],
+    "/Constant_24_output_0": [],
+    "/Constant_25_output_0": [],
+    "/Constant_26_output_0": [
+      411
+    ],
+    "/Constant_27_output_0": [
+      411
+    ],
+    "/Constant_28_output_0": [
+      411
+    ],
+    "/Constant_29_output_0": [
+      411
+    ],
+    "/Constant_30_output_0": [
+      411
+    ],
+    "/Constant_31_output_0": [
+      411
+    ],
+    "/Constant_32_output_0": [
+      411
+    ],
+    "/Constant_33_output_0": [
+      411
+    ],
+    "/Constant_34_output_0": [
+      411
+    ],
+    "/Constant_35_output_0": [
+      411
+    ],
+    "/Constant_36_output_0": [
+      411
+    ],
+    "/Constant_37_output_0": [
+      2
+    ],
+    "/Constant_38_output_0": [
+      1
+    ],
+    "/Constant_39_output_0": [],
+    "/Constant_40_output_0": [
+      2
+    ],
+    "/Constant_41_output_0": [
+      1
+    ],
+    "/Constant_42_output_0": [],
+    "/Constant_43_output_0": [],
+    "/Constant_44_output_0": [],
+    "/Constant_45_output_0": [],
+    "/Constant_46_output_0": [],
+    "/Constant_47_output_0": [
+      300,
+      201
+    ],
+    "/Constant_48_output_0": [
+      300,
+      69
+    ],
+    "onnx::MatMul_166": [
+      300,
+      411
+    ],
+    "onnx::MatMul_170": [
+      300,
+      411
+    ],
+    "/Constant_49_output_0": [],
+    "/Constant_50_output_0": [
+      300
+    ],
+    "/Constant_51_output_0": [
+      300
+    ],
+    "/layers.0/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/layers.1/Relu_output_0": [
+      1,
+      256
+    ],
+    "/layers.2/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/layers.3/Relu_output_0": [
+      1,
+      256
+    ],
+    "/layers.4/Gemm_output_0": [
+      1,
+      512
+    ],
+    "/layers.5/Relu_output_0": [
+      1,
+      512
+    ],
+    "/layers.6/Gemm_output_0": [
+      1,
+      738
+    ],
+    "/layers.7/Slice_output_0": [
+      1,
+      438
+    ],
+    "/layers.7/Sigmoid_output_0": [
+      1,
+      438
+    ],
+    "/layers.7/Mul_output_0": [
+      1,
+      438
+    ],
+    "/layers.7/Add_output_0": [
+      1,
+      438
+    ],
+    "/layers.7/Slice_1_output_0": [
+      1,
+      300
+    ],
+    "/layers.7/Concat_output_0": [
+      1,
+      738
+    ],
+    "/Slice_output_0": [
+      1,
+      201
+    ],
+    "/Slice_1_output_0": [
+      1,
+      201
+    ],
+    "/Slice_2_output_0": [
+      1,
+      69
+    ],
+    "/Slice_3_output_0": [
+      1,
+      69
+    ],
+    "/Slice_4_output_0": [
+      1,
+      300
+    ],
+    "/Slice_5_output_0": [
+      1,
+      300
+    ],
+    "/Gather_output_0": [
+      1,
+      411
+    ],
+    "/Gather_1_output_0": [
+      1,
+      411
+    ],
+    "/Sub_output_0": [
+      1,
+      411
+    ],
+    "/Gather_2_output_0": [
+      1,
+      411
+    ],
+    "/Gather_3_output_0": [
+      1,
+      411
+    ],
+    "/Pow_output_0": [
+      1,
+      411
+    ],
+    "/Pow_1_output_0": [
+      1,
+      411
+    ],
+    "/Cos_output_0": [
+      1,
+      411
+    ],
+    "/Sin_output_0": [
+      1,
+      411
+    ],
+    "/Mul_output_0": [
+      1,
+      411
+    ],
+    "/Mul_1_output_0": [
+      1,
+      411
+    ],
+    "/Mul_2_output_0": [
+      1,
+      411
+    ],
+    "/Neg_output_0": [
+      1,
+      411
+    ],
+    "/Mul_3_output_0": [
+      1,
+      411
+    ],
+    "/Mul_4_output_0": [
+      1,
+      411
+    ],
+    "/Add_output_0": [
+      1,
+      411
+    ],
+    "/Mul_5_output_0": [
+      1,
+      411
+    ],
+    "/Add_1_output_0": [
+      1,
+      411
+    ],
+    "/Mul_6_output_0": [
+      1,
+      411
+    ],
+    "/Mul_7_output_0": [
+      1,
+      411
+    ],
+    "/Sub_1_output_0": [
+      1,
+      411
+    ],
+    "/Mul_8_output_0": [
+      1,
+      411
+    ],
+    "/Add_2_output_0": [
+      1,
+      411
+    ],
+    "/Mul_9_output_0": [
+      1,
+      411
+    ],
+    "/Add_3_output_0": [
+      1,
+      411
+    ],
+    "/Mul_10_output_0": [
+      1,
+      411
+    ],
+    "/Add_4_output_0": [
+      1,
+      411
+    ],
+    "/Mul_11_output_0": [
+      1,
+      411
+    ],
+    "/Sub_2_output_0": [
+      1,
+      411
+    ],
+    "/Mul_12_output_0": [
+      1,
+      411
+    ],
+    "/Add_5_output_0": [
+      1,
+      411
+    ],
+    "/ConstantOfShape_output_0": [
+      2
+    ],
+    "/Mul_13_output_0": [
+      2
+    ],
+    "/Equal_output_0": [
+      2
+    ],
+    "/Where_output_0": [
+      2
+    ],
+    "/Expand_output_0": [
+      1,
+      411
+    ],
+    "/ConstantOfShape_1_output_0": [
+      2
+    ],
+    "/Mul_14_output_0": [
+      2
+    ],
+    "/Equal_1_output_0": [
+      2
+    ],
+    "/Where_1_output_0": [
+      2
+    ],
+    "/Expand_1_output_0": [
+      1,
+      411
+    ],
+    "/Pow_2_output_0": [
+      1,
+      411
+    ],
+    "/Pow_3_output_0": [
+      1,
+      411
+    ],
+    "/Add_6_output_0": [
+      1,
+      411
+    ],
+    "/Sub_3_output_0": [
+      1,
+      411
+    ],
+    "/Pow_4_output_0": [
+      1,
+      411
+    ],
+    "/Pow_5_output_0": [
+      1,
+      411
+    ],
+    "/Add_7_output_0": [
+      1,
+      411
+    ],
+    "/Sub_4_output_0": [
+      1,
+      411
+    ],
+    "/Transpose_output_0": [
+      201,
+      1
+    ],
+    "/MatMul_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_1_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_2_output_0": [
+      201,
+      1
+    ],
+    "/MatMul_1_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_3_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_4_output_0": [
+      69,
+      1
+    ],
+    "/MatMul_2_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_5_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_6_output_0": [
+      69,
+      1
+    ],
+    "/MatMul_3_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_7_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_8_output_0": [
+      411,
+      1
+    ],
+    "/MatMul_4_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_9_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_10_output_0": [
+      411,
+      1
+    ],
+    "/MatMul_5_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_11_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_12_output_0": [
+      411,
+      1
+    ],
+    "/MatMul_6_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_13_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_14_output_0": [
+      411,
+      1
+    ],
+    "/MatMul_7_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_15_output_0": [
+      1,
+      300
+    ],
+    "/Pow_6_output_0": [
+      1,
+      300
+    ],
+    "/Sub_5_output_0": [
+      1,
+      300
+    ],
+    "/Sub_6_output_0": [
+      1,
+      300
+    ],
+    "/Sub_7_output_0": [
+      1,
+      300
+    ],
+    "/Mul_15_output_0": [
+      1,
+      300
+    ],
+    "/Sub_8_output_0": [
+      1,
+      300
+    ],
+    "/Sub_9_output_0": [
+      1,
+      300
+    ],
+    "/Sub_10_output_0": [
+      1,
+      300
+    ],
+    "/Sub_11_output_0": [
+      1,
+      300
+    ],
+    "/Mul_16_output_0": [
+      1,
+      300
+    ],
+    "/Add_8_output_0": [
+      1,
+      300
+    ]
+  },
+  "onnx_shapes": {
+    "/layers.0/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/layers.1/Relu_output_0": [
+      1,
+      256
+    ],
+    "/layers.2/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/layers.3/Relu_output_0": [
+      1,
+      256
+    ],
+    "/layers.4/Gemm_output_0": [
+      1,
+      512
+    ],
+    "/layers.5/Relu_output_0": [
+      1,
+      512
+    ],
+    "/layers.6/Gemm_output_0": [
+      1,
+      738
+    ],
+    "/layers.7/Constant_output_0": [
+      1
+    ],
+    "/layers.7/Constant_1_output_0": [
+      1
+    ],
+    "/layers.7/Constant_2_output_0": [
+      1
+    ],
+    "/layers.7/Constant_3_output_0": [
+      1
+    ],
+    "/layers.7/Slice_output_0": [
+      1,
+      438
+    ],
+    "/layers.7/Sigmoid_output_0": [
+      1,
+      438
+    ],
+    "/layers.7/Mul_output_0": [
+      1,
+      438
+    ],
+    "/layers.7/Add_output_0": [
+      1,
+      438
+    ],
+    "/layers.7/Constant_4_output_0": [
+      1
+    ],
+    "/layers.7/Constant_5_output_0": [
+      1
+    ],
+    "/layers.7/Constant_6_output_0": [
+      1
+    ],
+    "/layers.7/Constant_7_output_0": [
+      1
+    ],
+    "/layers.7/Slice_1_output_0": [
+      1,
+      300
+    ],
+    "/layers.7/Concat_output_0": [
+      1,
+      738
+    ],
+    "/Constant_output_0": [
+      1
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/Slice_output_0": [
+      1,
+      201
+    ],
+    "/Constant_4_output_0": [
+      1
+    ],
+    "/Constant_5_output_0": [
+      1
+    ],
+    "/Constant_6_output_0": [
+      1
+    ],
+    "/Constant_7_output_0": [
+      1
+    ],
+    "/Slice_1_output_0": [
+      1,
+      201
+    ],
+    "/Constant_8_output_0": [
+      1
+    ],
+    "/Constant_9_output_0": [
+      1
+    ],
+    "/Constant_10_output_0": [
+      1
+    ],
+    "/Constant_11_output_0": [
+      1
+    ],
+    "/Slice_2_output_0": [
+      1,
+      69
+    ],
+    "/Constant_12_output_0": [
+      1
+    ],
+    "/Constant_13_output_0": [
+      1
+    ],
+    "/Constant_14_output_0": [
+      1
+    ],
+    "/Constant_15_output_0": [
+      1
+    ],
+    "/Slice_3_output_0": [
+      1,
+      69
+    ],
+    "/Constant_16_output_0": [
+      1
+    ],
+    "/Constant_17_output_0": [
+      1
+    ],
+    "/Constant_18_output_0": [
+      1
+    ],
+    "/Constant_19_output_0": [
+      1
+    ],
+    "/Slice_4_output_0": [
+      1,
+      300
+    ],
+    "/Constant_20_output_0": [
+      1
+    ],
+    "/Constant_21_output_0": [
+      1
+    ],
+    "/Constant_22_output_0": [
+      1
+    ],
+    "/Constant_23_output_0": [
+      1
+    ],
+    "/Slice_5_output_0": [
+      1,
+      300
+    ],
+    "onnx::Gather_63": [
+      411
+    ],
+    "/Gather_output_0": [
+      1,
+      411
+    ],
+    "onnx::Gather_65": [
+      411
+    ],
+    "/Gather_1_output_0": [
+      1,
+      411
+    ],
+    "/Sub_output_0": [
+      1,
+      411
+    ],
+    "/Gather_2_output_0": [
+      1,
+      411
+    ],
+    "/Gather_3_output_0": [
+      1,
+      411
+    ],
+    "/Constant_24_output_0": [],
+    "/Pow_output_0": [
+      1,
+      411
+    ],
+    "/Constant_25_output_0": [],
+    "/Pow_1_output_0": [
+      1,
+      411
+    ],
+    "/Cos_output_0": [
+      1,
+      411
+    ],
+    "/Sin_output_0": [
+      1,
+      411
+    ],
+    "/Mul_output_0": [
+      1,
+      411
+    ],
+    "/Mul_1_output_0": [
+      1,
+      411
+    ],
+    "/Mul_2_output_0": [
+      1,
+      411
+    ],
+    "/Neg_output_0": [
+      1,
+      411
+    ],
+    "/Constant_26_output_0": [
+      411
+    ],
+    "/Mul_3_output_0": [
+      1,
+      411
+    ],
+    "/Constant_27_output_0": [
+      411
+    ],
+    "/Mul_4_output_0": [
+      1,
+      411
+    ],
+    "/Add_output_0": [
+      1,
+      411
+    ],
+    "/Constant_28_output_0": [
+      411
+    ],
+    "/Mul_5_output_0": [
+      1,
+      411
+    ],
+    "/Add_1_output_0": [
+      1,
+      411
+    ],
+    "/Constant_29_output_0": [
+      411
+    ],
+    "/Mul_6_output_0": [
+      1,
+      411
+    ],
+    "/Constant_30_output_0": [
+      411
+    ],
+    "/Mul_7_output_0": [
+      1,
+      411
+    ],
+    "/Sub_1_output_0": [
+      1,
+      411
+    ],
+    "/Constant_31_output_0": [
+      411
+    ],
+    "/Mul_8_output_0": [
+      1,
+      411
+    ],
+    "/Add_2_output_0": [
+      1,
+      411
+    ],
+    "/Constant_32_output_0": [
+      411
+    ],
+    "/Mul_9_output_0": [
+      1,
+      411
+    ],
+    "/Add_3_output_0": [
+      1,
+      411
+    ],
+    "/Constant_33_output_0": [
+      411
+    ],
+    "/Mul_10_output_0": [
+      1,
+      411
+    ],
+    "/Add_4_output_0": [
+      1,
+      411
+    ],
+    "/Constant_34_output_0": [
+      411
+    ],
+    "/Mul_11_output_0": [
+      1,
+      411
+    ],
+    "/Sub_2_output_0": [
+      1,
+      411
+    ],
+    "/Constant_35_output_0": [
+      411
+    ],
+    "/Mul_12_output_0": [
+      1,
+      411
+    ],
+    "/Add_5_output_0": [
+      1,
+      411
+    ],
+    "/Constant_36_output_0": [
+      411
+    ],
+    "/Constant_37_output_0": [
+      2
+    ],
+    "/Constant_38_output_0": [
+      1
+    ],
+    "/ConstantOfShape_output_0": [
+      2
+    ],
+    "/Constant_39_output_0": [],
+    "/Mul_13_output_0": [
+      2
+    ],
+    "/Equal_output_0": [
+      2
+    ],
+    "/Where_output_0": [
+      2
+    ],
+    "/Expand_output_0": [
+      -1,
+      411
+    ],
+    "/Constant_40_output_0": [
+      2
+    ],
+    "/Constant_41_output_0": [
+      1
+    ],
+    "/ConstantOfShape_1_output_0": [
+      2
+    ],
+    "/Constant_42_output_0": [],
+    "/Mul_14_output_0": [
+      2
+    ],
+    "/Equal_1_output_0": [
+      2
+    ],
+    "/Where_1_output_0": [
+      2
+    ],
+    "/Expand_1_output_0": [
+      -1,
+      411
+    ],
+    "/Constant_43_output_0": [],
+    "/Pow_2_output_0": [
+      1,
+      411
+    ],
+    "/Constant_44_output_0": [],
+    "/Pow_3_output_0": [
+      1,
+      411
+    ],
+    "/Add_6_output_0": [
+      1,
+      411
+    ],
+    "/Sub_3_output_0": [
+      -1,
+      411
+    ],
+    "/Constant_45_output_0": [],
+    "/Pow_4_output_0": [
+      1,
+      411
+    ],
+    "/Constant_46_output_0": [],
+    "/Pow_5_output_0": [
+      1,
+      411
+    ],
+    "/Add_7_output_0": [
+      1,
+      411
+    ],
+    "/Sub_4_output_0": [
+      -1,
+      411
+    ],
+    "/Transpose_output_0": [
+      201,
+      1
+    ],
+    "/Constant_47_output_0": [
+      300,
+      201
+    ],
+    "/MatMul_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_1_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_2_output_0": [
+      201,
+      1
+    ],
+    "/MatMul_1_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_3_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_4_output_0": [
+      69,
+      1
+    ],
+    "/Constant_48_output_0": [
+      300,
+      69
+    ],
+    "/MatMul_2_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_5_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_6_output_0": [
+      69,
+      1
+    ],
+    "/MatMul_3_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_7_output_0": [
+      1,
+      300
+    ],
+    "onnx::MatMul_166": [
+      300,
+      411
+    ],
+    "/Transpose_8_output_0": [
+      411,
+      1
+    ],
+    "/MatMul_4_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_9_output_0": [
+      1,
+      300
+    ],
+    "onnx::MatMul_170": [
+      300,
+      411
+    ],
+    "/Transpose_10_output_0": [
+      411,
+      1
+    ],
+    "/MatMul_5_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_11_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_12_output_0": [
+      411,
+      1
+    ],
+    "/MatMul_6_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_13_output_0": [
+      1,
+      300
+    ],
+    "/Transpose_14_output_0": [
+      411,
+      1
+    ],
+    "/MatMul_7_output_0": [
+      300,
+      1
+    ],
+    "/Transpose_15_output_0": [
+      1,
+      300
+    ],
+    "/Constant_49_output_0": [],
+    "/Pow_6_output_0": [
+      1,
+      300
+    ],
+    "/Sub_5_output_0": [
+      1,
+      300
+    ],
+    "/Sub_6_output_0": [
+      1,
+      300
+    ],
+    "/Sub_7_output_0": [
+      1,
+      300
+    ],
+    "/Constant_50_output_0": [
+      300
+    ],
+    "/Mul_15_output_0": [
+      1,
+      300
+    ],
+    "/Sub_8_output_0": [
+      1,
+      300
+    ],
+    "/Sub_9_output_0": [
+      1,
+      300
+    ],
+    "/Sub_10_output_0": [
+      1,
+      300
+    ],
+    "/Sub_11_output_0": [
+      1,
+      300
+    ],
+    "/Constant_51_output_0": [
+      300
+    ],
+    "/Mul_16_output_0": [
+      1,
+      300
+    ],
+    "/Add_8_output_0": [
+      1,
+      300
+    ],
+    "194": [
+      1,
+      3804
+    ],
+    "onnx::Gemm_0": [
+      1,
+      402
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 10,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 4
+  }
 }
