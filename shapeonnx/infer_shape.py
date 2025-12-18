@@ -290,14 +290,10 @@ def compute_explicit_binary_shape(
         raise NotImplementedError(
             f"Cannot calculate explicit shape of {e_shape1} and {e_shape2}"
         )
-    if op_type == "Equal":
-        if not isinstance(e_shape1, list) or not isinstance(e_shape2, list):
-            raise NotImplementedError(
-                f"Cannot calculate explicit Equal of {e_shape1} and {e_shape2}"
-            )
-        if len(e_shape1) != len(e_shape2):
-            raise ValueError(f"Shape mismatch: {e_shape1} vs {e_shape2}")
-        return [1 if e_shape1[i] == e_shape2[i] else 0 for i in range(len(e_shape1))]
+    # Equal and other comparison ops output boolean tensors (0 or 1)
+    # The explicit shape cannot be computed from input explicit shapes
+    # because the output values are not derived from input values
+    # Instead, return None to indicate no explicit shape available
     raise NotImplementedError(
         f"Cannot calculate explicit shape of {op_type} with {e_shape1} and {e_shape2}"
     )
@@ -322,7 +318,12 @@ def infer_binary_op_shape(
     is_int1 = isinstance(shape1, int)
     is_int2 = isinstance(shape2, int)
 
-    if shape1 == [0] or shape2 == [0]:
+    # For Equal and other comparison ops, [0] should not be treated specially
+    # as the output shape is determined by broadcasting, not by the values
+    skip_zero_check = node.op_type in ["Equal", "Greater", "Less", "GreaterOrEqual", "LessOrEqual"]
+
+
+    if not skip_zero_check and (shape1 == [0] or shape2 == [0]):
         shape = [0]
     elif is_list1 and is_list2 and not shape1 and not shape2:
         shape = []
@@ -358,14 +359,32 @@ def infer_binary_op_shape(
     if is_explicit:
         return [(None, shape)]
 
+    # Special handling for Equal: compute explicit_shape based on comparison
+    if node.op_type == "Equal":
+        e_shape1 = get_explicit_shape(node.input[0], ctx.explicit_shapes)
+        e_shape2 = get_explicit_shape(node.input[1], ctx.explicit_shapes)
+        if (e_shape1 is not None and isinstance(e_shape1, list) and
+            e_shape2 is not None and isinstance(e_shape2, list)):
+            # Equal compares element-wise: output is 1 where equal, 0 where different
+            if len(e_shape1) == len(e_shape2):
+                explicit_shape = [1 if e_shape1[i] == e_shape2[i] else 0 for i in range(len(e_shape1))]
+                return [(shape, explicit_shape)]
+        return [(shape, None)]
+
+    # For other operations (like Mul), try to compute explicit shape
     e_shape1 = get_explicit_shape(node.input[0], ctx.explicit_shapes)
     if e_shape1 is not None and isinstance(e_shape1, (int, list)):
         e_shape2 = get_explicit_shape(node.input[1], ctx.explicit_shapes)
         if e_shape2 is not None and isinstance(e_shape2, (int, list)):
-            explicit_shape = compute_explicit_binary_shape(
-                node.op_type, e_shape1, e_shape2
-            )
-            return [(shape, explicit_shape)]
+            try:
+                explicit_shape = compute_explicit_binary_shape(
+                    node.op_type, e_shape1, e_shape2
+                )
+                return [(shape, explicit_shape)]
+            except NotImplementedError:
+                # Cannot compute explicit shape for this op type
+                # Fall through to return (shape, None)
+                pass
 
     return [(shape, None)]
 
@@ -1438,6 +1457,8 @@ def infer_onnx_shape(
                     print(
                         f"{node.op_type:<20} {output_name:<20} {explicit_shape} (explicit)"
                     )
+                # Only use explicit_shape as data_shape if data_shape was not set
+                if data_shape is None:
+                    data_shapes[output_name] = explicit_shape
 
-    data_shapes.update(explicit_shapes)
     return data_shapes
