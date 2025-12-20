@@ -119,9 +119,7 @@ def get_onnx_reference_shapes(onnx_path: str) -> dict[str, list[int]]:
     return shapes
 
 
-def _is_shape_tensor_match(
-    shape_onnx: list[int], shape_shapeonnx: int | list[int]
-) -> bool:
+def _is_shape_tensor_match(shape_onnx: list[int], shape_shapeonnx: int | list[int]) -> bool:
     """
     Check if shapes match due to shape tensor metadata vs actual values.
 
@@ -206,7 +204,9 @@ def compare_with_onnx_reference(
             differences["shapeonnx_only"].append((key, shapeonnx_shapes[key]))
         elif shapeonnx_shapes[key] != onnx_shapes[key]:
             shape_onnx = onnx_shapes[key] if not isinstance(onnx_shapes[key], int) else []
-            shape_shapeonnx = shapeonnx_shapes[key] if not isinstance(shapeonnx_shapes[key], int) else []
+            shape_shapeonnx = (
+                shapeonnx_shapes[key] if not isinstance(shapeonnx_shapes[key], int) else []
+            )
 
             if _is_shape_tensor_match(shape_onnx, shape_shapeonnx):
                 differences["dynamic_diffs"].append((key, shapeonnx_shapes[key], onnx_shapes[key]))

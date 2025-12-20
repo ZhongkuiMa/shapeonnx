@@ -137,9 +137,7 @@ def if_has_batch_dim(onnx_path: str) -> bool:
     return all(bname not in onnx_path for bname in BENCHMARK_WITHOUT_BATCH_DIM)
 
 
-def check_shape_compatibility(
-    inferred_shape: int | list[int], expected_shape: list[int]
-) -> bool:
+def check_shape_compatibility(inferred_shape: int | list[int], expected_shape: list[int]) -> bool:
     """
     Check if inferred shape is compatible with expected shape.
 

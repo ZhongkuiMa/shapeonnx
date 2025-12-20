@@ -23,7 +23,9 @@ def setup_benchmarks_symlink() -> int:
 
     # Find the benchmarks directory
     # Try ../../../vnncomp2024_benchmarks/benchmarks relative to tests dir
-    benchmarks_dir = (tests_dir / ".." / ".." / ".." / "vnncomp2024_benchmarks" / "benchmarks").resolve()
+    benchmarks_dir = (
+        tests_dir / ".." / ".." / ".." / "vnncomp2024_benchmarks" / "benchmarks"
+    ).resolve()
 
     if not benchmarks_dir.exists():
         print(f"Error: Benchmarks directory not found at {benchmarks_dir}")

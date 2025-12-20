@@ -480,9 +480,7 @@ def _collect_concat_input_shapes(
     return (shape_list, all_explicit, any_explicit)
 
 
-def _normalize_concat_shapes_different_ranks(
-    shape_list: list[list[int]], axis: int
-) -> list[int]:
+def _normalize_concat_shapes_different_ranks(shape_list: list[list[int]], axis: int) -> list[int]:
     """
     Normalize and concatenate shapes with different ranks.
 
@@ -1145,9 +1143,7 @@ def infer_sliced_shape(
         start = min(max(start + size if start < 0 else start, 0), size)
         end = min(max(end + size if end < 0 else end, 0), size)
         if step < 0:
-            warnings.warn(
-                f"Negative step ({step}) is not fully tested", stacklevel=2
-            )
+            warnings.warn(f"Negative step ({step}) is not fully tested", stacklevel=2)
         new_shape[axis] = max(0, (end - start + (step - (1 if step > 0 else -1))) // step)
     return new_shape
 
@@ -1198,7 +1194,9 @@ def infer_slice_shape(
     shape_data = get_data_shape(node.input[0], ctx.data_shapes)
     if shape_data is not None:
         assert isinstance(shape_data, list)
-        shape_result = infer_sliced_shape(shape_data, axes, starts, ends, steps) if shape_data != [0] else [0]
+        shape_result = (
+            infer_sliced_shape(shape_data, axes, starts, ends, steps) if shape_data != [0] else [0]
+        )
         return [(shape_result, None)]
 
     raise RuntimeError(f"Cannot get shape of {node.input[0]}")
