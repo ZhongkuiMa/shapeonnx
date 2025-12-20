@@ -74,4 +74,6 @@ Thumbs.db
 
 # === GitHub Codespaces ===
 .devcontainer/
-/test/benchmarks/
+
+# === Test benchmarks (environment-specific symlinks) ===
+/tests/vnncomp2024_benchmarks
