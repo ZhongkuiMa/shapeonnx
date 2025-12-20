@@ -12,7 +12,6 @@ __all__ = [
 ]
 
 import csv
-import os
 from pathlib import Path
 
 import onnx
@@ -36,12 +35,17 @@ def find_benchmarks_folders(base_dir: str) -> list[str]:
     :param base_dir: Root directory containing benchmark subdirectories
     :return: List of benchmark directory paths
     """
-    benchmark_dirs = []
-    for entry in os.listdir(base_dir):
-        subdir = os.path.normpath(os.path.join(base_dir, entry))
-        if os.path.isdir(subdir):
-            benchmark_dirs.append(subdir)
-    return benchmark_dirs
+    # Make path relative to this test file's location
+    test_dir = Path(__file__).parent
+    base_path = test_dir / base_dir
+
+    # If base_path is a file (containing a path), read it and resolve
+    if base_path.is_file():
+        with base_path.open() as f:
+            path_str = f.read().strip()
+        base_path = (test_dir / path_str).resolve()
+
+    return [str(entry) for entry in base_path.iterdir() if entry.is_dir()]
 
 
 def get_onnx_files_from_instances(
@@ -61,27 +65,23 @@ def get_onnx_files_from_instances(
     onnx_files = []
     seen_onnx = set()
 
-    with open(instances_csv, "r") as f:
+    with instances_csv.open() as f:
         reader = csv.reader(f)
         for row in reader:
             if row:
                 onnx_rel_path = row[0]
                 if onnx_rel_path not in seen_onnx:
                     seen_onnx.add(onnx_rel_path)
-                    onnx_abs_path = os.path.normpath(
-                        os.path.join(benchmark_dir, onnx_rel_path)
-                    )
-                    if os.path.exists(onnx_abs_path):
-                        onnx_files.append(onnx_abs_path)
+                    onnx_abs_path = Path(benchmark_dir) / onnx_rel_path
+                    if onnx_abs_path.exists():
+                        onnx_files.append(str(onnx_abs_path))
                         if max_instances and len(onnx_files) >= max_instances:
                             break
 
     return onnx_files
 
 
-def get_all_onnx_files(
-    benchmark_dirs: list[str], max_per_benchmark: int | None = 20
-) -> list[str]:
+def get_all_onnx_files(benchmark_dirs: list[str], max_per_benchmark: int | None = 20) -> list[str]:
     """
     Get all ONNX files from benchmark directories using instances.csv.
 
@@ -103,8 +103,8 @@ def get_benchmark_name(onnx_path: str, benchmarks_dir: str = "benchmarks") -> st
     :param benchmarks_dir: Root benchmarks directory name
     :return: Benchmark name
     """
-    onnx_path = os.path.normpath(onnx_path)
-    path_parts = onnx_path.split(os.sep)
+    path = Path(onnx_path)
+    path_parts = path.parts
 
     try:
         bench_idx = path_parts.index(benchmarks_dir)
@@ -113,7 +113,7 @@ def get_benchmark_name(onnx_path: str, benchmarks_dir: str = "benchmarks") -> st
     except ValueError:
         pass
 
-    return os.path.basename(os.path.dirname(onnx_path))
+    return path.parent.name
 
 
 def load_onnx_model(onnx_path: str):
@@ -138,7 +138,7 @@ def if_has_batch_dim(onnx_path: str) -> bool:
 
 
 def check_shape_compatibility(
-    inferred_shape: list[int], expected_shape: list[int]
+    inferred_shape: int | list[int], expected_shape: list[int]
 ) -> bool:
     """
     Check if inferred shape is compatible with expected shape.
@@ -154,14 +154,12 @@ def check_shape_compatibility(
     # [0] is used as a marker for empty/scalar shapes in some contexts
     if inferred_shape == [0] and expected_shape == []:
         return True
-    if inferred_shape == [] and expected_shape == [0]:
-        return True
-    return False
+    return inferred_shape == [] and expected_shape == [0]
 
 
 def infer_shape(
     model, has_batch_dim: bool = True, verbose: bool = False
-) -> dict[str, list[int]]:
+) -> dict[str, int | list[int]]:
     """
     Run shape inference on model and validate against expected shapes.
 

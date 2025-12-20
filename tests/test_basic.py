@@ -27,15 +27,14 @@ def create_simple_model():
         "input", onnx.TensorProto.FLOAT, [1, 3, 224, 224]
     )
 
-    output_tensor = onnx.helper.make_tensor_value_info(
-        "output", onnx.TensorProto.FLOAT, [1, 10]
-    )
+    output_tensor = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.FLOAT, [1, 10])
 
-    w1 = np.random.randn(64, 3, 7, 7).astype(np.float32)
+    rng = np.random.default_rng(seed=42)
+    w1 = rng.standard_normal((64, 3, 7, 7)).astype(np.float32)
     w1_init = onnx.numpy_helper.from_array(w1, name="w1")
 
-    w2 = np.random.randn(12544, 10).astype(np.float32)
-    b2 = np.random.randn(10).astype(np.float32)
+    w2 = rng.standard_normal((12544, 10)).astype(np.float32)
+    b2 = rng.standard_normal(10).astype(np.float32)
     w2_init = onnx.numpy_helper.from_array(w2, name="w2")
     b2_init = onnx.numpy_helper.from_array(b2, name="b2")
 
@@ -65,9 +64,7 @@ def create_simple_model():
         "Reshape", inputs=["pool_out", "shape_const"], outputs=["reshape_out"]
     )
 
-    gemm = onnx.helper.make_node(
-        "Gemm", inputs=["reshape_out", "w2", "b2"], outputs=["output"]
-    )
+    gemm = onnx.helper.make_node("Gemm", inputs=["reshape_out", "w2", "b2"], outputs=["output"])
 
     graph = onnx.helper.make_graph(
         [conv, relu, maxpool, reshape, gemm],
@@ -143,7 +140,7 @@ if __name__ == "__main__":
         print("SUCCESS: Basic functionality test passed")
         print("=" * 50)
         sys.exit(0)
-    except Exception as e:
+    except (RuntimeError, ValueError, NotImplementedError, AssertionError) as e:
         print(f"\nTest failed with error: {e}")
         import traceback
 

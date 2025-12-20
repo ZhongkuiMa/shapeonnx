@@ -5,7 +5,7 @@ __all__ = []
 
 import pytest
 
-from utils import (
+from shapeonnx.tests.utils import (
     find_benchmarks_folders,
     get_all_onnx_files,
     if_has_batch_dim,

@@ -62,9 +62,7 @@ def get_input_nodes(
     return nodes
 
 
-def get_output_nodes(
-    model: ModelProto, has_batch_dim: bool = True
-) -> list[ValueInfoProto]:
+def get_output_nodes(model: ModelProto, has_batch_dim: bool = True) -> list[ValueInfoProto]:
     """
     Get model output nodes.
 

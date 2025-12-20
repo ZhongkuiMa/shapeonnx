@@ -3,7 +3,7 @@
 __docformat__ = "restructuredtext"
 
 import json
-import os
+from pathlib import Path
 
 import onnx
 import onnx.shape_inference
@@ -16,7 +16,7 @@ from shapeonnx.shapeonnx.utils import (
     get_input_nodes,
     get_output_nodes,
 )
-from utils import (
+from shapeonnx.tests.utils import (
     find_benchmarks_folders,
     get_all_onnx_files,
     if_has_batch_dim,
@@ -32,11 +32,15 @@ def get_baseline_path(onnx_path: str, baselines_dir: str = "baselines") -> str:
     :param baselines_dir: Root directory to store baseline files
     :return: Path to baseline JSON file
     """
-    return (
-        onnx_path.replace("vnncomp2024_benchmarks", baselines_dir)
-        .replace(".onnx", ".json")
-        .replace(f"onnx{os.sep}", "")
-    )
+    path = Path(onnx_path)
+    # Extract benchmark name from path (e.g., "test", "acasxu_2023", etc.)
+    # Path structure: .../benchmarks/{benchmark_name}/onnx/{model}.onnx
+    benchmark_name = path.parent.parent.name
+
+    # Build path relative to this test file
+    test_dir = Path(__file__).parent
+    baseline_path = test_dir / baselines_dir / benchmark_name / path.name.replace(".onnx", ".json")
+    return str(baseline_path)
 
 
 def load_baseline_shapes(baseline_path: str) -> dict | None:
@@ -46,16 +50,40 @@ def load_baseline_shapes(baseline_path: str) -> dict | None:
     :param baseline_path: Path to baseline JSON file
     :return: Baseline data dictionary, or None if file not found
     """
-    if not os.path.exists(baseline_path):
+    path = Path(baseline_path)
+    if not path.exists():
         return None
-    with open(baseline_path, "r") as f:
-        data = json.load(f)
+    with path.open() as f:
+        data: dict = json.load(f)
 
     # Convert old format to new format for compatibility
     if "shapeonnx_shapes" not in data:
         return {"shapeonnx_shapes": data, "onnx_shapes": None, "differences": None}
 
     return data
+
+
+def _extract_shape_from_value_info(value_info: onnx.ValueInfoProto) -> list[int] | None:
+    """
+    Extract shape from ONNX ValueInfoProto.
+
+    :param value_info: ONNX value info proto
+    :return: List of dimension sizes, or None if no shape available
+    """
+    if not value_info.type.HasField("tensor_type"):
+        return None
+    tensor_type = value_info.type.tensor_type
+    if not tensor_type.HasField("shape"):
+        return None
+
+    shape = []
+    for dim in tensor_type.shape.dim:
+        if dim.HasField("dim_value"):
+            shape.append(dim.dim_value)
+        else:
+            # Dynamic dimension (could be dim_param or unknown)
+            shape.append(-1)
+    return shape
 
 
 def get_onnx_reference_shapes(onnx_path: str) -> dict[str, list[int]]:
@@ -72,50 +100,78 @@ def get_onnx_reference_shapes(onnx_path: str) -> dict[str, list[int]]:
 
     # Extract shapes from value_info (intermediate tensors)
     for value_info in inferred_model.graph.value_info:
-        if value_info.type.HasField("tensor_type"):
-            tensor_type = value_info.type.tensor_type
-            if tensor_type.HasField("shape"):
-                shape = []
-                for dim in tensor_type.shape.dim:
-                    if dim.HasField("dim_value"):
-                        shape.append(dim.dim_value)
-                    else:
-                        # Dynamic dimension (could be dim_param or unknown)
-                        shape.append(-1)
-                shapes[value_info.name] = shape
+        shape = _extract_shape_from_value_info(value_info)
+        if shape is not None:
+            shapes[value_info.name] = shape
 
     # Extract shapes from outputs
     for output in inferred_model.graph.output:
-        if output.type.HasField("tensor_type"):
-            tensor_type = output.type.tensor_type
-            if tensor_type.HasField("shape"):
-                shape = []
-                for dim in tensor_type.shape.dim:
-                    if dim.HasField("dim_value"):
-                        shape.append(dim.dim_value)
-                    else:
-                        shape.append(-1)
-                shapes[output.name] = shape
+        shape = _extract_shape_from_value_info(output)
+        if shape is not None:
+            shapes[output.name] = shape
 
     # Extract shapes from inputs
     for input_val in inferred_model.graph.input:
-        if input_val.type.HasField("tensor_type"):
-            tensor_type = input_val.type.tensor_type
-            if tensor_type.HasField("shape"):
-                shape = []
-                for dim in tensor_type.shape.dim:
-                    if dim.HasField("dim_value"):
-                        shape.append(dim.dim_value)
-                    else:
-                        shape.append(-1)
-                shapes[input_val.name] = shape
+        shape = _extract_shape_from_value_info(input_val)
+        if shape is not None:
+            shapes[input_val.name] = shape
 
     return shapes
 
 
+def _is_shape_tensor_match(
+    shape_onnx: list[int], shape_shapeonnx: int | list[int]
+) -> bool:
+    """
+    Check if shapes match due to shape tensor metadata vs actual values.
+
+    :param shape_onnx: ONNX inferred shape
+    :param shape_shapeonnx: ShapeONNX inferred shape
+    :return: True if this is a shape tensor metadata mismatch (acceptable)
+    """
+    # ONNX: [n] (metadata), shapeonnx: list with n elements (actual values)
+    if isinstance(shape_shapeonnx, int):
+        return False
+    return len(shape_onnx) == 1 and shape_onnx[0] > 0 and len(shape_shapeonnx) == shape_onnx[0]
+
+
+def _normalize_shapes(
+    shape_onnx: list[int], shape_shapeonnx: int | list[int]
+) -> tuple[list[int], list[int]]:
+    """
+    Normalize shapes by treating dynamic dimensions consistently.
+
+    :param shape_onnx: ONNX inferred shape
+    :param shape_shapeonnx: ShapeONNX inferred shape
+    :return: Tuple of (normalized_onnx, normalized_shapeonnx)
+    """
+    # Handle scalar shapes - return as-is wrapped in lists
+    if isinstance(shape_shapeonnx, int):
+        return shape_onnx, [shape_shapeonnx]
+
+    normalized_onnx = []
+    normalized_shapeonnx = []
+
+    for _i, (d_onnx, d_shapeonnx) in enumerate(zip(shape_onnx, shape_shapeonnx, strict=False)):
+        # If one side has -1 (dynamic) and the other has 1, treat both as dynamic
+        if (
+            (d_onnx == -1 and d_shapeonnx == 1)
+            or (d_onnx == 1 and d_shapeonnx == -1)
+            or d_onnx <= 0
+            or d_shapeonnx <= 0
+        ):
+            normalized_onnx.append(-1)
+            normalized_shapeonnx.append(-1)
+        else:
+            normalized_onnx.append(d_onnx)
+            normalized_shapeonnx.append(d_shapeonnx)
+
+    return normalized_onnx, normalized_shapeonnx
+
+
 def compare_with_onnx_reference(
-    onnx_path: str, shapeonnx_shapes: dict[str, list[int]]
-) -> dict[str, list]:
+    onnx_path: str, shapeonnx_shapes: dict[str, int | list[int]]
+) -> dict:
     """
     Compare shapeonnx results with ONNX reference implementation.
 
@@ -125,7 +181,7 @@ def compare_with_onnx_reference(
     """
     try:
         onnx_shapes = get_onnx_reference_shapes(onnx_path)
-    except Exception as e:
+    except (RuntimeError, ValueError, TypeError, OSError) as e:
         return {
             "error": str(e),
             "shapeonnx_only": [],
@@ -134,11 +190,11 @@ def compare_with_onnx_reference(
             "dynamic_diffs": [],
         }
 
-    differences = {
-        "shapeonnx_only": [],  # Tensors only shapeonnx inferred
-        "onnx_only": [],  # Tensors only ONNX inferred
-        "mismatches": [],  # Different shape values
-        "dynamic_diffs": [],  # Different dynamic dim representations
+    differences: dict[str, list] = {
+        "shapeonnx_only": [],
+        "onnx_only": [],
+        "mismatches": [],
+        "dynamic_diffs": [],
     }
 
     all_keys = set(shapeonnx_shapes.keys()) | set(onnx_shapes.keys())
@@ -149,71 +205,24 @@ def compare_with_onnx_reference(
         elif key not in onnx_shapes:
             differences["shapeonnx_only"].append((key, shapeonnx_shapes[key]))
         elif shapeonnx_shapes[key] != onnx_shapes[key]:
-            # Check if difference is just dynamic dimension representation
-            shape_onnx = onnx_shapes[key]
-            shape_shapeonnx = shapeonnx_shapes[key]
+            shape_onnx = onnx_shapes[key] if not isinstance(onnx_shapes[key], int) else []
+            shape_shapeonnx = shapeonnx_shapes[key] if not isinstance(shapeonnx_shapes[key], int) else []
 
-            # Handle scalar (int) shapes - convert to list for comparison
-            if isinstance(shape_onnx, int):
-                shape_onnx = []
-            if isinstance(shape_shapeonnx, int):
-                shape_shapeonnx = []
-
-            # Special case: Shape tensors (explicit shapes)
-            # shapeonnx tracks actual shape values like [1, 48, 2, 2]
-            # ONNX only tracks tensor metadata like [4] (1D tensor with 4 elements)
-            # These should be considered consistent
-            if (
-                len(shape_onnx) == 1
-                and shape_onnx[0] > 0
-                and len(shape_shapeonnx) == shape_onnx[0]
-            ):
-                # ONNX: [n] where n > 0, shapeonnx: list with n elements
-                # This is a shape tensor - they're consistent
-                differences["dynamic_diffs"].append(
-                    (key, shapeonnx_shapes[key], onnx_shapes[key])
-                )
+            if _is_shape_tensor_match(shape_onnx, shape_shapeonnx):
+                differences["dynamic_diffs"].append((key, shapeonnx_shapes[key], onnx_shapes[key]))
                 continue
 
-            # Normalize: treat 1 vs -1 as equivalent (dynamic dimensions)
-            # This handles cases where shapeonnx uses 1 and ONNX uses -1
-            normalized_onnx = []
-            normalized_shapeonnx = []
-
-            for i, (d_onnx, d_shapeonnx) in enumerate(
-                zip(shape_onnx, shape_shapeonnx)
-            ):
-                # If one side has -1 (dynamic) and the other has 1, treat both as dynamic
-                if (d_onnx == -1 and d_shapeonnx == 1) or (
-                    d_onnx == 1 and d_shapeonnx == -1
-                ):
-                    norm_onnx = -1
-                    norm_shapeonnx = -1
-                # If one side has any negative (dynamic), treat both as dynamic
-                elif d_onnx <= 0 or d_shapeonnx <= 0:
-                    norm_onnx = -1
-                    norm_shapeonnx = -1
-                # Both are positive concrete values
-                else:
-                    norm_onnx = d_onnx
-                    norm_shapeonnx = d_shapeonnx
-
-                normalized_onnx.append(norm_onnx)
-                normalized_shapeonnx.append(norm_shapeonnx)
+            normalized_onnx, normalized_shapeonnx = _normalize_shapes(shape_onnx, shape_shapeonnx)
 
             if normalized_onnx == normalized_shapeonnx:
-                differences["dynamic_diffs"].append(
-                    (key, shapeonnx_shapes[key], onnx_shapes[key])
-                )
+                differences["dynamic_diffs"].append((key, shapeonnx_shapes[key], onnx_shapes[key]))
             else:
-                differences["mismatches"].append(
-                    (key, shapeonnx_shapes[key], onnx_shapes[key])
-                )
+                differences["mismatches"].append((key, shapeonnx_shapes[key], onnx_shapes[key]))
 
     return differences
 
 
-def infer_shapeonnx_shapes(onnx_path: str) -> dict[str, list[int]]:
+def infer_shapeonnx_shapes(onnx_path: str) -> dict[str, int | list[int]]:
     """
     Run shapeonnx shape inference on a model.
 
@@ -290,12 +299,13 @@ def test_create_baseline(onnx_path, baselines_dir):
     }
 
     baseline_path = get_baseline_path(onnx_path, baselines_dir)
-    os.makedirs(os.path.dirname(baseline_path), exist_ok=True)
-    with open(baseline_path, "w") as f:
+    baseline_file = Path(baseline_path)
+    baseline_file.parent.mkdir(parents=True, exist_ok=True)
+    with baseline_file.open("w") as f:
         json.dump(baseline_data, f, indent=2)
 
     # Verify baseline was created
-    assert os.path.exists(baseline_path)
+    assert baseline_file.exists()
     assert shapeonnx_shapes is not None
     assert len(shapeonnx_shapes) > 0
 
@@ -313,7 +323,7 @@ def test_verify_baseline(onnx_path, baselines_dir):
 
     # Skip if no baseline exists yet
     if baseline_data is None:
-        pytest.skip(f"No baseline for {os.path.basename(onnx_path)}")
+        pytest.skip(f"No baseline for {Path(onnx_path).name}")
 
     baseline_shapes = baseline_data["shapeonnx_shapes"]
 
@@ -333,8 +343,7 @@ def test_verify_baseline(onnx_path, baselines_dir):
             elif key not in baseline_shapes:
                 onnx_match = (
                     " (ONNX agrees)"
-                    if key in onnx_ref_shapes
-                    and onnx_ref_shapes[key] == current_shapes[key]
+                    if key in onnx_ref_shapes and onnx_ref_shapes[key] == current_shapes[key]
                     else ""
                 )
                 mismatches.append(f"New: {key} = {current_shapes[key]}{onnx_match}")
@@ -382,15 +391,11 @@ def test_onnx_consistency(onnx_path):
     # Report differences for informational purposes
     info_parts = []
     if differences["shapeonnx_only"]:
-        info_parts.append(
-            f"{len(differences['shapeonnx_only'])} tensors only in shapeonnx"
-        )
+        info_parts.append(f"{len(differences['shapeonnx_only'])} tensors only in shapeonnx")
     if differences["onnx_only"]:
         info_parts.append(f"{len(differences['onnx_only'])} tensors only in ONNX")
     if differences["dynamic_diffs"]:
-        info_parts.append(
-            f"{len(differences['dynamic_diffs'])} dynamic dimension differences"
-        )
+        info_parts.append(f"{len(differences['dynamic_diffs'])} dynamic dimension differences")
 
     # Actual mismatches are failures
     if differences["mismatches"]:
@@ -400,10 +405,7 @@ def test_onnx_consistency(onnx_path):
                 f"  {tensor_name}: shapeonnx={shape_shapeonnx}, onnx={shape_onnx}"
             )
 
-        pytest.fail(
-            f"Shape mismatches between shapeonnx and ONNX:\n"
-            + "\n".join(mismatch_details)
-        )
+        pytest.fail("Shape mismatches between shapeonnx and ONNX:\n" + "\n".join(mismatch_details))
 
     # Test passes - differences are acceptable
     if info_parts:
