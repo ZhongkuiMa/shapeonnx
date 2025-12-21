@@ -24,12 +24,12 @@ from shapeonnx.tests.utils import (
 )
 
 
-def get_baseline_path(onnx_path: str, baselines_dir: str = "baselines") -> str:
+def get_baseline_path(onnx_path: str, baselines_dir) -> Path:
     """
     Get baseline JSON path for an ONNX model.
 
     :param onnx_path: Path to ONNX model file
-    :param baselines_dir: Root directory to store baseline files
+    :param baselines_dir: Root directory (Path object) to store baseline files
     :return: Path to baseline JSON file
     """
     path = Path(onnx_path)
@@ -37,20 +37,19 @@ def get_baseline_path(onnx_path: str, baselines_dir: str = "baselines") -> str:
     # Path structure: .../benchmarks/{benchmark_name}/onnx/{model}.onnx
     benchmark_name = path.parent.parent.name
 
-    # Build path relative to this test file
-    test_dir = Path(__file__).parent
-    baseline_path = test_dir / baselines_dir / benchmark_name / path.name.replace(".onnx", ".json")
-    return str(baseline_path)
+    # Build path relative to baselines directory fixture
+    baseline_path = baselines_dir / benchmark_name / path.name.replace(".onnx", ".json")
+    return baseline_path
 
 
-def load_baseline_shapes(baseline_path: str) -> dict | None:
+def load_baseline_shapes(baseline_path: str | Path) -> dict | None:
     """
     Load baseline data from JSON file.
 
-    :param baseline_path: Path to baseline JSON file
+    :param baseline_path: Path to baseline JSON file (str or Path)
     :return: Baseline data dictionary, or None if file not found
     """
-    path = Path(baseline_path)
+    path = Path(baseline_path) if isinstance(baseline_path, str) else baseline_path
     if not path.exists():
         return None
     with path.open() as f:
@@ -257,13 +256,7 @@ def get_onnx_models():
     return get_all_onnx_files(benchmark_dirs)
 
 
-@pytest.fixture(scope="session")
-def baselines_dir():
-    """Baseline directory for storing regression test data."""
-    return "baselines"
-
-
-# Main regression tests
+# Main regression tests (baselines_dir fixture is defined in conftest.py)
 
 
 @pytest.mark.parametrize("onnx_path", get_onnx_models())
@@ -299,13 +292,12 @@ def test_create_baseline(onnx_path, baselines_dir):
     }
 
     baseline_path = get_baseline_path(onnx_path, baselines_dir)
-    baseline_file = Path(baseline_path)
-    baseline_file.parent.mkdir(parents=True, exist_ok=True)
-    with baseline_file.open("w") as f:
+    baseline_path.parent.mkdir(parents=True, exist_ok=True)
+    with baseline_path.open("w") as f:
         json.dump(baseline_data, f, indent=2)
 
     # Verify baseline was created
-    assert baseline_file.exists()
+    assert baseline_path.exists()
     assert shapeonnx_shapes is not None
     assert len(shapeonnx_shapes) > 0
 
