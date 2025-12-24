@@ -8,8 +8,6 @@ from pathlib import Path
 import onnx
 import onnx.shape_inference
 import pytest
-
-from shapeonnx import infer_onnx_shape
 from shapeonnx.shapeonnx.utils import (
     convert_constant_to_initializer,
     get_initializers,
@@ -23,8 +21,10 @@ from shapeonnx.tests.utils import (
     load_onnx_model,
 )
 
+from shapeonnx import infer_onnx_shape
 
-def get_baseline_path(onnx_path: str, baselines_dir) -> Path:
+
+def get_baseline_path(onnx_path: str, baselines_dir: Path) -> Path:
     """
     Get baseline JSON path for an ONNX model.
 

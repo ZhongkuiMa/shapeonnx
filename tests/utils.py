@@ -166,13 +166,14 @@ def infer_shape(
     :param verbose: Whether to print verbose output during inference
     :return: Dictionary mapping tensor names to inferred shapes
     """
-    from shapeonnx import extract_io_shapes, infer_onnx_shape
     from shapeonnx.shapeonnx.utils import (
         convert_constant_to_initializer,
         get_initializers,
         get_input_nodes,
         get_output_nodes,
     )
+
+    from shapeonnx import extract_io_shapes, infer_onnx_shape
 
     initializers = get_initializers(model)
     input_nodes = get_input_nodes(model, initializers, has_batch_dim)

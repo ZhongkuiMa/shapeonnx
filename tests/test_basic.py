@@ -7,14 +7,14 @@ import sys
 
 import numpy as np
 import onnx
-
-from shapeonnx import infer_onnx_shape
 from shapeonnx.shapeonnx.utils import (
     convert_constant_to_initializer,
     get_initializers,
     get_input_nodes,
     get_output_nodes,
 )
+
+from shapeonnx import infer_onnx_shape
 
 
 def create_simple_model():
