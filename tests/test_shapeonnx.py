@@ -4,6 +4,7 @@ __docformat__ = "restructuredtext"
 __all__ = []
 
 import pytest
+
 from shapeonnx.tests.utils import (
     find_benchmarks_folders,
     get_all_onnx_files,
