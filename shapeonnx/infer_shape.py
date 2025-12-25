@@ -12,8 +12,8 @@ import numpy as np
 import onnx
 from onnx import NodeProto, TensorProto, ValueInfoProto
 
-from shapeonnx.shapeonnx.onnx_attrs import get_onnx_attrs
-from shapeonnx.shapeonnx.utils import reformat_io_shape
+from shapeonnx.onnx_attrs import get_onnx_attrs
+from shapeonnx.utils import reformat_io_shape
 
 
 @dataclass(frozen=True)

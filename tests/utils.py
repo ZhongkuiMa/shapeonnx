@@ -167,7 +167,7 @@ def infer_shape(
     :return: Dictionary mapping tensor names to inferred shapes
     """
     from shapeonnx import extract_io_shapes, infer_onnx_shape
-    from shapeonnx.shapeonnx.utils import (
+    from shapeonnx.utils import (
         convert_constant_to_initializer,
         get_initializers,
         get_input_nodes,
