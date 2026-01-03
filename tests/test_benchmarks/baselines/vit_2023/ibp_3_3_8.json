@@ -1,0 +1,1444 @@
+{
+  "shapeonnx_shapes": {
+    "input": [
+      1,
+      3,
+      32,
+      32
+    ],
+    "output": [
+      1,
+      10
+    ],
+    "0.cls_token": [
+      48
+    ],
+    "0.positions": [
+      17,
+      48
+    ],
+    "0.projection.weight": [
+      48,
+      3,
+      8,
+      8
+    ],
+    "0.projection.bias": [
+      48
+    ],
+    "1.0.0.fn.0.norm.weight": [
+      48
+    ],
+    "1.0.0.fn.0.norm.bias": [
+      48
+    ],
+    "1.0.0.fn.0.norm.running_mean": [
+      48
+    ],
+    "1.0.0.fn.0.norm.running_var": [
+      48
+    ],
+    "1.0.0.fn.1.query.bias": [
+      48
+    ],
+    "1.0.0.fn.1.key.bias": [
+      48
+    ],
+    "1.0.0.fn.1.value.bias": [
+      48
+    ],
+    "1.0.0.fn.1.out.bias": [
+      48
+    ],
+    "1.0.1.fn.0.norm.weight": [
+      48
+    ],
+    "1.0.1.fn.0.norm.bias": [
+      48
+    ],
+    "1.0.1.fn.0.norm.running_mean": [
+      48
+    ],
+    "1.0.1.fn.0.norm.running_var": [
+      48
+    ],
+    "1.0.1.fn.1.0.bias": [
+      96
+    ],
+    "1.0.1.fn.1.3.bias": [
+      48
+    ],
+    "1.1.0.fn.0.norm.weight": [
+      48
+    ],
+    "1.1.0.fn.0.norm.bias": [
+      48
+    ],
+    "1.1.0.fn.0.norm.running_mean": [
+      48
+    ],
+    "1.1.0.fn.0.norm.running_var": [
+      48
+    ],
+    "1.1.0.fn.1.query.bias": [
+      48
+    ],
+    "1.1.0.fn.1.key.bias": [
+      48
+    ],
+    "1.1.0.fn.1.value.bias": [
+      48
+    ],
+    "1.1.0.fn.1.out.bias": [
+      48
+    ],
+    "1.1.1.fn.0.norm.weight": [
+      48
+    ],
+    "1.1.1.fn.0.norm.bias": [
+      48
+    ],
+    "1.1.1.fn.0.norm.running_mean": [
+      48
+    ],
+    "1.1.1.fn.0.norm.running_var": [
+      48
+    ],
+    "1.1.1.fn.1.0.bias": [
+      96
+    ],
+    "1.1.1.fn.1.3.bias": [
+      48
+    ],
+    "1.2.0.fn.0.norm.weight": [
+      48
+    ],
+    "1.2.0.fn.0.norm.bias": [
+      48
+    ],
+    "1.2.0.fn.0.norm.running_mean": [
+      48
+    ],
+    "1.2.0.fn.0.norm.running_var": [
+      48
+    ],
+    "1.2.0.fn.1.query.bias": [
+      48
+    ],
+    "1.2.0.fn.1.key.bias": [
+      48
+    ],
+    "1.2.0.fn.1.value.bias": [
+      48
+    ],
+    "1.2.0.fn.1.out.bias": [
+      48
+    ],
+    "1.2.1.fn.0.norm.weight": [
+      48
+    ],
+    "1.2.1.fn.0.norm.bias": [
+      48
+    ],
+    "1.2.1.fn.0.norm.running_mean": [
+      48
+    ],
+    "1.2.1.fn.0.norm.running_var": [
+      48
+    ],
+    "1.2.1.fn.1.0.bias": [
+      96
+    ],
+    "1.2.1.fn.1.3.bias": [
+      48
+    ],
+    "2.1.weight": [
+      48
+    ],
+    "2.1.bias": [
+      48
+    ],
+    "2.1.running_mean": [
+      48
+    ],
+    "2.1.running_var": [
+      48
+    ],
+    "2.2.weight": [
+      10,
+      48
+    ],
+    "2.2.bias": [
+      10
+    ],
+    "onnx::MatMul_293": [
+      48,
+      48
+    ],
+    "onnx::MatMul_294": [
+      48,
+      48
+    ],
+    "onnx::MatMul_295": [
+      48,
+      48
+    ],
+    "onnx::MatMul_307": [
+      48,
+      48
+    ],
+    "onnx::MatMul_308": [
+      48,
+      96
+    ],
+    "onnx::MatMul_309": [
+      96,
+      48
+    ],
+    "onnx::MatMul_310": [
+      48,
+      48
+    ],
+    "onnx::MatMul_311": [
+      48,
+      48
+    ],
+    "onnx::MatMul_312": [
+      48,
+      48
+    ],
+    "onnx::MatMul_324": [
+      48,
+      48
+    ],
+    "onnx::MatMul_325": [
+      48,
+      96
+    ],
+    "onnx::MatMul_326": [
+      96,
+      48
+    ],
+    "onnx::MatMul_327": [
+      48,
+      48
+    ],
+    "onnx::MatMul_328": [
+      48,
+      48
+    ],
+    "onnx::MatMul_329": [
+      48,
+      48
+    ],
+    "onnx::MatMul_341": [
+      48,
+      48
+    ],
+    "onnx::MatMul_342": [
+      48,
+      96
+    ],
+    "onnx::MatMul_343": [
+      96,
+      48
+    ],
+    "/0/Constant_output_0": [],
+    "_v_262": [
+      1
+    ],
+    "_v_263": [
+      1
+    ],
+    "_v_264": [
+      1
+    ],
+    "/0/Constant_1_output_0": [
+      1
+    ],
+    "_v_265": [
+      1
+    ],
+    "/0/Constant_2_output_0": [
+      1
+    ],
+    "/0/Constant_3_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_output_0": [],
+    "_v_266": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_1_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_2_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_3_output_0": [
+      1
+    ],
+    "_v_267": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_4_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_5_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_6_output_0": [
+      1
+    ],
+    "_v_268": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_7_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_8_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_9_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_10_output_0": [],
+    "_v_272": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_11_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_12_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_output_0": [],
+    "_v_273": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_1_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_2_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_3_output_0": [
+      1
+    ],
+    "_v_274": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_4_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_5_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_6_output_0": [
+      1
+    ],
+    "_v_275": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_7_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_8_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_9_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_10_output_0": [],
+    "_v_279": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_11_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_12_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_output_0": [],
+    "_v_280": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_1_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_2_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_3_output_0": [
+      1
+    ],
+    "_v_281": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_4_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_5_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_6_output_0": [
+      1
+    ],
+    "_v_282": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_7_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_8_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_9_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_10_output_0": [],
+    "_v_286": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_11_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_12_output_0": [
+      1
+    ],
+    "_v_287": [
+      1
+    ],
+    "/0/Shape_output_0": [
+      1,
+      3,
+      32,
+      32
+    ],
+    "/0/Gather_output_0": 1,
+    "/0/projection/Conv_output_0": [
+      1,
+      48,
+      4,
+      4
+    ],
+    "/0/Shape_1_output_0": [
+      1,
+      48,
+      4,
+      4
+    ],
+    "/0/Slice_output_0": [
+      1,
+      48
+    ],
+    "/0/Concat_output_0": [
+      1,
+      48,
+      -1
+    ],
+    "/0/Reshape_output_0": [
+      1,
+      48,
+      16
+    ],
+    "/0/Transpose_output_0": [
+      1,
+      16,
+      48
+    ],
+    "/0/Unsqueeze_output_0": [
+      1
+    ],
+    "/0/Concat_1_output_0": [
+      1,
+      1,
+      48
+    ],
+    "/0/ConstantOfShape_output_0": [
+      1,
+      1,
+      48
+    ],
+    "/0/Add_output_0": [
+      1,
+      1,
+      48
+    ],
+    "/0/Concat_2_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/0/Add_1_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.0/Transpose_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.0/1.0.0/fn/fn.0/norm/BatchNormalization_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.0/1.0.0/fn/fn.0/Transpose_1_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Shape_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Gather_output_0": 1,
+    "/1/1.0/1.0.0/fn/fn.1/query/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/query/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/key/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/key/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/value/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/value/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Unsqueeze_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Concat_output_0": [
+      1,
+      -1,
+      3,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Unsqueeze_1_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Concat_1_output_0": [
+      1,
+      -1,
+      3,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Unsqueeze_2_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Concat_2_output_0": [
+      1,
+      -1,
+      3,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Reshape_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Transpose_output_0": [
+      1,
+      3,
+      17,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Reshape_1_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Reshape_2_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Transpose_1_output_0": [
+      1,
+      3,
+      17,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Transpose_2_output_0": [
+      1,
+      3,
+      16,
+      17
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/MatMul_output_0": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Mul_output_0": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "_v_269": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "_v_270": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Softmax_output_0_intermediate": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Softmax_output_0": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/MatMul_1_output_0": [
+      1,
+      3,
+      17,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Transpose_3_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Unsqueeze_3_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Concat_3_output_0": [
+      1,
+      -1,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Reshape_3_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/out/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/out/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.0/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.1/fn/fn.0/Transpose_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.0/1.0.1/fn/fn.0/norm/BatchNormalization_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.0/1.0.1/fn/fn.0/Transpose_1_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.1/fn/fn.1/fn.1.0/MatMul_output_0": [
+      1,
+      17,
+      96
+    ],
+    "/1/1.0/1.0.1/fn/fn.1/fn.1.0/Add_output_0": [
+      1,
+      17,
+      96
+    ],
+    "/1/1.0/1.0.1/fn/fn.1/fn.1.1/Relu_output_0": [
+      1,
+      17,
+      96
+    ],
+    "/1/1.0/1.0.1/fn/fn.1/fn.1.3/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.1/fn/fn.1/fn.1.3/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.0/1.0.1/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.0/Transpose_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.1/1.1.0/fn/fn.0/norm/BatchNormalization_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.1/1.1.0/fn/fn.0/Transpose_1_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Shape_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Gather_output_0": 1,
+    "/1/1.1/1.1.0/fn/fn.1/query/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/query/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/key/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/key/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/value/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/value/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Unsqueeze_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Concat_output_0": [
+      1,
+      -1,
+      3,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Unsqueeze_1_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Concat_1_output_0": [
+      1,
+      -1,
+      3,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Unsqueeze_2_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Concat_2_output_0": [
+      1,
+      -1,
+      3,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Reshape_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Transpose_output_0": [
+      1,
+      3,
+      17,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Reshape_1_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Reshape_2_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Transpose_1_output_0": [
+      1,
+      3,
+      17,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Transpose_2_output_0": [
+      1,
+      3,
+      16,
+      17
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/MatMul_output_0": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Mul_output_0": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "_v_276": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "_v_277": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Softmax_output_0_intermediate": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Softmax_output_0": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/MatMul_1_output_0": [
+      1,
+      3,
+      17,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Transpose_3_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Unsqueeze_3_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Concat_3_output_0": [
+      1,
+      -1,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Reshape_3_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/out/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/out/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.0/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.1/fn/fn.0/Transpose_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.1/1.1.1/fn/fn.0/norm/BatchNormalization_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.1/1.1.1/fn/fn.0/Transpose_1_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.1/fn/fn.1/fn.1.0/MatMul_output_0": [
+      1,
+      17,
+      96
+    ],
+    "/1/1.1/1.1.1/fn/fn.1/fn.1.0/Add_output_0": [
+      1,
+      17,
+      96
+    ],
+    "/1/1.1/1.1.1/fn/fn.1/fn.1.1/Relu_output_0": [
+      1,
+      17,
+      96
+    ],
+    "/1/1.1/1.1.1/fn/fn.1/fn.1.3/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.1/fn/fn.1/fn.1.3/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.1/1.1.1/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.0/Transpose_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.2/1.2.0/fn/fn.0/norm/BatchNormalization_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.2/1.2.0/fn/fn.0/Transpose_1_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Shape_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Gather_output_0": 1,
+    "/1/1.2/1.2.0/fn/fn.1/query/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/query/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/key/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/key/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/value/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/value/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Unsqueeze_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Concat_output_0": [
+      1,
+      -1,
+      3,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Unsqueeze_1_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Concat_1_output_0": [
+      1,
+      -1,
+      3,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Unsqueeze_2_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Concat_2_output_0": [
+      1,
+      -1,
+      3,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Reshape_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Transpose_output_0": [
+      1,
+      3,
+      17,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Reshape_1_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Reshape_2_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Transpose_1_output_0": [
+      1,
+      3,
+      17,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Transpose_2_output_0": [
+      1,
+      3,
+      16,
+      17
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/MatMul_output_0": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Mul_output_0": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "_v_283": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "_v_284": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Softmax_output_0_intermediate": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Softmax_output_0": [
+      1,
+      3,
+      17,
+      17
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/MatMul_1_output_0": [
+      1,
+      3,
+      17,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Transpose_3_output_0": [
+      1,
+      17,
+      3,
+      16
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Unsqueeze_3_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Concat_3_output_0": [
+      1,
+      -1,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Reshape_3_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/out/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/out/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.0/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.1/fn/fn.0/Transpose_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.2/1.2.1/fn/fn.0/norm/BatchNormalization_output_0": [
+      1,
+      48,
+      17
+    ],
+    "/1/1.2/1.2.1/fn/fn.0/Transpose_1_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.1/fn/fn.1/fn.1.0/MatMul_output_0": [
+      1,
+      17,
+      96
+    ],
+    "/1/1.2/1.2.1/fn/fn.1/fn.1.0/Add_output_0": [
+      1,
+      17,
+      96
+    ],
+    "/1/1.2/1.2.1/fn/fn.1/fn.1.1/Relu_output_0": [
+      1,
+      17,
+      96
+    ],
+    "/1/1.2/1.2.1/fn/fn.1/fn.1.3/MatMul_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.1/fn/fn.1/fn.1.3/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/1/1.2/1.2.1/Add_output_0": [
+      1,
+      17,
+      48
+    ],
+    "/2/2.0/ReduceMean_output_0": [
+      1,
+      48
+    ],
+    "/2/2.1/BatchNormalization_output_0": [
+      1,
+      48
+    ]
+  },
+  "onnx_shapes": {
+    "/0/Shape_output_0": [
+      4
+    ],
+    "/0/Constant_output_0": [],
+    "/0/Gather_output_0": [],
+    "/0/projection/Conv_output_0": [
+      -1,
+      48,
+      4,
+      4
+    ],
+    "/0/Shape_1_output_0": [
+      4
+    ],
+    "/0/Slice_output_0": [
+      2
+    ],
+    "/0/Constant_1_output_0": [
+      1
+    ],
+    "/0/Concat_output_0": [
+      3
+    ],
+    "/0/Unsqueeze_output_0": [
+      1
+    ],
+    "/0/Constant_2_output_0": [
+      1
+    ],
+    "/0/Constant_3_output_0": [
+      1
+    ],
+    "/0/Concat_1_output_0": [
+      3
+    ],
+    "/0/ConstantOfShape_output_0": [
+      -1,
+      -1,
+      -1
+    ],
+    "/0/Add_output_0": [
+      -1,
+      -1,
+      48
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Shape_output_0": [
+      -1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_output_0": [],
+    "/1/1.0/1.0.0/fn/fn.1/Gather_output_0": [],
+    "/1/1.0/1.0.0/fn/fn.1/Unsqueeze_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_1_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_2_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_3_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Concat_output_0": [
+      4
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Unsqueeze_1_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_4_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_5_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_6_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Concat_1_output_0": [
+      4
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Unsqueeze_2_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_7_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_8_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_9_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Concat_2_output_0": [
+      4
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_10_output_0": [],
+    "/1/1.0/1.0.0/fn/fn.1/Unsqueeze_3_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_11_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Constant_12_output_0": [
+      1
+    ],
+    "/1/1.0/1.0.0/fn/fn.1/Concat_3_output_0": [
+      3
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Shape_output_0": [
+      -1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_output_0": [],
+    "/1/1.1/1.1.0/fn/fn.1/Gather_output_0": [],
+    "/1/1.1/1.1.0/fn/fn.1/Unsqueeze_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_1_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_2_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_3_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Concat_output_0": [
+      4
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Unsqueeze_1_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_4_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_5_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_6_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Concat_1_output_0": [
+      4
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Unsqueeze_2_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_7_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_8_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_9_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Concat_2_output_0": [
+      4
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_10_output_0": [],
+    "/1/1.1/1.1.0/fn/fn.1/Unsqueeze_3_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_11_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Constant_12_output_0": [
+      1
+    ],
+    "/1/1.1/1.1.0/fn/fn.1/Concat_3_output_0": [
+      3
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Shape_output_0": [
+      -1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_output_0": [],
+    "/1/1.2/1.2.0/fn/fn.1/Gather_output_0": [],
+    "/1/1.2/1.2.0/fn/fn.1/Unsqueeze_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_1_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_2_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_3_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Concat_output_0": [
+      4
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Unsqueeze_1_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_4_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_5_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_6_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Concat_1_output_0": [
+      4
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Unsqueeze_2_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_7_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_8_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_9_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Concat_2_output_0": [
+      4
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_10_output_0": [],
+    "/1/1.2/1.2.0/fn/fn.1/Unsqueeze_3_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_11_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Constant_12_output_0": [
+      1
+    ],
+    "/1/1.2/1.2.0/fn/fn.1/Concat_3_output_0": [
+      3
+    ],
+    "output": [
+      -1,
+      10
+    ],
+    "input": [
+      -1,
+      3,
+      32,
+      32
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 201,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 29
+  }
+}

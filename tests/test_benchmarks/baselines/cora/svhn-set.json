@@ -1,0 +1,284 @@
+{
+  "shapeonnx_shapes": {
+    "input": [
+      1,
+      3072
+    ],
+    "fc_8_copy_Add": [
+      1,
+      10
+    ],
+    "input_copy_Mul_B": [
+      1,
+      1
+    ],
+    "input_copy_Add_B": [
+      1,
+      1
+    ],
+    "fc_1_copy_MatMul_W": [
+      3072,
+      250
+    ],
+    "fc_1_copy_Add_B": [
+      250
+    ],
+    "fc_2_copy_MatMul_W": [
+      250,
+      250
+    ],
+    "fc_2_copy_Add_B": [
+      250
+    ],
+    "fc_3_copy_MatMul_W": [
+      250,
+      250
+    ],
+    "fc_3_copy_Add_B": [
+      250
+    ],
+    "fc_4_copy_MatMul_W": [
+      250,
+      250
+    ],
+    "fc_4_copy_Add_B": [
+      250
+    ],
+    "fc_5_copy_MatMul_W": [
+      250,
+      250
+    ],
+    "fc_5_copy_Add_B": [
+      250
+    ],
+    "fc_6_copy_MatMul_W": [
+      250,
+      250
+    ],
+    "fc_6_copy_Add_B": [
+      250
+    ],
+    "fc_7_copy_MatMul_W": [
+      250,
+      250
+    ],
+    "fc_7_copy_Add_B": [
+      250
+    ],
+    "fc_8_copy_MatMul_W": [
+      250,
+      10
+    ],
+    "fc_8_copy_Add_B": [
+      10
+    ],
+    "input_copy_Mul": [
+      1,
+      3072
+    ],
+    "input_copy_Add": [
+      1,
+      3072
+    ],
+    "fc_1_copy_MatMul": [
+      1,
+      250
+    ],
+    "fc_1_copy_Add": [
+      1,
+      250
+    ],
+    "relu_1_copy": [
+      1,
+      250
+    ],
+    "fc_2_copy_MatMul": [
+      1,
+      250
+    ],
+    "fc_2_copy_Add": [
+      1,
+      250
+    ],
+    "relu_2_copy": [
+      1,
+      250
+    ],
+    "fc_3_copy_MatMul": [
+      1,
+      250
+    ],
+    "fc_3_copy_Add": [
+      1,
+      250
+    ],
+    "relu_3_copy": [
+      1,
+      250
+    ],
+    "fc_4_copy_MatMul": [
+      1,
+      250
+    ],
+    "fc_4_copy_Add": [
+      1,
+      250
+    ],
+    "relu_4_copy": [
+      1,
+      250
+    ],
+    "fc_5_copy_MatMul": [
+      1,
+      250
+    ],
+    "fc_5_copy_Add": [
+      1,
+      250
+    ],
+    "relu_5_copy": [
+      1,
+      250
+    ],
+    "fc_6_copy_MatMul": [
+      1,
+      250
+    ],
+    "fc_6_copy_Add": [
+      1,
+      250
+    ],
+    "relu_6_copy": [
+      1,
+      250
+    ],
+    "fc_7_copy_MatMul": [
+      1,
+      250
+    ],
+    "fc_7_copy_Add": [
+      1,
+      250
+    ],
+    "relu_7_copy": [
+      1,
+      250
+    ],
+    "fc_8_copy_MatMul": [
+      1,
+      10
+    ]
+  },
+  "onnx_shapes": {
+    "input_copy_Mul": [
+      -1,
+      3072
+    ],
+    "input_copy_Add": [
+      -1,
+      3072
+    ],
+    "fc_1_copy_MatMul": [
+      -1,
+      250
+    ],
+    "fc_1_copy_Add": [
+      -1,
+      250
+    ],
+    "relu_1_copy": [
+      -1,
+      250
+    ],
+    "fc_2_copy_MatMul": [
+      -1,
+      250
+    ],
+    "fc_2_copy_Add": [
+      -1,
+      250
+    ],
+    "relu_2_copy": [
+      -1,
+      250
+    ],
+    "fc_3_copy_MatMul": [
+      -1,
+      250
+    ],
+    "fc_3_copy_Add": [
+      -1,
+      250
+    ],
+    "relu_3_copy": [
+      -1,
+      250
+    ],
+    "fc_4_copy_MatMul": [
+      -1,
+      250
+    ],
+    "fc_4_copy_Add": [
+      -1,
+      250
+    ],
+    "relu_4_copy": [
+      -1,
+      250
+    ],
+    "fc_5_copy_MatMul": [
+      -1,
+      250
+    ],
+    "fc_5_copy_Add": [
+      -1,
+      250
+    ],
+    "relu_5_copy": [
+      -1,
+      250
+    ],
+    "fc_6_copy_MatMul": [
+      -1,
+      250
+    ],
+    "fc_6_copy_Add": [
+      -1,
+      250
+    ],
+    "relu_6_copy": [
+      -1,
+      250
+    ],
+    "fc_7_copy_MatMul": [
+      -1,
+      250
+    ],
+    "fc_7_copy_Add": [
+      -1,
+      250
+    ],
+    "relu_7_copy": [
+      -1,
+      250
+    ],
+    "fc_8_copy_MatMul": [
+      -1,
+      10
+    ],
+    "fc_8_copy_Add": [
+      -1,
+      10
+    ],
+    "input": [
+      -1,
+      3072
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 18,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 26
+  }
+}

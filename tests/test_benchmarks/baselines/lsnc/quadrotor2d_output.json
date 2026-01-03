@@ -1,0 +1,1726 @@
+{
+  "shapeonnx_shapes": {
+    "input": [
+      1,
+      8
+    ],
+    "output": [
+      1,
+      10
+    ],
+    "observer.fc_net.0.weight": [
+      8,
+      8
+    ],
+    "observer.fc_net.0.bias": [
+      8
+    ],
+    "observer.fc_net.2.weight": [
+      4,
+      8
+    ],
+    "observer.fc_net.2.bias": [
+      4
+    ],
+    "controller.net.0.weight": [
+      8,
+      8
+    ],
+    "controller.net.0.bias": [
+      8
+    ],
+    "controller.net.2.weight": [
+      2,
+      8
+    ],
+    "controller.net.2.bias": [
+      2
+    ],
+    "lyapunov.R": [
+      8,
+      8
+    ],
+    "onnx::MatMul_374": [
+      8,
+      8
+    ],
+    "onnx::MatMul_375": [
+      8,
+      2
+    ],
+    "onnx::MatMul_424": [
+      8,
+      8
+    ],
+    "/Constant_output_0": [
+      1
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/Constant_4_output_0": [
+      1
+    ],
+    "/Constant_5_output_0": [
+      1
+    ],
+    "/Constant_6_output_0": [
+      1
+    ],
+    "/Constant_7_output_0": [
+      1
+    ],
+    "/Constant_8_output_0": [],
+    "onnx::Unsqueeze_36": [
+      1
+    ],
+    "/Constant_9_output_0": [
+      1
+    ],
+    "/Constant_10_output_0": [
+      1
+    ],
+    "/Constant_11_output_0": [
+      1
+    ],
+    "/Constant_12_output_0": [
+      1
+    ],
+    "/Constant_13_output_0": [
+      1
+    ],
+    "/Constant_14_output_0": [],
+    "/Constant_15_output_0": [
+      1
+    ],
+    "/Constant_16_output_0": [
+      1
+    ],
+    "/Constant_17_output_0": [
+      1
+    ],
+    "/Constant_18_output_0": [
+      1
+    ],
+    "/Constant_19_output_0": [
+      4
+    ],
+    "/Constant_20_output_0": [],
+    "/Constant_21_output_0": [],
+    "/Constant_22_output_0": [],
+    "onnx::Unsqueeze_78": [
+      1
+    ],
+    "/Constant_23_output_0": [
+      1
+    ],
+    "/Constant_24_output_0": [
+      1
+    ],
+    "/Constant_25_output_0": [
+      1
+    ],
+    "/Constant_26_output_0": [
+      1
+    ],
+    "/Constant_27_output_0": [
+      1
+    ],
+    "/Constant_28_output_0": [],
+    "/Constant_29_output_0": [
+      1
+    ],
+    "/Constant_30_output_0": [
+      1
+    ],
+    "/Constant_31_output_0": [
+      1
+    ],
+    "/Constant_32_output_0": [
+      1
+    ],
+    "/Constant_33_output_0": [
+      4
+    ],
+    "/Constant_34_output_0": [],
+    "/Constant_35_output_0": [],
+    "/net/net.0_1/Constant_output_0": [
+      8
+    ],
+    "/Constant_36_output_0": [
+      2
+    ],
+    "/Constant_37_output_0": [
+      2
+    ],
+    "/Constant_38_output_0": [
+      2
+    ],
+    "/Constant_39_output_0": [
+      2
+    ],
+    "/Constant_40_output_0": [
+      2
+    ],
+    "/Constant_41_output_0": [
+      1
+    ],
+    "/Constant_42_output_0": [
+      1
+    ],
+    "/Constant_43_output_0": [
+      1
+    ],
+    "/Constant_44_output_0": [
+      1
+    ],
+    "/Constant_45_output_0": [
+      1
+    ],
+    "/Constant_46_output_0": [
+      1
+    ],
+    "/Constant_47_output_0": [
+      1
+    ],
+    "/Constant_48_output_0": [
+      1
+    ],
+    "/Constant_49_output_0": [
+      1
+    ],
+    "/Constant_50_output_0": [
+      1
+    ],
+    "/Constant_51_output_0": [
+      1
+    ],
+    "/Constant_52_output_0": [
+      1
+    ],
+    "/Constant_53_output_0": [
+      1
+    ],
+    "/Constant_54_output_0": [
+      1
+    ],
+    "/Constant_55_output_0": [
+      1
+    ],
+    "/Constant_56_output_0": [
+      1
+    ],
+    "/Constant_57_output_0": [],
+    "/Constant_58_output_0": [],
+    "/Constant_59_output_0": [
+      1
+    ],
+    "/Constant_60_output_0": [
+      1
+    ],
+    "/Constant_61_output_0": [
+      1
+    ],
+    "/Constant_62_output_0": [
+      1
+    ],
+    "/Constant_63_output_0": [],
+    "/Constant_64_output_0": [],
+    "/Constant_65_output_0": [
+      1
+    ],
+    "/Constant_66_output_0": [
+      1
+    ],
+    "/Constant_67_output_0": [
+      1
+    ],
+    "/Constant_68_output_0": [
+      1
+    ],
+    "/Constant_69_output_0": [],
+    "/Constant_70_output_0": [
+      1
+    ],
+    "/Constant_71_output_0": [
+      1
+    ],
+    "/Constant_72_output_0": [
+      1
+    ],
+    "/Constant_73_output_0": [
+      1
+    ],
+    "/Constant_74_output_0": [],
+    "/Constant_75_output_0": [],
+    "/Constant_76_output_0": [],
+    "/dynamics/Constant_output_0": [
+      1
+    ],
+    "/dynamics/Constant_1_output_0": [
+      1
+    ],
+    "/dynamics/Constant_2_output_0": [
+      1
+    ],
+    "/dynamics/Constant_3_output_0": [
+      1
+    ],
+    "/dynamics/Constant_4_output_0": [
+      1
+    ],
+    "/dynamics/Constant_5_output_0": [
+      1
+    ],
+    "/dynamics/Constant_6_output_0": [
+      1
+    ],
+    "/dynamics/Constant_7_output_0": [
+      1
+    ],
+    "/dynamics/Constant_8_output_0": [],
+    "/dynamics/Constant_9_output_0": [],
+    "/dynamics/Constant_10_output_0": [
+      1
+    ],
+    "/dynamics/Constant_11_output_0": [
+      1
+    ],
+    "/dynamics/Constant_12_output_0": [
+      1
+    ],
+    "/dynamics/Constant_13_output_0": [
+      1
+    ],
+    "/dynamics/Constant_14_output_0": [],
+    "/dynamics/Constant_15_output_0": [
+      1
+    ],
+    "/dynamics/Constant_16_output_0": [
+      1
+    ],
+    "/dynamics/Constant_17_output_0": [
+      1
+    ],
+    "/dynamics/Constant_18_output_0": [
+      1
+    ],
+    "/dynamics/Constant_19_output_0": [],
+    "/dynamics/Constant_20_output_0": [
+      1
+    ],
+    "/dynamics/Constant_21_output_0": [
+      1
+    ],
+    "/dynamics/Constant_22_output_0": [
+      1
+    ],
+    "/dynamics/Constant_23_output_0": [
+      1
+    ],
+    "/dynamics/Constant_24_output_0": [],
+    "/dynamics/Constant_25_output_0": [],
+    "/dynamics/Constant_26_output_0": [],
+    "/Constant_77_output_0": [],
+    "/lyapunov/Constant_output_0": [
+      8
+    ],
+    "/lyapunov/Constant_1_output_0": [
+      8,
+      8
+    ],
+    "onnx::ReduceSum_321": [
+      1
+    ],
+    "/Constant_78_output_0": [],
+    "onnx::ReduceSum_331": [
+      1
+    ],
+    "/Constant_79_output_0": [
+      8
+    ],
+    "/Constant_80_output_0": [],
+    "/Constant_81_output_0": [
+      8
+    ],
+    "/Constant_82_output_0": [],
+    "/Slice_output_0": [
+      1,
+      4
+    ],
+    "/Slice_1_output_0": [
+      1,
+      4
+    ],
+    "/Sub_output_0": [
+      1,
+      4
+    ],
+    "/Shape_output_0": [
+      1,
+      4
+    ],
+    "/Gather_output_0": 1,
+    "/Unsqueeze_output_0": [
+      1
+    ],
+    "/Concat_output_0": [
+      1,
+      4
+    ],
+    "/ConstantOfShape_output_0": [
+      1,
+      4
+    ],
+    "/Slice_2_output_0": [
+      1,
+      1
+    ],
+    "/Mul_output_0": [
+      1,
+      4
+    ],
+    "/Add_output_0": [
+      1,
+      4
+    ],
+    "/Slice_3_output_0": [
+      1,
+      1
+    ],
+    "/Sub_1_output_0": [
+      1,
+      4
+    ],
+    "/Cos_output_0": [
+      1,
+      4
+    ],
+    "/Div_output_0": [
+      1,
+      4
+    ],
+    "/Relu_output_0": [
+      1,
+      4
+    ],
+    "/Sub_2_output_0": [
+      1,
+      4
+    ],
+    "/Relu_1_output_0": [
+      1,
+      4
+    ],
+    "/Neg_output_0": [
+      1,
+      4
+    ],
+    "/Add_1_output_0": [
+      1,
+      4
+    ],
+    "/Shape_1_output_0": [
+      1,
+      4
+    ],
+    "/Gather_1_output_0": 1,
+    "/Unsqueeze_1_output_0": [
+      1
+    ],
+    "/Concat_1_output_0": [
+      1,
+      4
+    ],
+    "/ConstantOfShape_1_output_0": [
+      1,
+      4
+    ],
+    "/Slice_4_output_0": [
+      1,
+      1
+    ],
+    "/Mul_1_output_0": [
+      1,
+      4
+    ],
+    "/Add_2_output_0": [
+      1,
+      4
+    ],
+    "/Slice_5_output_0": [
+      1,
+      1
+    ],
+    "/Sub_3_output_0": [
+      1,
+      4
+    ],
+    "/Cos_1_output_0": [
+      1,
+      4
+    ],
+    "/Div_1_output_0": [
+      1,
+      4
+    ],
+    "/Relu_2_output_0": [
+      1,
+      4
+    ],
+    "/Sub_4_output_0": [
+      1,
+      4
+    ],
+    "/Relu_3_output_0": [
+      1,
+      4
+    ],
+    "/Neg_1_output_0": [
+      1,
+      4
+    ],
+    "/Add_3_output_0": [
+      1,
+      4
+    ],
+    "/Sub_5_output_0": [
+      1,
+      4
+    ],
+    "/Concat_2_output_0": [
+      1,
+      8
+    ],
+    "/net/net.0/Gemm_output_0": [
+      1,
+      8
+    ],
+    "/net/net.1/Relu_output_0": [
+      1,
+      8
+    ],
+    "/net/net.2/Gemm_output_0": [
+      1,
+      2
+    ],
+    "/net/net.0_1/MatMul_output_0": [
+      8
+    ],
+    "/net/net.0_1/Add_output_0": [
+      8
+    ],
+    "/net/net.1_1/Relu_output_0": [
+      8
+    ],
+    "/net/net.2_1/MatMul_output_0": [
+      2
+    ],
+    "/net/net.2_1/Add_output_0": [
+      2
+    ],
+    "/Sub_6_output_0": [
+      1,
+      2
+    ],
+    "/Add_4_output_0": [
+      1,
+      2
+    ],
+    "/Sub_7_output_0": [
+      1,
+      2
+    ],
+    "/Relu_4_output_0": [
+      1,
+      2
+    ],
+    "/Add_5_output_0": [
+      1,
+      2
+    ],
+    "/Sub_8_output_0": [
+      1,
+      2
+    ],
+    "/Relu_5_output_0": [
+      1,
+      2
+    ],
+    "/Sub_9_output_0": [
+      1,
+      2
+    ],
+    "/Neg_2_output_0": [
+      1,
+      2
+    ],
+    "/Slice_6_output_0": [
+      1,
+      2
+    ],
+    "/Slice_7_output_0": [
+      1,
+      1
+    ],
+    "/Cos_2_output_0": [
+      1,
+      1
+    ],
+    "/Slice_8_output_0": [
+      1,
+      1
+    ],
+    "/Slice_9_output_0": [
+      1,
+      1
+    ],
+    "/Add_6_output_0": [
+      1,
+      1
+    ],
+    "/Mul_2_output_0": [
+      1,
+      1
+    ],
+    "/Mul_3_output_0": [
+      1,
+      1
+    ],
+    "/Sub_10_output_0": [
+      1,
+      1
+    ],
+    "/Slice_10_output_0": [
+      1,
+      1
+    ],
+    "/Mul_4_output_0": [
+      1,
+      1
+    ],
+    "/Sub_11_output_0": [
+      1,
+      1
+    ],
+    "/Sub_12_output_0": [
+      1,
+      1
+    ],
+    "/Mul_5_output_0": [
+      1,
+      1
+    ],
+    "/Slice_11_output_0": [
+      1,
+      1
+    ],
+    "/Mul_6_output_0": [
+      1,
+      1
+    ],
+    "/Sub_13_output_0": [
+      1,
+      1
+    ],
+    "/Concat_3_output_0": [
+      1,
+      2
+    ],
+    "/Slice_12_output_0": [
+      1,
+      2
+    ],
+    "/Mul_7_output_0": [
+      1,
+      2
+    ],
+    "/Add_7_output_0": [
+      1,
+      2
+    ],
+    "/Add_8_output_0": [
+      1,
+      2
+    ],
+    "/Div_2_output_0": [
+      1,
+      2
+    ],
+    "/Mul_8_output_0": [
+      1,
+      2
+    ],
+    "/Add_9_output_0": [
+      1,
+      2
+    ],
+    "/Concat_4_output_0": [
+      1,
+      4
+    ],
+    "/dynamics/Slice_output_0": [
+      1,
+      2
+    ],
+    "/dynamics/Slice_1_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Cos_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Mul_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Mul_1_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Sub_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Slice_2_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Mul_2_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Sub_1_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Slice_3_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Mul_3_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Sub_2_output_0": [
+      1,
+      1
+    ],
+    "/dynamics/Concat_output_0": [
+      1,
+      2
+    ],
+    "/dynamics/Slice_4_output_0": [
+      1,
+      2
+    ],
+    "/dynamics/Mul_4_output_0": [
+      1,
+      2
+    ],
+    "/dynamics/Add_output_0": [
+      1,
+      2
+    ],
+    "/dynamics/Add_1_output_0": [
+      1,
+      2
+    ],
+    "/dynamics/Div_output_0": [
+      1,
+      2
+    ],
+    "/dynamics/Mul_5_output_0": [
+      1,
+      2
+    ],
+    "/dynamics/Add_2_output_0": [
+      1,
+      2
+    ],
+    "/dynamics/Concat_1_output_0": [
+      1,
+      4
+    ],
+    "/fc_net/fc_net.0/Gemm_output_0": [
+      1,
+      8
+    ],
+    "/fc_net/fc_net.1/LeakyRelu_output_0": [
+      1,
+      8
+    ],
+    "/fc_net/fc_net.2/Gemm_output_0": [
+      1,
+      4
+    ],
+    "/Mul_9_output_0": [
+      1,
+      4
+    ],
+    "/Concat_5_output_0": [
+      1,
+      8
+    ],
+    "/fc_net/fc_net.0_1/Gemm_output_0": [
+      1,
+      8
+    ],
+    "/fc_net/fc_net.1_1/LeakyRelu_output_0": [
+      1,
+      8
+    ],
+    "/fc_net/fc_net.2_1/Gemm_output_0": [
+      1,
+      4
+    ],
+    "/Add_10_output_0": [
+      1,
+      4
+    ],
+    "/Sub_14_output_0": [
+      1,
+      4
+    ],
+    "/lyapunov/Sub_output_0": [
+      1,
+      8
+    ],
+    "/lyapunov/MatMul_output_0": [
+      8,
+      8
+    ],
+    "/lyapunov/Add_output_0": [
+      8,
+      8
+    ],
+    "/lyapunov/MatMul_1_output_0": [
+      1,
+      8
+    ],
+    "/lyapunov/Mul_output_0": [
+      1,
+      8
+    ],
+    "/lyapunov/ReduceSum_output_0": [
+      1,
+      1
+    ],
+    "/Sub_15_output_0": [
+      1,
+      4
+    ],
+    "/Concat_6_output_0": [
+      1,
+      8
+    ],
+    "/Mul_10_output_0": [
+      1,
+      8
+    ],
+    "/Sub_16_output_0": [
+      1,
+      8
+    ],
+    "/Add_11_output_0": [
+      1,
+      8
+    ],
+    "/MatMul_output_0": [
+      1,
+      8
+    ],
+    "/Mul_11_output_0": [
+      1,
+      8
+    ],
+    "/ReduceSum_output_0": [
+      1,
+      1
+    ],
+    "/MatMul_1_output_0": [
+      8
+    ],
+    "/Mul_12_output_0": [
+      1,
+      8
+    ],
+    "/ReduceSum_1_output_0": [
+      1,
+      1
+    ],
+    "/Mul_13_output_0": [
+      1,
+      1
+    ],
+    "/Sub_17_output_0": [
+      1,
+      1
+    ],
+    "/Mul_14_output_0": [
+      8
+    ],
+    "/ReduceSum_2_output_0": [
+      1
+    ],
+    "/Mul_15_output_0": [
+      1
+    ],
+    "/Add_12_output_0": [
+      1,
+      1
+    ],
+    "/Neg_3_output_0": [
+      1,
+      1
+    ]
+  },
+  "onnx_shapes": {
+    "/Constant_output_0": [
+      1
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/Slice_output_0": [
+      -1,
+      4
+    ],
+    "/Constant_4_output_0": [
+      1
+    ],
+    "/Constant_5_output_0": [
+      1
+    ],
+    "/Constant_6_output_0": [
+      1
+    ],
+    "/Constant_7_output_0": [
+      1
+    ],
+    "/Slice_1_output_0": [
+      -1,
+      4
+    ],
+    "/Sub_output_0": [
+      -1,
+      4
+    ],
+    "/Shape_output_0": [
+      2
+    ],
+    "/Constant_8_output_0": [],
+    "/Gather_output_0": [],
+    "onnx::Unsqueeze_36": [
+      1
+    ],
+    "/Unsqueeze_output_0": [
+      1
+    ],
+    "/Constant_9_output_0": [
+      1
+    ],
+    "/Concat_output_0": [
+      2
+    ],
+    "/ConstantOfShape_output_0": [
+      -1,
+      -1
+    ],
+    "/Constant_10_output_0": [
+      1
+    ],
+    "/Constant_11_output_0": [
+      1
+    ],
+    "/Constant_12_output_0": [
+      1
+    ],
+    "/Constant_13_output_0": [
+      1
+    ],
+    "/Slice_2_output_0": [
+      -1,
+      1
+    ],
+    "/Mul_output_0": [
+      -1,
+      -1
+    ],
+    "/Constant_14_output_0": [],
+    "/Add_output_0": [
+      -1,
+      -1
+    ],
+    "/Constant_15_output_0": [
+      1
+    ],
+    "/Constant_16_output_0": [
+      1
+    ],
+    "/Constant_17_output_0": [
+      1
+    ],
+    "/Constant_18_output_0": [
+      1
+    ],
+    "/Slice_3_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_19_output_0": [
+      4
+    ],
+    "/Sub_1_output_0": [
+      -1,
+      4
+    ],
+    "/Cos_output_0": [
+      -1,
+      4
+    ],
+    "/Div_output_0": [
+      -1,
+      4
+    ],
+    "/Relu_output_0": [
+      -1,
+      4
+    ],
+    "/Constant_20_output_0": [],
+    "/Sub_2_output_0": [
+      -1,
+      4
+    ],
+    "/Relu_1_output_0": [
+      -1,
+      4
+    ],
+    "/Neg_output_0": [
+      -1,
+      4
+    ],
+    "/Constant_21_output_0": [],
+    "/Add_1_output_0": [
+      -1,
+      4
+    ],
+    "/Shape_1_output_0": [
+      2
+    ],
+    "/Constant_22_output_0": [],
+    "/Gather_1_output_0": [],
+    "onnx::Unsqueeze_78": [
+      1
+    ],
+    "/Unsqueeze_1_output_0": [
+      1
+    ],
+    "/Constant_23_output_0": [
+      1
+    ],
+    "/Concat_1_output_0": [
+      2
+    ],
+    "/ConstantOfShape_1_output_0": [
+      -1,
+      -1
+    ],
+    "/Constant_24_output_0": [
+      1
+    ],
+    "/Constant_25_output_0": [
+      1
+    ],
+    "/Constant_26_output_0": [
+      1
+    ],
+    "/Constant_27_output_0": [
+      1
+    ],
+    "/Slice_4_output_0": [
+      -1,
+      1
+    ],
+    "/Mul_1_output_0": [
+      -1,
+      -1
+    ],
+    "/Constant_28_output_0": [],
+    "/Add_2_output_0": [
+      -1,
+      -1
+    ],
+    "/Constant_29_output_0": [
+      1
+    ],
+    "/Constant_30_output_0": [
+      1
+    ],
+    "/Constant_31_output_0": [
+      1
+    ],
+    "/Constant_32_output_0": [
+      1
+    ],
+    "/Slice_5_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_33_output_0": [
+      4
+    ],
+    "/Sub_3_output_0": [
+      -1,
+      4
+    ],
+    "/Cos_1_output_0": [
+      -1,
+      4
+    ],
+    "/Div_1_output_0": [
+      -1,
+      4
+    ],
+    "/Relu_2_output_0": [
+      -1,
+      4
+    ],
+    "/Constant_34_output_0": [],
+    "/Sub_4_output_0": [
+      -1,
+      4
+    ],
+    "/Relu_3_output_0": [
+      -1,
+      4
+    ],
+    "/Neg_1_output_0": [
+      -1,
+      4
+    ],
+    "/Constant_35_output_0": [],
+    "/Add_3_output_0": [
+      -1,
+      4
+    ],
+    "/Sub_5_output_0": [
+      -1,
+      4
+    ],
+    "/Concat_2_output_0": [
+      -1,
+      8
+    ],
+    "/net/net.0/Gemm_output_0": [
+      -1,
+      8
+    ],
+    "/net/net.1/Relu_output_0": [
+      -1,
+      8
+    ],
+    "/net/net.2/Gemm_output_0": [
+      -1,
+      2
+    ],
+    "/net/net.0_1/Constant_output_0": [
+      8
+    ],
+    "/net/net.0_1/MatMul_output_0": [
+      8
+    ],
+    "/net/net.0_1/Add_output_0": [
+      8
+    ],
+    "/net/net.1_1/Relu_output_0": [
+      8
+    ],
+    "/net/net.2_1/MatMul_output_0": [
+      2
+    ],
+    "/net/net.2_1/Add_output_0": [
+      2
+    ],
+    "/Sub_6_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_36_output_0": [
+      2
+    ],
+    "/Add_4_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_37_output_0": [
+      2
+    ],
+    "/Sub_7_output_0": [
+      -1,
+      2
+    ],
+    "/Relu_4_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_38_output_0": [
+      2
+    ],
+    "/Add_5_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_39_output_0": [
+      2
+    ],
+    "/Sub_8_output_0": [
+      -1,
+      2
+    ],
+    "/Relu_5_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_40_output_0": [
+      2
+    ],
+    "/Sub_9_output_0": [
+      -1,
+      2
+    ],
+    "/Neg_2_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_41_output_0": [
+      1
+    ],
+    "/Constant_42_output_0": [
+      1
+    ],
+    "/Constant_43_output_0": [
+      1
+    ],
+    "/Constant_44_output_0": [
+      1
+    ],
+    "/Slice_6_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_45_output_0": [
+      1
+    ],
+    "/Constant_46_output_0": [
+      1
+    ],
+    "/Constant_47_output_0": [
+      1
+    ],
+    "/Constant_48_output_0": [
+      1
+    ],
+    "/Slice_7_output_0": [
+      -1,
+      1
+    ],
+    "/Cos_2_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_49_output_0": [
+      1
+    ],
+    "/Constant_50_output_0": [
+      1
+    ],
+    "/Constant_51_output_0": [
+      1
+    ],
+    "/Constant_52_output_0": [
+      1
+    ],
+    "/Slice_8_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_53_output_0": [
+      1
+    ],
+    "/Constant_54_output_0": [
+      1
+    ],
+    "/Constant_55_output_0": [
+      1
+    ],
+    "/Constant_56_output_0": [
+      1
+    ],
+    "/Slice_9_output_0": [
+      -1,
+      1
+    ],
+    "/Add_6_output_0": [
+      -1,
+      1
+    ],
+    "/Mul_2_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_57_output_0": [],
+    "/Mul_3_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_58_output_0": [],
+    "/Sub_10_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_59_output_0": [
+      1
+    ],
+    "/Constant_60_output_0": [
+      1
+    ],
+    "/Constant_61_output_0": [
+      1
+    ],
+    "/Constant_62_output_0": [
+      1
+    ],
+    "/Slice_10_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_63_output_0": [],
+    "/Mul_4_output_0": [
+      -1,
+      1
+    ],
+    "/Sub_11_output_0": [
+      -1,
+      1
+    ],
+    "/Sub_12_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_64_output_0": [],
+    "/Mul_5_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_65_output_0": [
+      1
+    ],
+    "/Constant_66_output_0": [
+      1
+    ],
+    "/Constant_67_output_0": [
+      1
+    ],
+    "/Constant_68_output_0": [
+      1
+    ],
+    "/Slice_11_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_69_output_0": [],
+    "/Mul_6_output_0": [
+      -1,
+      1
+    ],
+    "/Sub_13_output_0": [
+      -1,
+      1
+    ],
+    "/Concat_3_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_70_output_0": [
+      1
+    ],
+    "/Constant_71_output_0": [
+      1
+    ],
+    "/Constant_72_output_0": [
+      1
+    ],
+    "/Constant_73_output_0": [
+      1
+    ],
+    "/Slice_12_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_74_output_0": [],
+    "/Mul_7_output_0": [
+      -1,
+      2
+    ],
+    "/Add_7_output_0": [
+      -1,
+      2
+    ],
+    "/Add_8_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_75_output_0": [],
+    "/Div_2_output_0": [
+      -1,
+      2
+    ],
+    "/Constant_76_output_0": [],
+    "/Mul_8_output_0": [
+      -1,
+      2
+    ],
+    "/Add_9_output_0": [
+      -1,
+      2
+    ],
+    "/Concat_4_output_0": [
+      -1,
+      4
+    ],
+    "/dynamics/Constant_output_0": [
+      1
+    ],
+    "/dynamics/Constant_1_output_0": [
+      1
+    ],
+    "/dynamics/Constant_2_output_0": [
+      1
+    ],
+    "/dynamics/Constant_3_output_0": [
+      1
+    ],
+    "/dynamics/Slice_output_0": [
+      -1,
+      2
+    ],
+    "/dynamics/Constant_4_output_0": [
+      1
+    ],
+    "/dynamics/Constant_5_output_0": [
+      1
+    ],
+    "/dynamics/Constant_6_output_0": [
+      1
+    ],
+    "/dynamics/Constant_7_output_0": [
+      1
+    ],
+    "/dynamics/Slice_1_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Cos_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Mul_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Constant_8_output_0": [],
+    "/dynamics/Mul_1_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Constant_9_output_0": [],
+    "/dynamics/Sub_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Constant_10_output_0": [
+      1
+    ],
+    "/dynamics/Constant_11_output_0": [
+      1
+    ],
+    "/dynamics/Constant_12_output_0": [
+      1
+    ],
+    "/dynamics/Constant_13_output_0": [
+      1
+    ],
+    "/dynamics/Slice_2_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Constant_14_output_0": [],
+    "/dynamics/Mul_2_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Sub_1_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Constant_15_output_0": [
+      1
+    ],
+    "/dynamics/Constant_16_output_0": [
+      1
+    ],
+    "/dynamics/Constant_17_output_0": [
+      1
+    ],
+    "/dynamics/Constant_18_output_0": [
+      1
+    ],
+    "/dynamics/Slice_3_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Constant_19_output_0": [],
+    "/dynamics/Mul_3_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Sub_2_output_0": [
+      -1,
+      1
+    ],
+    "/dynamics/Concat_output_0": [
+      -1,
+      2
+    ],
+    "/dynamics/Constant_20_output_0": [
+      1
+    ],
+    "/dynamics/Constant_21_output_0": [
+      1
+    ],
+    "/dynamics/Constant_22_output_0": [
+      1
+    ],
+    "/dynamics/Constant_23_output_0": [
+      1
+    ],
+    "/dynamics/Slice_4_output_0": [
+      -1,
+      2
+    ],
+    "/dynamics/Constant_24_output_0": [],
+    "/dynamics/Mul_4_output_0": [
+      -1,
+      2
+    ],
+    "/dynamics/Add_output_0": [
+      -1,
+      2
+    ],
+    "/dynamics/Add_1_output_0": [
+      -1,
+      2
+    ],
+    "/dynamics/Constant_25_output_0": [],
+    "/dynamics/Div_output_0": [
+      -1,
+      2
+    ],
+    "/dynamics/Constant_26_output_0": [],
+    "/dynamics/Mul_5_output_0": [
+      -1,
+      2
+    ],
+    "/dynamics/Add_2_output_0": [
+      -1,
+      2
+    ],
+    "/dynamics/Concat_1_output_0": [
+      -1,
+      4
+    ],
+    "/fc_net/fc_net.0/Gemm_output_0": [
+      -1,
+      8
+    ],
+    "/fc_net/fc_net.1/LeakyRelu_output_0": [
+      -1,
+      8
+    ],
+    "/fc_net/fc_net.2/Gemm_output_0": [
+      -1,
+      4
+    ],
+    "/Constant_77_output_0": [],
+    "/Mul_9_output_0": [
+      -1,
+      4
+    ],
+    "/Concat_5_output_0": [
+      -1,
+      8
+    ],
+    "/fc_net/fc_net.0_1/Gemm_output_0": [
+      -1,
+      8
+    ],
+    "/fc_net/fc_net.1_1/LeakyRelu_output_0": [
+      -1,
+      8
+    ],
+    "/fc_net/fc_net.2_1/Gemm_output_0": [
+      -1,
+      4
+    ],
+    "/Add_10_output_0": [
+      -1,
+      4
+    ],
+    "/Sub_14_output_0": [
+      -1,
+      4
+    ],
+    "/lyapunov/Constant_output_0": [
+      8
+    ],
+    "/lyapunov/Sub_output_0": [
+      -1,
+      8
+    ],
+    "/lyapunov/MatMul_output_0": [
+      8,
+      8
+    ],
+    "/lyapunov/Constant_1_output_0": [
+      8,
+      8
+    ],
+    "/lyapunov/Add_output_0": [
+      8,
+      8
+    ],
+    "/lyapunov/MatMul_1_output_0": [
+      -1,
+      8
+    ],
+    "/lyapunov/Mul_output_0": [
+      -1,
+      8
+    ],
+    "onnx::ReduceSum_321": [
+      1
+    ],
+    "/lyapunov/ReduceSum_output_0": [
+      -1,
+      1
+    ],
+    "/Sub_15_output_0": [
+      -1,
+      4
+    ],
+    "/Concat_6_output_0": [
+      -1,
+      8
+    ],
+    "/Constant_78_output_0": [],
+    "/Mul_10_output_0": [
+      -1,
+      8
+    ],
+    "/Sub_16_output_0": [
+      -1,
+      8
+    ],
+    "/Add_11_output_0": [
+      -1,
+      8
+    ],
+    "/MatMul_output_0": [
+      -1,
+      8
+    ],
+    "/Mul_11_output_0": [
+      -1,
+      8
+    ],
+    "onnx::ReduceSum_331": [
+      1
+    ],
+    "/ReduceSum_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_79_output_0": [
+      8
+    ],
+    "/MatMul_1_output_0": [
+      8
+    ],
+    "/Mul_12_output_0": [
+      -1,
+      8
+    ],
+    "/ReduceSum_1_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_80_output_0": [],
+    "/Mul_13_output_0": [
+      -1,
+      1
+    ],
+    "/Sub_17_output_0": [
+      -1,
+      1
+    ],
+    "/Constant_81_output_0": [
+      8
+    ],
+    "/Mul_14_output_0": [
+      8
+    ],
+    "/ReduceSum_2_output_0": [
+      1
+    ],
+    "/Constant_82_output_0": [],
+    "/Mul_15_output_0": [
+      1
+    ],
+    "/Add_12_output_0": [
+      -1,
+      1
+    ],
+    "/Neg_3_output_0": [
+      -1,
+      1
+    ],
+    "output": [
+      -1,
+      10
+    ],
+    "input": [
+      -1,
+      8
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 12,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 126
+  }
+}

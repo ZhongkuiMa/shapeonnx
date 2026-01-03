@@ -1,0 +1,272 @@
+{
+  "shapeonnx_shapes": {
+    "input": [
+      1,
+      4
+    ],
+    "output": [
+      1,
+      2
+    ],
+    "main.0.weight": [
+      256,
+      4
+    ],
+    "main.0.bias": [
+      256
+    ],
+    "main.2.weight": [
+      256,
+      256
+    ],
+    "main.2.bias": [
+      256
+    ],
+    "main.4.weight": [
+      256,
+      256
+    ],
+    "main.4.bias": [
+      256
+    ],
+    "main.6.weight": [
+      256,
+      256
+    ],
+    "main.6.bias": [
+      256
+    ],
+    "main.8.weight": [
+      16,
+      256
+    ],
+    "main.8.bias": [
+      16
+    ],
+    "main.10.weight": [
+      8,
+      16
+    ],
+    "main.10.bias": [
+      8
+    ],
+    "main.12.weight": [
+      8,
+      8
+    ],
+    "main.12.bias": [
+      8
+    ],
+    "main.14.weight": [
+      2,
+      8
+    ],
+    "main.14.bias": [
+      2
+    ],
+    "onnx::MatMul_47": [
+      2,
+      1
+    ],
+    "onnx::MatMul_48": [
+      2,
+      1
+    ],
+    "onnx::MatMul_49": [
+      2,
+      2
+    ],
+    "/Constant_output_0": [
+      1
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/main/main.0/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/main/main.1/Relu_output_0": [
+      1,
+      256
+    ],
+    "/main/main.2/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/main/main.3/Relu_output_0": [
+      1,
+      256
+    ],
+    "/main/main.4/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/main/main.5/Relu_output_0": [
+      1,
+      256
+    ],
+    "/main/main.6/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/main/main.7/Relu_output_0": [
+      1,
+      256
+    ],
+    "/main/main.8/Gemm_output_0": [
+      1,
+      16
+    ],
+    "/main/main.9/Relu_output_0": [
+      1,
+      16
+    ],
+    "/main/main.10/Gemm_output_0": [
+      1,
+      8
+    ],
+    "/main/main.11/Relu_output_0": [
+      1,
+      8
+    ],
+    "/main/main.12/Gemm_output_0": [
+      1,
+      8
+    ],
+    "/main/main.13/Relu_output_0": [
+      1,
+      8
+    ],
+    "/main/main.14/Gemm_output_0": [
+      1,
+      2
+    ],
+    "/controller/MatMul_output_0": [
+      1,
+      1
+    ],
+    "/Slice_output_0": [
+      1,
+      2
+    ],
+    "/linear_weight/MatMul_output_0": [
+      1,
+      1
+    ],
+    "/Concat_output_0": [
+      1,
+      2
+    ]
+  },
+  "onnx_shapes": {
+    "/main/main.0/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/main/main.1/Relu_output_0": [
+      1,
+      256
+    ],
+    "/main/main.2/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/main/main.3/Relu_output_0": [
+      1,
+      256
+    ],
+    "/main/main.4/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/main/main.5/Relu_output_0": [
+      1,
+      256
+    ],
+    "/main/main.6/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/main/main.7/Relu_output_0": [
+      1,
+      256
+    ],
+    "/main/main.8/Gemm_output_0": [
+      1,
+      16
+    ],
+    "/main/main.9/Relu_output_0": [
+      1,
+      16
+    ],
+    "/main/main.10/Gemm_output_0": [
+      1,
+      8
+    ],
+    "/main/main.11/Relu_output_0": [
+      1,
+      8
+    ],
+    "/main/main.12/Gemm_output_0": [
+      1,
+      8
+    ],
+    "/main/main.13/Relu_output_0": [
+      1,
+      8
+    ],
+    "/main/main.14/Gemm_output_0": [
+      1,
+      2
+    ],
+    "/controller/MatMul_output_0": [
+      1,
+      1
+    ],
+    "/Constant_output_0": [
+      1
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/Slice_output_0": [
+      1,
+      2
+    ],
+    "/linear_weight/MatMul_output_0": [
+      1,
+      1
+    ],
+    "/Concat_output_0": [
+      1,
+      2
+    ],
+    "output": [
+      1,
+      2
+    ],
+    "input": [
+      1,
+      4
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 19,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 0
+  }
+}

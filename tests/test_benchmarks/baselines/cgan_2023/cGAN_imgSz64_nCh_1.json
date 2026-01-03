@@ -1,0 +1,610 @@
+{
+  "shapeonnx_shapes": {
+    "X": [
+      1,
+      5
+    ],
+    "Y": [
+      1,
+      1
+    ],
+    "gen.l1.0.weight": [
+      512,
+      5
+    ],
+    "gen.l1.0.bias": [
+      512
+    ],
+    "gen.conv_blocks.0.weight": [
+      128
+    ],
+    "gen.conv_blocks.0.bias": [
+      128
+    ],
+    "gen.conv_blocks.0.running_mean": [
+      128
+    ],
+    "gen.conv_blocks.0.running_var": [
+      128
+    ],
+    "gen.conv_blocks.1.weight": [
+      128,
+      128,
+      4,
+      4
+    ],
+    "gen.conv_blocks.1.bias": [
+      128
+    ],
+    "gen.conv_blocks.2.weight": [
+      128
+    ],
+    "gen.conv_blocks.2.bias": [
+      128
+    ],
+    "gen.conv_blocks.2.running_mean": [
+      128
+    ],
+    "gen.conv_blocks.2.running_var": [
+      128
+    ],
+    "gen.conv_blocks.4.weight": [
+      128,
+      64,
+      4,
+      4
+    ],
+    "gen.conv_blocks.4.bias": [
+      64
+    ],
+    "gen.conv_blocks.5.weight": [
+      64
+    ],
+    "gen.conv_blocks.5.bias": [
+      64
+    ],
+    "gen.conv_blocks.5.running_mean": [
+      64
+    ],
+    "gen.conv_blocks.5.running_var": [
+      64
+    ],
+    "gen.conv_blocks.7.weight": [
+      64,
+      32,
+      4,
+      4
+    ],
+    "gen.conv_blocks.7.bias": [
+      32
+    ],
+    "gen.conv_blocks.8.weight": [
+      32
+    ],
+    "gen.conv_blocks.8.bias": [
+      32
+    ],
+    "gen.conv_blocks.8.running_mean": [
+      32
+    ],
+    "gen.conv_blocks.8.running_var": [
+      32
+    ],
+    "gen.conv_blocks.10.weight": [
+      32,
+      16,
+      4,
+      4
+    ],
+    "gen.conv_blocks.10.bias": [
+      16
+    ],
+    "gen.conv_blocks.11.weight": [
+      16
+    ],
+    "gen.conv_blocks.11.bias": [
+      16
+    ],
+    "gen.conv_blocks.11.running_mean": [
+      16
+    ],
+    "gen.conv_blocks.11.running_var": [
+      16
+    ],
+    "gen.conv_blocks.13.weight": [
+      16,
+      1,
+      3,
+      3
+    ],
+    "gen.conv_blocks.13.bias": [
+      1
+    ],
+    "dis.conv_blocks.0.weight": [
+      16,
+      1,
+      3,
+      3
+    ],
+    "dis.conv_blocks.0.bias": [
+      16
+    ],
+    "dis.conv_blocks.3.weight": [
+      32,
+      16,
+      3,
+      3
+    ],
+    "dis.conv_blocks.3.bias": [
+      32
+    ],
+    "dis.conv_blocks.6.weight": [
+      32
+    ],
+    "dis.conv_blocks.6.bias": [
+      32
+    ],
+    "dis.conv_blocks.6.running_mean": [
+      32
+    ],
+    "dis.conv_blocks.6.running_var": [
+      32
+    ],
+    "dis.conv_blocks.7.weight": [
+      64,
+      32,
+      3,
+      3
+    ],
+    "dis.conv_blocks.7.bias": [
+      64
+    ],
+    "dis.conv_blocks.10.weight": [
+      64
+    ],
+    "dis.conv_blocks.10.bias": [
+      64
+    ],
+    "dis.conv_blocks.10.running_mean": [
+      64
+    ],
+    "dis.conv_blocks.10.running_var": [
+      64
+    ],
+    "dis.conv_blocks.11.weight": [
+      128,
+      64,
+      3,
+      3
+    ],
+    "dis.conv_blocks.11.bias": [
+      128
+    ],
+    "dis.conv_blocks.14.weight": [
+      128
+    ],
+    "dis.conv_blocks.14.bias": [
+      128
+    ],
+    "dis.conv_blocks.14.running_mean": [
+      128
+    ],
+    "dis.conv_blocks.14.running_var": [
+      128
+    ],
+    "dis.conv_blocks.15.weight": [
+      128,
+      128,
+      3,
+      3
+    ],
+    "dis.conv_blocks.15.bias": [
+      128
+    ],
+    "dis.conv_blocks.18.weight": [
+      128
+    ],
+    "dis.conv_blocks.18.bias": [
+      128
+    ],
+    "dis.conv_blocks.18.running_mean": [
+      128
+    ],
+    "dis.conv_blocks.18.running_var": [
+      128
+    ],
+    "dis.aux_layer.0.weight": [
+      1,
+      512
+    ],
+    "dis.aux_layer.0.bias": [
+      1
+    ],
+    "onnx::Reshape_122": [
+      4
+    ],
+    "onnx::Reshape_125": [
+      2
+    ],
+    "onnx::Reshape_72": [
+      1,
+      512
+    ],
+    "input": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "onnx::ConvTranspose_83": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "input.3": [
+      1,
+      128,
+      6,
+      6
+    ],
+    "input.7": [
+      1,
+      128,
+      6,
+      6
+    ],
+    "onnx::ConvTranspose_86": [
+      1,
+      128,
+      6,
+      6
+    ],
+    "input.11": [
+      1,
+      64,
+      14,
+      14
+    ],
+    "input.15": [
+      1,
+      64,
+      14,
+      14
+    ],
+    "onnx::ConvTranspose_89": [
+      1,
+      64,
+      14,
+      14
+    ],
+    "input.19": [
+      1,
+      32,
+      30,
+      30
+    ],
+    "input.23": [
+      1,
+      32,
+      30,
+      30
+    ],
+    "onnx::ConvTranspose_92": [
+      1,
+      32,
+      30,
+      30
+    ],
+    "input.27": [
+      1,
+      16,
+      62,
+      62
+    ],
+    "input.31": [
+      1,
+      16,
+      62,
+      62
+    ],
+    "onnx::ConvTranspose_95": [
+      1,
+      16,
+      62,
+      62
+    ],
+    "input.35": [
+      1,
+      1,
+      64,
+      64
+    ],
+    "input.39": [
+      1,
+      16,
+      32,
+      32
+    ],
+    "onnx::Conv_98": [
+      1,
+      16,
+      32,
+      32
+    ],
+    "input.43": [
+      1,
+      32,
+      16,
+      16
+    ],
+    "onnx::BatchNormalization_100": [
+      1,
+      32,
+      16,
+      16
+    ],
+    "input.47": [
+      1,
+      32,
+      16,
+      16
+    ],
+    "input.51": [
+      1,
+      64,
+      8,
+      8
+    ],
+    "onnx::BatchNormalization_103": [
+      1,
+      64,
+      8,
+      8
+    ],
+    "input.55": [
+      1,
+      64,
+      8,
+      8
+    ],
+    "input.59": [
+      1,
+      128,
+      4,
+      4
+    ],
+    "onnx::BatchNormalization_106": [
+      1,
+      128,
+      4,
+      4
+    ],
+    "input.63": [
+      1,
+      128,
+      4,
+      4
+    ],
+    "input.67": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "onnx::BatchNormalization_109": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "onnx::Reshape_110": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "onnx::Gemm_116": [
+      1,
+      512
+    ]
+  },
+  "onnx_shapes": {
+    "onnx::Reshape_72": [
+      1,
+      512
+    ],
+    "input": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "onnx::ConvTranspose_83": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "input.3": [
+      1,
+      128,
+      6,
+      6
+    ],
+    "input.7": [
+      1,
+      128,
+      6,
+      6
+    ],
+    "onnx::ConvTranspose_86": [
+      1,
+      128,
+      6,
+      6
+    ],
+    "input.11": [
+      1,
+      64,
+      14,
+      14
+    ],
+    "input.15": [
+      1,
+      64,
+      14,
+      14
+    ],
+    "onnx::ConvTranspose_89": [
+      1,
+      64,
+      14,
+      14
+    ],
+    "input.19": [
+      1,
+      32,
+      30,
+      30
+    ],
+    "input.23": [
+      1,
+      32,
+      30,
+      30
+    ],
+    "onnx::ConvTranspose_92": [
+      1,
+      32,
+      30,
+      30
+    ],
+    "input.27": [
+      1,
+      16,
+      62,
+      62
+    ],
+    "input.31": [
+      1,
+      16,
+      62,
+      62
+    ],
+    "onnx::ConvTranspose_95": [
+      1,
+      16,
+      62,
+      62
+    ],
+    "input.35": [
+      1,
+      1,
+      64,
+      64
+    ],
+    "input.39": [
+      1,
+      16,
+      32,
+      32
+    ],
+    "onnx::Conv_98": [
+      1,
+      16,
+      32,
+      32
+    ],
+    "input.43": [
+      1,
+      32,
+      16,
+      16
+    ],
+    "onnx::BatchNormalization_100": [
+      1,
+      32,
+      16,
+      16
+    ],
+    "input.47": [
+      1,
+      32,
+      16,
+      16
+    ],
+    "input.51": [
+      1,
+      64,
+      8,
+      8
+    ],
+    "onnx::BatchNormalization_103": [
+      1,
+      64,
+      8,
+      8
+    ],
+    "input.55": [
+      1,
+      64,
+      8,
+      8
+    ],
+    "input.59": [
+      1,
+      128,
+      4,
+      4
+    ],
+    "onnx::BatchNormalization_106": [
+      1,
+      128,
+      4,
+      4
+    ],
+    "input.63": [
+      1,
+      128,
+      4,
+      4
+    ],
+    "input.67": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "onnx::BatchNormalization_109": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "onnx::Reshape_110": [
+      1,
+      128,
+      2,
+      2
+    ],
+    "onnx::Gemm_116": [
+      1,
+      512
+    ],
+    "Y": [
+      1,
+      1
+    ],
+    "X": [
+      1,
+      5
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 62,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 0
+  }
+}

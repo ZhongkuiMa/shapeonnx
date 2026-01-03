@@ -1,0 +1,142 @@
+{
+  "shapeonnx_shapes": {
+    "input": [
+      1,
+      3,
+      32,
+      56
+    ],
+    "output": [
+      1,
+      20
+    ],
+    "conv1.weight": [
+      8,
+      3,
+      4,
+      4
+    ],
+    "conv1.bias": [
+      8
+    ],
+    "conv2.weight": [
+      16,
+      8,
+      4,
+      4
+    ],
+    "conv2.bias": [
+      16
+    ],
+    "fc1.weight": [
+      256,
+      1792
+    ],
+    "fc1.bias": [
+      256
+    ],
+    "fc2.weight": [
+      20,
+      256
+    ],
+    "fc2.bias": [
+      20
+    ],
+    "/Constant_output_0": [
+      2
+    ],
+    "/conv1/Conv_output_0": [
+      1,
+      8,
+      16,
+      28
+    ],
+    "/Relu_output_0": [
+      1,
+      8,
+      16,
+      28
+    ],
+    "/conv2/Conv_output_0": [
+      1,
+      16,
+      8,
+      14
+    ],
+    "/Relu_1_output_0": [
+      1,
+      16,
+      8,
+      14
+    ],
+    "/Reshape_output_0": [
+      1,
+      1792
+    ],
+    "/fc1/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/Relu_2_output_0": [
+      1,
+      256
+    ]
+  },
+  "onnx_shapes": {
+    "/conv1/Conv_output_0": [
+      1,
+      8,
+      16,
+      28
+    ],
+    "/Relu_output_0": [
+      1,
+      8,
+      16,
+      28
+    ],
+    "/conv2/Conv_output_0": [
+      1,
+      16,
+      8,
+      14
+    ],
+    "/Relu_1_output_0": [
+      1,
+      16,
+      8,
+      14
+    ],
+    "/Constant_output_0": [
+      2
+    ],
+    "/Reshape_output_0": [
+      1,
+      1792
+    ],
+    "/fc1/Gemm_output_0": [
+      1,
+      256
+    ],
+    "/Relu_2_output_0": [
+      1,
+      256
+    ],
+    "output": [
+      1,
+      20
+    ],
+    "input": [
+      1,
+      3,
+      32,
+      56
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 8,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 0
+  }
+}

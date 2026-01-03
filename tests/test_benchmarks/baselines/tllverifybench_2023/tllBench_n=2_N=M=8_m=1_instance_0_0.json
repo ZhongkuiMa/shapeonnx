@@ -1,0 +1,375 @@
+{
+  "shapeonnx_shapes": {
+    "input": [
+      1,
+      2
+    ],
+    "maxBank2_1": [
+      1,
+      1
+    ],
+    "model/selectionLayer/MatMul/ReadVariableOp:0": [
+      8,
+      64
+    ],
+    "model/minBank2_1/MatMul/ReadVariableOp:0": [
+      32,
+      8
+    ],
+    "model/minBank2_1/BiasAdd/ReadVariableOp:0": [
+      8
+    ],
+    "model/minBank2_0/MatMul/ReadVariableOp:0": [
+      16,
+      32
+    ],
+    "model/minBank1_1/MatMul/ReadVariableOp:0": [
+      64,
+      16
+    ],
+    "model/minBank1_0/MatMul/ReadVariableOp:0": [
+      32,
+      64
+    ],
+    "model/minBank1_0/BiasAdd/ReadVariableOp:0": [
+      64
+    ],
+    "model/minBank0_1/MatMul/ReadVariableOp:0": [
+      128,
+      32
+    ],
+    "model/minBank0_1/BiasAdd/ReadVariableOp:0": [
+      32
+    ],
+    "model/minBank0_0/MatMul/ReadVariableOp:0": [
+      64,
+      128
+    ],
+    "model/minBank0_0/BiasAdd/ReadVariableOp:0": [
+      128
+    ],
+    "model/maxBank2_1/MatMul/ReadVariableOp:0": [
+      4,
+      1
+    ],
+    "model/maxBank2_1/BiasAdd/ReadVariableOp:0": [
+      1
+    ],
+    "model/maxBank2_0/MatMul/ReadVariableOp:0": [
+      2,
+      4
+    ],
+    "model/maxBank1_1/MatMul/ReadVariableOp:0": [
+      8,
+      2
+    ],
+    "model/maxBank1_1/BiasAdd/ReadVariableOp:0": [
+      2
+    ],
+    "model/maxBank1_0/MatMul/ReadVariableOp:0": [
+      4,
+      8
+    ],
+    "model/maxBank0_1/MatMul/ReadVariableOp:0": [
+      16,
+      4
+    ],
+    "model/maxBank0_1/BiasAdd/ReadVariableOp:0": [
+      4
+    ],
+    "model/maxBank0_0/MatMul/ReadVariableOp:0": [
+      8,
+      16
+    ],
+    "model/maxBank0_0/BiasAdd/ReadVariableOp:0": [
+      16
+    ],
+    "model/linearLayer/MatMul/ReadVariableOp:0": [
+      2,
+      8
+    ],
+    "model/linearLayer/BiasAdd/ReadVariableOp:0": [
+      8
+    ],
+    "model/linearLayer/MatMul:0": [
+      1,
+      8
+    ],
+    "model/linearLayer/BiasAdd:0": [
+      1,
+      8
+    ],
+    "model/selectionLayer/MatMul:0": [
+      1,
+      64
+    ],
+    "model/selectionLayer/BiasAdd:0": [
+      1,
+      64
+    ],
+    "model/minBank0_0/MatMul:0": [
+      1,
+      128
+    ],
+    "model/minBank0_0/BiasAdd:0": [
+      1,
+      128
+    ],
+    "model/minBank0_0/Relu:0": [
+      1,
+      128
+    ],
+    "model/minBank0_1/MatMul:0": [
+      1,
+      32
+    ],
+    "model/minBank0_1/BiasAdd:0": [
+      1,
+      32
+    ],
+    "model/minBank1_0/MatMul:0": [
+      1,
+      64
+    ],
+    "model/minBank1_0/BiasAdd:0": [
+      1,
+      64
+    ],
+    "model/minBank1_0/Relu:0": [
+      1,
+      64
+    ],
+    "model/minBank1_1/MatMul:0": [
+      1,
+      16
+    ],
+    "model/minBank1_1/BiasAdd:0": [
+      1,
+      16
+    ],
+    "model/minBank2_0/MatMul:0": [
+      1,
+      32
+    ],
+    "model/minBank2_0/BiasAdd:0": [
+      1,
+      32
+    ],
+    "model/minBank2_0/Relu:0": [
+      1,
+      32
+    ],
+    "model/minBank2_1/MatMul:0": [
+      1,
+      8
+    ],
+    "model/minBank2_1/BiasAdd:0": [
+      1,
+      8
+    ],
+    "model/maxBank0_0/MatMul:0": [
+      1,
+      16
+    ],
+    "model/maxBank0_0/BiasAdd:0": [
+      1,
+      16
+    ],
+    "model/maxBank0_0/Relu:0": [
+      1,
+      16
+    ],
+    "model/maxBank0_1/MatMul:0": [
+      1,
+      4
+    ],
+    "model/maxBank0_1/BiasAdd:0": [
+      1,
+      4
+    ],
+    "model/maxBank1_0/MatMul:0": [
+      1,
+      8
+    ],
+    "model/maxBank1_0/BiasAdd:0": [
+      1,
+      8
+    ],
+    "model/maxBank1_0/Relu:0": [
+      1,
+      8
+    ],
+    "model/maxBank1_1/MatMul:0": [
+      1,
+      2
+    ],
+    "model/maxBank1_1/BiasAdd:0": [
+      1,
+      2
+    ],
+    "model/maxBank2_0/MatMul:0": [
+      1,
+      4
+    ],
+    "model/maxBank2_0/BiasAdd:0": [
+      1,
+      4
+    ],
+    "model/maxBank2_0/Relu:0": [
+      1,
+      4
+    ],
+    "model/maxBank2_1/MatMul:0": [
+      1,
+      1
+    ]
+  },
+  "onnx_shapes": {
+    "model/linearLayer/MatMul:0": [
+      -1,
+      8
+    ],
+    "model/linearLayer/BiasAdd:0": [
+      -1,
+      8
+    ],
+    "model/selectionLayer/MatMul:0": [
+      -1,
+      64
+    ],
+    "model/selectionLayer/BiasAdd:0": [
+      -1,
+      64
+    ],
+    "model/minBank0_0/MatMul:0": [
+      -1,
+      128
+    ],
+    "model/minBank0_0/BiasAdd:0": [
+      -1,
+      128
+    ],
+    "model/minBank0_0/Relu:0": [
+      -1,
+      128
+    ],
+    "model/minBank0_1/MatMul:0": [
+      -1,
+      32
+    ],
+    "model/minBank0_1/BiasAdd:0": [
+      -1,
+      32
+    ],
+    "model/minBank1_0/MatMul:0": [
+      -1,
+      64
+    ],
+    "model/minBank1_0/BiasAdd:0": [
+      -1,
+      64
+    ],
+    "model/minBank1_0/Relu:0": [
+      -1,
+      64
+    ],
+    "model/minBank1_1/MatMul:0": [
+      -1,
+      16
+    ],
+    "model/minBank1_1/BiasAdd:0": [
+      -1,
+      16
+    ],
+    "model/minBank2_0/MatMul:0": [
+      -1,
+      32
+    ],
+    "model/minBank2_0/BiasAdd:0": [
+      -1,
+      32
+    ],
+    "model/minBank2_0/Relu:0": [
+      -1,
+      32
+    ],
+    "model/minBank2_1/MatMul:0": [
+      -1,
+      8
+    ],
+    "model/minBank2_1/BiasAdd:0": [
+      -1,
+      8
+    ],
+    "model/maxBank0_0/MatMul:0": [
+      -1,
+      16
+    ],
+    "model/maxBank0_0/BiasAdd:0": [
+      -1,
+      16
+    ],
+    "model/maxBank0_0/Relu:0": [
+      -1,
+      16
+    ],
+    "model/maxBank0_1/MatMul:0": [
+      -1,
+      4
+    ],
+    "model/maxBank0_1/BiasAdd:0": [
+      -1,
+      4
+    ],
+    "model/maxBank1_0/MatMul:0": [
+      -1,
+      8
+    ],
+    "model/maxBank1_0/BiasAdd:0": [
+      -1,
+      8
+    ],
+    "model/maxBank1_0/Relu:0": [
+      -1,
+      8
+    ],
+    "model/maxBank1_1/MatMul:0": [
+      -1,
+      2
+    ],
+    "model/maxBank1_1/BiasAdd:0": [
+      -1,
+      2
+    ],
+    "model/maxBank2_0/MatMul:0": [
+      -1,
+      4
+    ],
+    "model/maxBank2_0/BiasAdd:0": [
+      -1,
+      4
+    ],
+    "model/maxBank2_0/Relu:0": [
+      -1,
+      4
+    ],
+    "model/maxBank2_1/MatMul:0": [
+      -1,
+      1
+    ],
+    "maxBank2_1": [
+      -1,
+      1
+    ],
+    "input": [
+      -1,
+      2
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 23,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 35
+  }
+}

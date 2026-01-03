@@ -1,0 +1,411 @@
+{
+  "shapeonnx_shapes": {
+    "quant_conv2d_3_input": [
+      1,
+      48,
+      48,
+      3
+    ],
+    "activation_1": [
+      1,
+      43
+    ],
+    "sequential_1/quant_conv2d_5/QuantConv2D_weights_fused_bn": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "sequential_1/quant_conv2d_5/QuantConv2D_bias_fused_bn": [
+      64
+    ],
+    "sequential_1/quant_conv2d_4/ste_sign_9/add/y:0": [],
+    "sequential_1/batch_normalization_6/batchnorm/sub:0": [
+      256
+    ],
+    "sequential_1/batch_normalization_6/batchnorm/Rsqrt:0": [
+      256
+    ],
+    "sequential_1/batch_normalization_5/Const:0": [
+      64
+    ],
+    "sequential_1/batch_normalization_4/ReadVariableOp:0": [
+      64
+    ],
+    "sequential_1/batch_normalization_4/FusedBatchNormV3/ReadVariableOp_1:0": [
+      64
+    ],
+    "sequential_1/batch_normalization_4/FusedBatchNormV3/ReadVariableOp:0": [
+      64
+    ],
+    "sequential_1/batch_normalization_3/ReadVariableOp:0": [
+      32
+    ],
+    "sequential_1/batch_normalization_3/FusedBatchNormV3/ReadVariableOp_1:0": [
+      32
+    ],
+    "sequential_1/batch_normalization_3/FusedBatchNormV3/ReadVariableOp:0": [
+      32
+    ],
+    "sequential_1/batch_normalization_3/Const:0": [
+      32
+    ],
+    "const_fold_opt__179": [
+      2
+    ],
+    "ConstantFolding/sequential_1/quant_dense_2/MatMul/ste_sign_14/IdentityN-folded-0:0": [
+      256,
+      43
+    ],
+    "ConstantFolding/sequential_1/quant_dense_1/MatMul/ste_sign_12/IdentityN-folded-0:0": [
+      3136,
+      256
+    ],
+    "ConstantFolding/sequential_1/quant_conv2d_4/QuantConv2D/ste_sign_8/IdentityN-folded-0:0": [
+      64,
+      32,
+      5,
+      5
+    ],
+    "ConstantFolding/sequential_1/quant_conv2d_3/QuantConv2D/ste_sign_7/IdentityN-folded-0:0": [
+      32,
+      3,
+      5,
+      5
+    ],
+    "sequential_1/quant_conv2d_3/QuantConv2D__146:0": [
+      1,
+      3,
+      48,
+      48
+    ],
+    "sequential_1/quant_conv2d_3/QuantConv2D:0": [
+      1,
+      32,
+      44,
+      44
+    ],
+    "sequential_1/max_pooling2d_2/MaxPool:0": [
+      1,
+      32,
+      22,
+      22
+    ],
+    "sequential_1/batch_normalization_3/FusedBatchNormV3:0": [
+      1,
+      32,
+      22,
+      22
+    ],
+    "sequential_1/batch_normalization_3/FusedBatchNormV3__156:0": [
+      1,
+      22,
+      22,
+      32
+    ],
+    "sequential_1/quant_conv2d_4/ste_sign_9/Sign:0": [
+      1,
+      22,
+      22,
+      32
+    ],
+    "sequential_1/quant_conv2d_4/ste_sign_9/add:0": [
+      1,
+      22,
+      22,
+      32
+    ],
+    "sequential_1/quant_conv2d_4/ste_sign_9/Sign_1:0": [
+      1,
+      22,
+      22,
+      32
+    ],
+    "sequential_1/quant_conv2d_4/QuantConv2D__158:0": [
+      1,
+      32,
+      22,
+      22
+    ],
+    "sequential_1/quant_conv2d_4/QuantConv2D:0": [
+      1,
+      64,
+      18,
+      18
+    ],
+    "sequential_1/max_pooling2d_3/MaxPool:0": [
+      1,
+      64,
+      9,
+      9
+    ],
+    "sequential_1/batch_normalization_4/FusedBatchNormV3:0": [
+      1,
+      64,
+      9,
+      9
+    ],
+    "sequential_1/batch_normalization_4/FusedBatchNormV3__168:0": [
+      1,
+      9,
+      9,
+      64
+    ],
+    "sequential_1/quant_conv2d_5/ste_sign_11/Sign:0": [
+      1,
+      9,
+      9,
+      64
+    ],
+    "sequential_1/quant_conv2d_5/ste_sign_11/add:0": [
+      1,
+      9,
+      9,
+      64
+    ],
+    "sequential_1/quant_conv2d_5/ste_sign_11/Sign_1:0": [
+      1,
+      9,
+      9,
+      64
+    ],
+    "sequential_1/quant_conv2d_5/QuantConv2D__170:0": [
+      1,
+      64,
+      9,
+      9
+    ],
+    "sequential_1/batch_normalization_5/FusedBatchNormV3:0": [
+      1,
+      64,
+      7,
+      7
+    ],
+    "sequential_1/batch_normalization_5/FusedBatchNormV3__176:0": [
+      1,
+      7,
+      7,
+      64
+    ],
+    "sequential_1/flatten_1/Reshape:0": [
+      1,
+      3136
+    ],
+    "sequential_1/quant_dense_1/ste_sign_13/Sign:0": [
+      1,
+      3136
+    ],
+    "sequential_1/quant_dense_1/ste_sign_13/add:0": [
+      1,
+      3136
+    ],
+    "sequential_1/quant_dense_1/ste_sign_13/Sign_1:0": [
+      1,
+      3136
+    ],
+    "sequential_1/quant_dense_1/MatMul:0": [
+      1,
+      256
+    ],
+    "sequential_1/batch_normalization_6/batchnorm/mul:0": [
+      1,
+      256
+    ],
+    "sequential_1/batch_normalization_6/batchnorm/add_1:0": [
+      1,
+      256
+    ],
+    "sequential_1/quant_dense_2/ste_sign_15/Sign:0": [
+      1,
+      256
+    ],
+    "sequential_1/quant_dense_2/ste_sign_15/add:0": [
+      1,
+      256
+    ],
+    "sequential_1/quant_dense_2/ste_sign_15/Sign_1:0": [
+      1,
+      256
+    ],
+    "sequential_1/quant_dense_2/MatMul:0": [
+      1,
+      43
+    ]
+  },
+  "onnx_shapes": {
+    "sequential_1/quant_conv2d_3/QuantConv2D__146:0": [
+      -1,
+      3,
+      48,
+      48
+    ],
+    "sequential_1/quant_conv2d_3/QuantConv2D:0": [
+      -1,
+      32,
+      44,
+      44
+    ],
+    "sequential_1/max_pooling2d_2/MaxPool:0": [
+      -1,
+      32,
+      22,
+      22
+    ],
+    "sequential_1/batch_normalization_3/FusedBatchNormV3:0": [
+      -1,
+      32,
+      22,
+      22
+    ],
+    "sequential_1/batch_normalization_3/FusedBatchNormV3__156:0": [
+      -1,
+      22,
+      22,
+      32
+    ],
+    "sequential_1/quant_conv2d_4/ste_sign_9/Sign:0": [
+      -1,
+      22,
+      22,
+      32
+    ],
+    "sequential_1/quant_conv2d_4/ste_sign_9/add:0": [
+      -1,
+      22,
+      22,
+      32
+    ],
+    "sequential_1/quant_conv2d_4/ste_sign_9/Sign_1:0": [
+      -1,
+      22,
+      22,
+      32
+    ],
+    "sequential_1/quant_conv2d_4/QuantConv2D__158:0": [
+      -1,
+      32,
+      22,
+      22
+    ],
+    "sequential_1/quant_conv2d_4/QuantConv2D:0": [
+      -1,
+      64,
+      18,
+      18
+    ],
+    "sequential_1/max_pooling2d_3/MaxPool:0": [
+      -1,
+      64,
+      9,
+      9
+    ],
+    "sequential_1/batch_normalization_4/FusedBatchNormV3:0": [
+      -1,
+      64,
+      9,
+      9
+    ],
+    "sequential_1/batch_normalization_4/FusedBatchNormV3__168:0": [
+      -1,
+      9,
+      9,
+      64
+    ],
+    "sequential_1/quant_conv2d_5/ste_sign_11/Sign:0": [
+      -1,
+      9,
+      9,
+      64
+    ],
+    "sequential_1/quant_conv2d_5/ste_sign_11/add:0": [
+      -1,
+      9,
+      9,
+      64
+    ],
+    "sequential_1/quant_conv2d_5/ste_sign_11/Sign_1:0": [
+      -1,
+      9,
+      9,
+      64
+    ],
+    "sequential_1/quant_conv2d_5/QuantConv2D__170:0": [
+      -1,
+      64,
+      9,
+      9
+    ],
+    "sequential_1/batch_normalization_5/FusedBatchNormV3:0": [
+      -1,
+      64,
+      7,
+      7
+    ],
+    "sequential_1/batch_normalization_5/FusedBatchNormV3__176:0": [
+      -1,
+      7,
+      7,
+      64
+    ],
+    "sequential_1/flatten_1/Reshape:0": [
+      -1,
+      3136
+    ],
+    "sequential_1/quant_dense_1/ste_sign_13/Sign:0": [
+      -1,
+      3136
+    ],
+    "sequential_1/quant_dense_1/ste_sign_13/add:0": [
+      -1,
+      3136
+    ],
+    "sequential_1/quant_dense_1/ste_sign_13/Sign_1:0": [
+      -1,
+      3136
+    ],
+    "sequential_1/quant_dense_1/MatMul:0": [
+      -1,
+      256
+    ],
+    "sequential_1/batch_normalization_6/batchnorm/mul:0": [
+      -1,
+      256
+    ],
+    "sequential_1/batch_normalization_6/batchnorm/add_1:0": [
+      -1,
+      256
+    ],
+    "sequential_1/quant_dense_2/ste_sign_15/Sign:0": [
+      -1,
+      256
+    ],
+    "sequential_1/quant_dense_2/ste_sign_15/add:0": [
+      -1,
+      256
+    ],
+    "sequential_1/quant_dense_2/ste_sign_15/Sign_1:0": [
+      -1,
+      256
+    ],
+    "sequential_1/quant_dense_2/MatMul:0": [
+      -1,
+      43
+    ],
+    "activation_1": [
+      -1,
+      43
+    ],
+    "quant_conv2d_3_input": [
+      -1,
+      48,
+      48,
+      3
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 18,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 32
+  }
+}

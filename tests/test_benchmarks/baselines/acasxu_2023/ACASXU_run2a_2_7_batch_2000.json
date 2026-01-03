@@ -1,0 +1,314 @@
+{
+  "shapeonnx_shapes": {
+    "input": [
+      1,
+      1,
+      1,
+      5
+    ],
+    "linear_7_Add": [
+      1,
+      5
+    ],
+    "input_AvgImg": [
+      1,
+      1,
+      1,
+      5
+    ],
+    "Operation_1_MatMul_W": [
+      5,
+      50
+    ],
+    "Operation_1_Add_B": [
+      50
+    ],
+    "Operation_2_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_2_Add_B": [
+      50
+    ],
+    "Operation_3_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_3_Add_B": [
+      50
+    ],
+    "Operation_4_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_4_Add_B": [
+      50
+    ],
+    "Operation_5_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_5_Add_B": [
+      50
+    ],
+    "Operation_6_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_6_Add_B": [
+      50
+    ],
+    "linear_7_MatMul_W": [
+      50,
+      5
+    ],
+    "linear_7_Add_B": [
+      5
+    ],
+    "input_Sub": [
+      1,
+      1,
+      1,
+      5
+    ],
+    "Operation_1_Flatten": [
+      1,
+      5
+    ],
+    "Operation_1_MatMul": [
+      1,
+      50
+    ],
+    "Operation_1_Add": [
+      1,
+      50
+    ],
+    "relu_1": [
+      1,
+      50
+    ],
+    "Operation_2_MatMul": [
+      1,
+      50
+    ],
+    "Operation_2_Add": [
+      1,
+      50
+    ],
+    "relu_2": [
+      1,
+      50
+    ],
+    "Operation_3_MatMul": [
+      1,
+      50
+    ],
+    "Operation_3_Add": [
+      1,
+      50
+    ],
+    "relu_3": [
+      1,
+      50
+    ],
+    "Operation_4_MatMul": [
+      1,
+      50
+    ],
+    "Operation_4_Add": [
+      1,
+      50
+    ],
+    "relu_4": [
+      1,
+      50
+    ],
+    "Operation_5_MatMul": [
+      1,
+      50
+    ],
+    "Operation_5_Add": [
+      1,
+      50
+    ],
+    "relu_5": [
+      1,
+      50
+    ],
+    "Operation_6_MatMul": [
+      1,
+      50
+    ],
+    "Operation_6_Add": [
+      1,
+      50
+    ],
+    "relu_6": [
+      1,
+      50
+    ],
+    "linear_7_MatMul": [
+      1,
+      5
+    ]
+  },
+  "onnx_shapes": {
+    "input_Sub": [
+      1,
+      1,
+      1,
+      5
+    ],
+    "Operation_1_Flatten": [
+      1,
+      5
+    ],
+    "Operation_1_MatMul": [
+      1,
+      50
+    ],
+    "Operation_1_Add": [
+      1,
+      50
+    ],
+    "relu_1": [
+      1,
+      50
+    ],
+    "Operation_2_MatMul": [
+      1,
+      50
+    ],
+    "Operation_2_Add": [
+      1,
+      50
+    ],
+    "relu_2": [
+      1,
+      50
+    ],
+    "Operation_3_MatMul": [
+      1,
+      50
+    ],
+    "Operation_3_Add": [
+      1,
+      50
+    ],
+    "relu_3": [
+      1,
+      50
+    ],
+    "Operation_4_MatMul": [
+      1,
+      50
+    ],
+    "Operation_4_Add": [
+      1,
+      50
+    ],
+    "relu_4": [
+      1,
+      50
+    ],
+    "Operation_5_MatMul": [
+      1,
+      50
+    ],
+    "Operation_5_Add": [
+      1,
+      50
+    ],
+    "relu_5": [
+      1,
+      50
+    ],
+    "Operation_6_MatMul": [
+      1,
+      50
+    ],
+    "Operation_6_Add": [
+      1,
+      50
+    ],
+    "relu_6": [
+      1,
+      50
+    ],
+    "linear_7_MatMul": [
+      1,
+      5
+    ],
+    "linear_7_Add": [
+      1,
+      5
+    ],
+    "input_AvgImg": [
+      1,
+      1,
+      1,
+      5
+    ],
+    "Operation_1_MatMul_W": [
+      5,
+      50
+    ],
+    "Operation_1_Add_B": [
+      50
+    ],
+    "Operation_2_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_2_Add_B": [
+      50
+    ],
+    "Operation_3_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_3_Add_B": [
+      50
+    ],
+    "Operation_4_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_4_Add_B": [
+      50
+    ],
+    "Operation_5_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_5_Add_B": [
+      50
+    ],
+    "Operation_6_MatMul_W": [
+      50,
+      50
+    ],
+    "Operation_6_Add_B": [
+      50
+    ],
+    "linear_7_MatMul_W": [
+      50,
+      5
+    ],
+    "linear_7_Add_B": [
+      5
+    ],
+    "input": [
+      1,
+      1,
+      1,
+      5
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 0,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 0
+  }
+}

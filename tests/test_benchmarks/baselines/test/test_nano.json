@@ -1,0 +1,34 @@
+{
+  "shapeonnx_shapes": {
+    "model_in": [
+      1
+    ],
+    "model_out": [
+      1
+    ],
+    "Ma_MatMulcst": [
+      1,
+      1
+    ],
+    "hidden": [
+      1
+    ]
+  },
+  "onnx_shapes": {
+    "hidden": [
+      1
+    ],
+    "model_out": [
+      1
+    ],
+    "model_in": [
+      1
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 1,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 0
+  }
+}

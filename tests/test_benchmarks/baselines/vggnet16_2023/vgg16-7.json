@@ -1,0 +1,754 @@
+{
+  "shapeonnx_shapes": {
+    "data": [
+      1,
+      3,
+      224,
+      224
+    ],
+    "vgg0_dense2_fwd": [
+      1,
+      1000
+    ],
+    "vgg0_conv0_weight": [
+      64,
+      3,
+      3,
+      3
+    ],
+    "vgg0_conv0_bias": [
+      64
+    ],
+    "vgg0_conv1_weight": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "vgg0_conv1_bias": [
+      64
+    ],
+    "vgg0_conv2_weight": [
+      128,
+      64,
+      3,
+      3
+    ],
+    "vgg0_conv2_bias": [
+      128
+    ],
+    "vgg0_conv3_weight": [
+      128,
+      128,
+      3,
+      3
+    ],
+    "vgg0_conv3_bias": [
+      128
+    ],
+    "vgg0_conv4_weight": [
+      256,
+      128,
+      3,
+      3
+    ],
+    "vgg0_conv4_bias": [
+      256
+    ],
+    "vgg0_conv5_weight": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "vgg0_conv5_bias": [
+      256
+    ],
+    "vgg0_conv6_weight": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "vgg0_conv6_bias": [
+      256
+    ],
+    "vgg0_conv7_weight": [
+      512,
+      256,
+      3,
+      3
+    ],
+    "vgg0_conv7_bias": [
+      512
+    ],
+    "vgg0_conv8_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv8_bias": [
+      512
+    ],
+    "vgg0_conv9_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv9_bias": [
+      512
+    ],
+    "vgg0_conv10_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv10_bias": [
+      512
+    ],
+    "vgg0_conv11_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv11_bias": [
+      512
+    ],
+    "vgg0_conv12_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv12_bias": [
+      512
+    ],
+    "vgg0_dense0_weight": [
+      4096,
+      25088
+    ],
+    "vgg0_dense0_bias": [
+      4096
+    ],
+    "vgg0_dense1_weight": [
+      4096,
+      4096
+    ],
+    "vgg0_dense1_bias": [
+      4096
+    ],
+    "vgg0_dense2_weight": [
+      1000,
+      4096
+    ],
+    "vgg0_dense2_bias": [
+      1000
+    ],
+    "_v_76": [],
+    "_v_77": [],
+    "vgg0_conv0_fwd": [
+      1,
+      64,
+      224,
+      224
+    ],
+    "vgg0_relu0_fwd": [
+      1,
+      64,
+      224,
+      224
+    ],
+    "vgg0_conv1_fwd": [
+      1,
+      64,
+      224,
+      224
+    ],
+    "vgg0_relu1_fwd": [
+      1,
+      64,
+      224,
+      224
+    ],
+    "vgg0_pool0_fwd": [
+      1,
+      64,
+      112,
+      112
+    ],
+    "vgg0_conv2_fwd": [
+      1,
+      128,
+      112,
+      112
+    ],
+    "vgg0_relu2_fwd": [
+      1,
+      128,
+      112,
+      112
+    ],
+    "vgg0_conv3_fwd": [
+      1,
+      128,
+      112,
+      112
+    ],
+    "vgg0_relu3_fwd": [
+      1,
+      128,
+      112,
+      112
+    ],
+    "vgg0_pool1_fwd": [
+      1,
+      128,
+      56,
+      56
+    ],
+    "vgg0_conv4_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_relu4_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_conv5_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_relu5_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_conv6_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_relu6_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_pool2_fwd": [
+      1,
+      256,
+      28,
+      28
+    ],
+    "vgg0_conv7_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_relu7_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_conv8_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_relu8_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_conv9_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_relu9_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_pool3_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_conv10_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_relu10_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_conv11_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_relu11_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_conv12_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_relu12_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_pool4_fwd": [
+      1,
+      512,
+      7,
+      7
+    ],
+    "flatten_60": [
+      1,
+      25088
+    ],
+    "vgg0_dense0_fwd": [
+      1,
+      4096
+    ],
+    "vgg0_dense0_relu_fwd": [
+      1,
+      4096
+    ],
+    "vgg0_dropout0_fwd": [
+      1,
+      4096
+    ],
+    "flatten_65": [
+      1,
+      4096
+    ],
+    "vgg0_dense1_fwd": [
+      1,
+      4096
+    ],
+    "vgg0_dense1_relu_fwd": [
+      1,
+      4096
+    ],
+    "vgg0_dropout1_fwd": [
+      1,
+      4096
+    ],
+    "flatten_70": [
+      1,
+      4096
+    ]
+  },
+  "onnx_shapes": {
+    "vgg0_conv0_fwd": [
+      1,
+      64,
+      224,
+      224
+    ],
+    "vgg0_relu0_fwd": [
+      1,
+      64,
+      224,
+      224
+    ],
+    "vgg0_conv1_fwd": [
+      1,
+      64,
+      224,
+      224
+    ],
+    "vgg0_relu1_fwd": [
+      1,
+      64,
+      224,
+      224
+    ],
+    "vgg0_pool0_fwd": [
+      1,
+      64,
+      112,
+      112
+    ],
+    "vgg0_conv2_fwd": [
+      1,
+      128,
+      112,
+      112
+    ],
+    "vgg0_relu2_fwd": [
+      1,
+      128,
+      112,
+      112
+    ],
+    "vgg0_conv3_fwd": [
+      1,
+      128,
+      112,
+      112
+    ],
+    "vgg0_relu3_fwd": [
+      1,
+      128,
+      112,
+      112
+    ],
+    "vgg0_pool1_fwd": [
+      1,
+      128,
+      56,
+      56
+    ],
+    "vgg0_conv4_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_relu4_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_conv5_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_relu5_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_conv6_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_relu6_fwd": [
+      1,
+      256,
+      56,
+      56
+    ],
+    "vgg0_pool2_fwd": [
+      1,
+      256,
+      28,
+      28
+    ],
+    "vgg0_conv7_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_relu7_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_conv8_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_relu8_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_conv9_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_relu9_fwd": [
+      1,
+      512,
+      28,
+      28
+    ],
+    "vgg0_pool3_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_conv10_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_relu10_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_conv11_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_relu11_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_conv12_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_relu12_fwd": [
+      1,
+      512,
+      14,
+      14
+    ],
+    "vgg0_pool4_fwd": [
+      1,
+      512,
+      7,
+      7
+    ],
+    "flatten_60": [
+      1,
+      25088
+    ],
+    "vgg0_dense0_fwd": [
+      1,
+      4096
+    ],
+    "vgg0_dense0_relu_fwd": [
+      1,
+      4096
+    ],
+    "vgg0_dropout0_fwd": [
+      1,
+      4096
+    ],
+    "flatten_65": [
+      1,
+      4096
+    ],
+    "vgg0_dense1_fwd": [
+      1,
+      4096
+    ],
+    "vgg0_dense1_relu_fwd": [
+      1,
+      4096
+    ],
+    "vgg0_dropout1_fwd": [
+      1,
+      4096
+    ],
+    "flatten_70": [
+      1,
+      4096
+    ],
+    "vgg0_dense2_fwd": [
+      1,
+      1000
+    ],
+    "data": [
+      1,
+      3,
+      224,
+      224
+    ],
+    "vgg0_conv0_weight": [
+      64,
+      3,
+      3,
+      3
+    ],
+    "vgg0_conv0_bias": [
+      64
+    ],
+    "vgg0_conv1_weight": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "vgg0_conv1_bias": [
+      64
+    ],
+    "vgg0_conv2_weight": [
+      128,
+      64,
+      3,
+      3
+    ],
+    "vgg0_conv2_bias": [
+      128
+    ],
+    "vgg0_conv3_weight": [
+      128,
+      128,
+      3,
+      3
+    ],
+    "vgg0_conv3_bias": [
+      128
+    ],
+    "vgg0_conv4_weight": [
+      256,
+      128,
+      3,
+      3
+    ],
+    "vgg0_conv4_bias": [
+      256
+    ],
+    "vgg0_conv5_weight": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "vgg0_conv5_bias": [
+      256
+    ],
+    "vgg0_conv6_weight": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "vgg0_conv6_bias": [
+      256
+    ],
+    "vgg0_conv7_weight": [
+      512,
+      256,
+      3,
+      3
+    ],
+    "vgg0_conv7_bias": [
+      512
+    ],
+    "vgg0_conv8_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv8_bias": [
+      512
+    ],
+    "vgg0_conv9_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv9_bias": [
+      512
+    ],
+    "vgg0_conv10_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv10_bias": [
+      512
+    ],
+    "vgg0_conv11_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv11_bias": [
+      512
+    ],
+    "vgg0_conv12_weight": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "vgg0_conv12_bias": [
+      512
+    ],
+    "vgg0_dense0_weight": [
+      4096,
+      25088
+    ],
+    "vgg0_dense0_bias": [
+      4096
+    ],
+    "vgg0_dense1_weight": [
+      4096,
+      4096
+    ],
+    "vgg0_dense1_bias": [
+      4096
+    ],
+    "vgg0_dense2_weight": [
+      1000,
+      4096
+    ],
+    "vgg0_dense2_bias": [
+      1000
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 2,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 0
+  }
+}

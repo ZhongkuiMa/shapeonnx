@@ -1,0 +1,881 @@
+{
+  "shapeonnx_shapes": {
+    "input": [
+      12,
+      8
+    ],
+    "output": [
+      1,
+      1
+    ],
+    "bw": [
+      128,
+      1
+    ],
+    "video_size": [
+      128
+    ],
+    "linear1.weight": [
+      128,
+      1
+    ],
+    "linear1.bias": [
+      128
+    ],
+    "linear2.weight": [
+      128,
+      8
+    ],
+    "linear2.bias": [
+      128
+    ],
+    "linear3.weight": [
+      128,
+      8
+    ],
+    "linear3.bias": [
+      128
+    ],
+    "linear4.weight": [
+      128,
+      6
+    ],
+    "linear4.bias": [
+      128
+    ],
+    "linear5.weight": [
+      128,
+      1
+    ],
+    "linear5.bias": [
+      128
+    ],
+    "linear6.weight": [
+      128,
+      768
+    ],
+    "linear6.bias": [
+      128
+    ],
+    "linear7.weight": [
+      6,
+      128
+    ],
+    "linear7.bias": [
+      6
+    ],
+    "/Constant_output_0": [
+      3
+    ],
+    "_v_129": [
+      2
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/Constant_4_output_0": [
+      1
+    ],
+    "/Constant_5_output_0": [],
+    "/Constant_6_output_0": [],
+    "/Constant_7_output_0": [
+      1
+    ],
+    "/Constant_8_output_0": [
+      1
+    ],
+    "/Constant_9_output_0": [
+      1
+    ],
+    "/Constant_10_output_0": [
+      1
+    ],
+    "/Constant_11_output_0": [],
+    "/Constant_12_output_0": [],
+    "/Constant_13_output_0": [
+      1
+    ],
+    "/Constant_14_output_0": [
+      1
+    ],
+    "/Constant_15_output_0": [
+      1
+    ],
+    "/Constant_16_output_0": [
+      1
+    ],
+    "/Constant_17_output_0": [
+      1
+    ],
+    "/Constant_18_output_0": [
+      1
+    ],
+    "/Constant_19_output_0": [
+      1
+    ],
+    "/Constant_20_output_0": [
+      1
+    ],
+    "/Constant_21_output_0": [],
+    "_v_130": [
+      1
+    ],
+    "/Constant_22_output_0": [
+      6,
+      1
+    ],
+    "/Constant_23_output_0": [
+      1
+    ],
+    "/Constant_24_output_0": [
+      1
+    ],
+    "/Constant_25_output_0": [
+      1
+    ],
+    "/Constant_26_output_0": [
+      1
+    ],
+    "/Constant_27_output_0": [
+      1
+    ],
+    "/Constant_28_output_0": [
+      1
+    ],
+    "/Constant_29_output_0": [
+      1
+    ],
+    "/Constant_30_output_0": [
+      1
+    ],
+    "/Constant_31_output_0": [
+      1
+    ],
+    "/Constant_32_output_0": [
+      1
+    ],
+    "/Constant_33_output_0": [
+      1
+    ],
+    "/Constant_34_output_0": [
+      1
+    ],
+    "/Constant_35_output_0": [
+      1
+    ],
+    "/Constant_36_output_0": [
+      1
+    ],
+    "/Constant_37_output_0": [
+      1
+    ],
+    "/Constant_38_output_0": [
+      1
+    ],
+    "/Constant_39_output_0": [],
+    "_v_131": [
+      1
+    ],
+    "/Reshape_output_0": [
+      1,
+      12,
+      8
+    ],
+    "/Split_output_0": [
+      1,
+      6,
+      8
+    ],
+    "/Split_output_1": [
+      1,
+      6,
+      8
+    ],
+    "/Slice_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_output_0": [
+      1,
+      1
+    ],
+    "/linear0/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Slice_1_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_1_output_0": [
+      1,
+      1
+    ],
+    "/linear1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_1/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_2_output_0": [
+      1,
+      8
+    ],
+    "/linear2/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_2/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_3_output_0": [
+      1,
+      8
+    ],
+    "/linear3/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_3/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_4_output_0": [
+      1,
+      8
+    ],
+    "/Slice_2_output_0": [
+      1,
+      6
+    ],
+    "/linear4/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_4/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Slice_3_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_5_output_0": [
+      1,
+      1
+    ],
+    "/linear5/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_1_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_2_output_0": [
+      1,
+      128
+    ],
+    "/Concat_output_0": [
+      1,
+      768
+    ],
+    "/linear6/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_5/Relu_output_0": [
+      1,
+      128
+    ],
+    "/linear7/Gemm_output_0": [
+      1,
+      6
+    ],
+    "/relu_6/Relu_output_0": [
+      1,
+      6
+    ],
+    "/Pow_output_0": [
+      1,
+      6
+    ],
+    "/ReduceSum_output_0": [
+      1,
+      1
+    ],
+    "/Div_output_0": [
+      1,
+      6
+    ],
+    "/MatMul_output_0": [
+      1,
+      1
+    ],
+    "/Slice_4_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_6_output_0": [
+      1,
+      1
+    ],
+    "/linear0_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_7/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Slice_5_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_7_output_0": [
+      1,
+      1
+    ],
+    "/linear1_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_8/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_8_output_0": [
+      1,
+      8
+    ],
+    "/linear2_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_9/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_9_output_0": [
+      1,
+      8
+    ],
+    "/linear3_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_10/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_10_output_0": [
+      1,
+      8
+    ],
+    "/Slice_6_output_0": [
+      1,
+      6
+    ],
+    "/linear4_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_11/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Slice_7_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_11_output_0": [
+      1,
+      1
+    ],
+    "/linear5_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_3_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_4_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_5_output_0": [
+      1,
+      128
+    ],
+    "/Concat_1_output_0": [
+      1,
+      768
+    ],
+    "/linear6_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_12/Relu_output_0": [
+      1,
+      128
+    ],
+    "/linear7_1/Gemm_output_0": [
+      1,
+      6
+    ],
+    "/relu_13/Relu_output_0": [
+      1,
+      6
+    ],
+    "/Pow_1_output_0": [
+      1,
+      6
+    ],
+    "/ReduceSum_1_output_0": [
+      1,
+      1
+    ],
+    "/Div_1_output_0": [
+      1,
+      6
+    ],
+    "/MatMul_1_output_0": [
+      1,
+      1
+    ]
+  },
+  "onnx_shapes": {
+    "/Constant_output_0": [
+      3
+    ],
+    "/Reshape_output_0": [
+      1,
+      12,
+      8
+    ],
+    "/Split_output_0": [
+      1,
+      6,
+      8
+    ],
+    "/Split_output_1": [
+      1,
+      6,
+      8
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/Constant_4_output_0": [
+      1
+    ],
+    "/Slice_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Constant_5_output_0": [],
+    "/Constant_6_output_0": [],
+    "/Gather_output_0": [
+      1,
+      1
+    ],
+    "/linear0/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Constant_7_output_0": [
+      1
+    ],
+    "/Constant_8_output_0": [
+      1
+    ],
+    "/Constant_9_output_0": [
+      1
+    ],
+    "/Constant_10_output_0": [
+      1
+    ],
+    "/Slice_1_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_1_output_0": [
+      1,
+      1
+    ],
+    "/linear1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_1/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_2_output_0": [
+      1,
+      8
+    ],
+    "/linear2/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_2/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Constant_11_output_0": [],
+    "/Gather_3_output_0": [
+      1,
+      8
+    ],
+    "/linear3/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_3/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Constant_12_output_0": [],
+    "/Gather_4_output_0": [
+      1,
+      8
+    ],
+    "/Constant_13_output_0": [
+      1
+    ],
+    "/Constant_14_output_0": [
+      1
+    ],
+    "/Constant_15_output_0": [
+      1
+    ],
+    "/Constant_16_output_0": [
+      1
+    ],
+    "/Slice_2_output_0": [
+      1,
+      6
+    ],
+    "/linear4/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_4/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Constant_17_output_0": [
+      1
+    ],
+    "/Constant_18_output_0": [
+      1
+    ],
+    "/Constant_19_output_0": [
+      1
+    ],
+    "/Constant_20_output_0": [
+      1
+    ],
+    "/Slice_3_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_5_output_0": [
+      1,
+      1
+    ],
+    "/linear5/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_1_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_2_output_0": [
+      1,
+      128
+    ],
+    "/Concat_output_0": [
+      1,
+      768
+    ],
+    "/linear6/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_5/Relu_output_0": [
+      1,
+      128
+    ],
+    "/linear7/Gemm_output_0": [
+      1,
+      6
+    ],
+    "/relu_6/Relu_output_0": [
+      1,
+      6
+    ],
+    "/Constant_21_output_0": [],
+    "/Pow_output_0": [
+      1,
+      6
+    ],
+    "/ReduceSum_output_0": [
+      1,
+      1
+    ],
+    "/Div_output_0": [
+      1,
+      6
+    ],
+    "/Constant_22_output_0": [
+      6,
+      1
+    ],
+    "/MatMul_output_0": [
+      1,
+      1
+    ],
+    "/Constant_23_output_0": [
+      1
+    ],
+    "/Constant_24_output_0": [
+      1
+    ],
+    "/Constant_25_output_0": [
+      1
+    ],
+    "/Constant_26_output_0": [
+      1
+    ],
+    "/Slice_4_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_6_output_0": [
+      1,
+      1
+    ],
+    "/linear0_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_7/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Constant_27_output_0": [
+      1
+    ],
+    "/Constant_28_output_0": [
+      1
+    ],
+    "/Constant_29_output_0": [
+      1
+    ],
+    "/Constant_30_output_0": [
+      1
+    ],
+    "/Slice_5_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_7_output_0": [
+      1,
+      1
+    ],
+    "/linear1_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_8/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_8_output_0": [
+      1,
+      8
+    ],
+    "/linear2_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_9/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_9_output_0": [
+      1,
+      8
+    ],
+    "/linear3_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_10/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Gather_10_output_0": [
+      1,
+      8
+    ],
+    "/Constant_31_output_0": [
+      1
+    ],
+    "/Constant_32_output_0": [
+      1
+    ],
+    "/Constant_33_output_0": [
+      1
+    ],
+    "/Constant_34_output_0": [
+      1
+    ],
+    "/Slice_6_output_0": [
+      1,
+      6
+    ],
+    "/linear4_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_11/Relu_output_0": [
+      1,
+      128
+    ],
+    "/Constant_35_output_0": [
+      1
+    ],
+    "/Constant_36_output_0": [
+      1
+    ],
+    "/Constant_37_output_0": [
+      1
+    ],
+    "/Constant_38_output_0": [
+      1
+    ],
+    "/Slice_7_output_0": [
+      1,
+      1,
+      8
+    ],
+    "/Gather_11_output_0": [
+      1,
+      1
+    ],
+    "/linear5_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_3_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_4_output_0": [
+      1,
+      128
+    ],
+    "/Flatten_5_output_0": [
+      1,
+      128
+    ],
+    "/Concat_1_output_0": [
+      1,
+      768
+    ],
+    "/linear6_1/Gemm_output_0": [
+      1,
+      128
+    ],
+    "/relu_12/Relu_output_0": [
+      1,
+      128
+    ],
+    "/linear7_1/Gemm_output_0": [
+      1,
+      6
+    ],
+    "/relu_13/Relu_output_0": [
+      1,
+      6
+    ],
+    "/Constant_39_output_0": [],
+    "/Pow_1_output_0": [
+      1,
+      6
+    ],
+    "/ReduceSum_1_output_0": [
+      1,
+      1
+    ],
+    "/Div_1_output_0": [
+      1,
+      6
+    ],
+    "/MatMul_1_output_0": [
+      1,
+      1
+    ],
+    "output": [
+      1,
+      1
+    ],
+    "input": [
+      12,
+      8
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 19,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 0
+  }
+}

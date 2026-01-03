@@ -1,0 +1,2802 @@
+{
+  "shapeonnx_shapes": {
+    "X": [
+      1,
+      5
+    ],
+    "Y": [],
+    "gen.snlinear0.bias": [
+      1024
+    ],
+    "gen.snlinear0.weight_orig": [
+      1024,
+      5
+    ],
+    "gen.snlinear0.weight_u": [
+      1024
+    ],
+    "gen.snlinear0.weight_v": [
+      5
+    ],
+    "gen.block1.cond_bn1.weight": [
+      1024
+    ],
+    "gen.block1.cond_bn1.bias": [
+      1024
+    ],
+    "gen.block1.cond_bn1.running_mean": [
+      1024
+    ],
+    "gen.block1.cond_bn1.running_var": [
+      1024
+    ],
+    "gen.block1.snconv2d1.bias": [
+      1024
+    ],
+    "gen.block1.snconv2d1.weight_orig": [
+      1024,
+      1024,
+      3,
+      3
+    ],
+    "gen.block1.snconv2d1.weight_u": [
+      1024
+    ],
+    "gen.block1.snconv2d1.weight_v": [
+      9216
+    ],
+    "gen.block1.snconv2d0.bias": [
+      1024
+    ],
+    "gen.block1.snconv2d0.weight_orig": [
+      1024,
+      1024,
+      1,
+      1
+    ],
+    "gen.block1.snconv2d0.weight_u": [
+      1024
+    ],
+    "gen.block1.snconv2d0.weight_v": [
+      1024
+    ],
+    "gen.block2.cond_bn1.weight": [
+      1024
+    ],
+    "gen.block2.cond_bn1.bias": [
+      1024
+    ],
+    "gen.block2.cond_bn1.running_mean": [
+      1024
+    ],
+    "gen.block2.cond_bn1.running_var": [
+      1024
+    ],
+    "gen.block2.snconv2d1.bias": [
+      512
+    ],
+    "gen.block2.snconv2d1.weight_orig": [
+      512,
+      1024,
+      3,
+      3
+    ],
+    "gen.block2.snconv2d1.weight_u": [
+      512
+    ],
+    "gen.block2.snconv2d1.weight_v": [
+      9216
+    ],
+    "gen.block2.snconv2d0.bias": [
+      512
+    ],
+    "gen.block2.snconv2d0.weight_orig": [
+      512,
+      1024,
+      1,
+      1
+    ],
+    "gen.block2.snconv2d0.weight_u": [
+      512
+    ],
+    "gen.block2.snconv2d0.weight_v": [
+      1024
+    ],
+    "gen.block3.cond_bn1.weight": [
+      512
+    ],
+    "gen.block3.cond_bn1.bias": [
+      512
+    ],
+    "gen.block3.cond_bn1.running_mean": [
+      512
+    ],
+    "gen.block3.cond_bn1.running_var": [
+      512
+    ],
+    "gen.block3.snconv2d1.bias": [
+      256
+    ],
+    "gen.block3.snconv2d1.weight_orig": [
+      256,
+      512,
+      3,
+      3
+    ],
+    "gen.block3.snconv2d1.weight_u": [
+      256
+    ],
+    "gen.block3.snconv2d1.weight_v": [
+      4608
+    ],
+    "gen.block3.snconv2d0.bias": [
+      256
+    ],
+    "gen.block3.snconv2d0.weight_orig": [
+      256,
+      512,
+      1,
+      1
+    ],
+    "gen.block3.snconv2d0.weight_u": [
+      256
+    ],
+    "gen.block3.snconv2d0.weight_v": [
+      512
+    ],
+    "gen.self_attn.sigma": [
+      1
+    ],
+    "gen.self_attn.snconv1x1_theta.bias": [
+      32
+    ],
+    "gen.self_attn.snconv1x1_theta.weight_orig": [
+      32,
+      256,
+      1,
+      1
+    ],
+    "gen.self_attn.snconv1x1_theta.weight_u": [
+      32
+    ],
+    "gen.self_attn.snconv1x1_theta.weight_v": [
+      256
+    ],
+    "gen.self_attn.snconv1x1_phi.bias": [
+      32
+    ],
+    "gen.self_attn.snconv1x1_phi.weight_orig": [
+      32,
+      256,
+      1,
+      1
+    ],
+    "gen.self_attn.snconv1x1_phi.weight_u": [
+      32
+    ],
+    "gen.self_attn.snconv1x1_phi.weight_v": [
+      256
+    ],
+    "gen.self_attn.snconv1x1_g.bias": [
+      128
+    ],
+    "gen.self_attn.snconv1x1_g.weight_orig": [
+      128,
+      256,
+      1,
+      1
+    ],
+    "gen.self_attn.snconv1x1_g.weight_u": [
+      128
+    ],
+    "gen.self_attn.snconv1x1_g.weight_v": [
+      256
+    ],
+    "gen.self_attn.snconv1x1_attn.bias": [
+      256
+    ],
+    "gen.self_attn.snconv1x1_attn.weight_orig": [
+      256,
+      128,
+      1,
+      1
+    ],
+    "gen.self_attn.snconv1x1_attn.weight_u": [
+      256
+    ],
+    "gen.self_attn.snconv1x1_attn.weight_v": [
+      128
+    ],
+    "gen.block4.cond_bn1.weight": [
+      256
+    ],
+    "gen.block4.cond_bn1.bias": [
+      256
+    ],
+    "gen.block4.cond_bn1.running_mean": [
+      256
+    ],
+    "gen.block4.cond_bn1.running_var": [
+      256
+    ],
+    "gen.block4.snconv2d1.bias": [
+      128
+    ],
+    "gen.block4.snconv2d1.weight_orig": [
+      128,
+      256,
+      3,
+      3
+    ],
+    "gen.block4.snconv2d1.weight_u": [
+      128
+    ],
+    "gen.block4.snconv2d1.weight_v": [
+      2304
+    ],
+    "gen.block4.snconv2d0.bias": [
+      128
+    ],
+    "gen.block4.snconv2d0.weight_orig": [
+      128,
+      256,
+      1,
+      1
+    ],
+    "gen.block4.snconv2d0.weight_u": [
+      128
+    ],
+    "gen.block4.snconv2d0.weight_v": [
+      256
+    ],
+    "gen.block5.cond_bn1.weight": [
+      128
+    ],
+    "gen.block5.cond_bn1.bias": [
+      128
+    ],
+    "gen.block5.cond_bn1.running_mean": [
+      128
+    ],
+    "gen.block5.cond_bn1.running_var": [
+      128
+    ],
+    "gen.block5.snconv2d1.bias": [
+      64
+    ],
+    "gen.block5.snconv2d1.weight_orig": [
+      64,
+      128,
+      3,
+      3
+    ],
+    "gen.block5.snconv2d1.weight_u": [
+      64
+    ],
+    "gen.block5.snconv2d1.weight_v": [
+      1152
+    ],
+    "gen.block5.snconv2d0.bias": [
+      64
+    ],
+    "gen.block5.snconv2d0.weight_orig": [
+      64,
+      128,
+      1,
+      1
+    ],
+    "gen.block5.snconv2d0.weight_u": [
+      64
+    ],
+    "gen.block5.snconv2d0.weight_v": [
+      128
+    ],
+    "gen.bn.weight": [
+      64
+    ],
+    "gen.bn.bias": [
+      64
+    ],
+    "gen.bn.running_mean": [
+      64
+    ],
+    "gen.bn.running_var": [
+      64
+    ],
+    "gen.snconv2d1.bias": [
+      3
+    ],
+    "gen.snconv2d1.weight_orig": [
+      3,
+      64,
+      3,
+      3
+    ],
+    "gen.snconv2d1.weight_u": [
+      3
+    ],
+    "gen.snconv2d1.weight_v": [
+      576
+    ],
+    "dis.opt_block1.snconv2d1.bias": [
+      64
+    ],
+    "dis.opt_block1.snconv2d1.weight_orig": [
+      64,
+      3,
+      3,
+      3
+    ],
+    "dis.opt_block1.snconv2d1.weight_u": [
+      64
+    ],
+    "dis.opt_block1.snconv2d1.weight_v": [
+      27
+    ],
+    "dis.opt_block1.snconv2d0.bias": [
+      64
+    ],
+    "dis.opt_block1.snconv2d0.weight_orig": [
+      64,
+      3,
+      1,
+      1
+    ],
+    "dis.opt_block1.snconv2d0.weight_u": [
+      64
+    ],
+    "dis.opt_block1.snconv2d0.weight_v": [
+      3
+    ],
+    "dis.block1.snconv2d1.bias": [
+      128
+    ],
+    "dis.block1.snconv2d1.weight_orig": [
+      128,
+      64,
+      3,
+      3
+    ],
+    "dis.block1.snconv2d1.weight_u": [
+      128
+    ],
+    "dis.block1.snconv2d1.weight_v": [
+      576
+    ],
+    "dis.block1.snconv2d0.bias": [
+      128
+    ],
+    "dis.block1.snconv2d0.weight_orig": [
+      128,
+      64,
+      1,
+      1
+    ],
+    "dis.block1.snconv2d0.weight_u": [
+      128
+    ],
+    "dis.block1.snconv2d0.weight_v": [
+      64
+    ],
+    "dis.self_attn.sigma": [
+      1
+    ],
+    "dis.self_attn.snconv1x1_theta.bias": [
+      16
+    ],
+    "dis.self_attn.snconv1x1_theta.weight_orig": [
+      16,
+      128,
+      1,
+      1
+    ],
+    "dis.self_attn.snconv1x1_theta.weight_u": [
+      16
+    ],
+    "dis.self_attn.snconv1x1_theta.weight_v": [
+      128
+    ],
+    "dis.self_attn.snconv1x1_phi.bias": [
+      16
+    ],
+    "dis.self_attn.snconv1x1_phi.weight_orig": [
+      16,
+      128,
+      1,
+      1
+    ],
+    "dis.self_attn.snconv1x1_phi.weight_u": [
+      16
+    ],
+    "dis.self_attn.snconv1x1_phi.weight_v": [
+      128
+    ],
+    "dis.self_attn.snconv1x1_g.bias": [
+      64
+    ],
+    "dis.self_attn.snconv1x1_g.weight_orig": [
+      64,
+      128,
+      1,
+      1
+    ],
+    "dis.self_attn.snconv1x1_g.weight_u": [
+      64
+    ],
+    "dis.self_attn.snconv1x1_g.weight_v": [
+      128
+    ],
+    "dis.self_attn.snconv1x1_attn.bias": [
+      128
+    ],
+    "dis.self_attn.snconv1x1_attn.weight_orig": [
+      128,
+      64,
+      1,
+      1
+    ],
+    "dis.self_attn.snconv1x1_attn.weight_u": [
+      128
+    ],
+    "dis.self_attn.snconv1x1_attn.weight_v": [
+      64
+    ],
+    "dis.block2.snconv2d1.bias": [
+      256
+    ],
+    "dis.block2.snconv2d1.weight_orig": [
+      256,
+      128,
+      3,
+      3
+    ],
+    "dis.block2.snconv2d1.weight_u": [
+      256
+    ],
+    "dis.block2.snconv2d1.weight_v": [
+      1152
+    ],
+    "dis.block2.snconv2d0.bias": [
+      256
+    ],
+    "dis.block2.snconv2d0.weight_orig": [
+      256,
+      128,
+      1,
+      1
+    ],
+    "dis.block2.snconv2d0.weight_u": [
+      256
+    ],
+    "dis.block2.snconv2d0.weight_v": [
+      128
+    ],
+    "dis.block3.snconv2d1.bias": [
+      512
+    ],
+    "dis.block3.snconv2d1.weight_orig": [
+      512,
+      256,
+      3,
+      3
+    ],
+    "dis.block3.snconv2d1.weight_u": [
+      512
+    ],
+    "dis.block3.snconv2d1.weight_v": [
+      2304
+    ],
+    "dis.block3.snconv2d0.bias": [
+      512
+    ],
+    "dis.block3.snconv2d0.weight_orig": [
+      512,
+      256,
+      1,
+      1
+    ],
+    "dis.block3.snconv2d0.weight_u": [
+      512
+    ],
+    "dis.block3.snconv2d0.weight_v": [
+      256
+    ],
+    "dis.block4.snconv2d1.bias": [
+      1024
+    ],
+    "dis.block4.snconv2d1.weight_orig": [
+      1024,
+      512,
+      3,
+      3
+    ],
+    "dis.block4.snconv2d1.weight_u": [
+      1024
+    ],
+    "dis.block4.snconv2d1.weight_v": [
+      4608
+    ],
+    "dis.block4.snconv2d0.bias": [
+      1024
+    ],
+    "dis.block4.snconv2d0.weight_orig": [
+      1024,
+      512,
+      1,
+      1
+    ],
+    "dis.block4.snconv2d0.weight_u": [
+      1024
+    ],
+    "dis.block4.snconv2d0.weight_v": [
+      512
+    ],
+    "dis.block5.snconv2d1.bias": [
+      1024
+    ],
+    "dis.block5.snconv2d1.weight_orig": [
+      1024,
+      1024,
+      3,
+      3
+    ],
+    "dis.block5.snconv2d1.weight_u": [
+      1024
+    ],
+    "dis.block5.snconv2d1.weight_v": [
+      9216
+    ],
+    "dis.snlinear2.bias": [
+      1
+    ],
+    "dis.snlinear2.weight_orig": [
+      1,
+      1024
+    ],
+    "dis.snlinear2.weight_u": [
+      1
+    ],
+    "dis.snlinear2.weight_v": [
+      1024
+    ],
+    "onnx::MatMul_798": [
+      1024,
+      5
+    ],
+    "onnx::Upsample_799": [
+      4
+    ],
+    "onnx::MatMul_803": [
+      1024,
+      9216
+    ],
+    "onnx::Upsample_804": [
+      4
+    ],
+    "onnx::MatMul_808": [
+      1024,
+      1024
+    ],
+    "onnx::Upsample_809": [
+      4
+    ],
+    "onnx::MatMul_813": [
+      512,
+      9216
+    ],
+    "onnx::Upsample_814": [
+      4
+    ],
+    "onnx::MatMul_818": [
+      512,
+      1024
+    ],
+    "onnx::Upsample_819": [
+      4
+    ],
+    "onnx::MatMul_823": [
+      256,
+      4608
+    ],
+    "onnx::Upsample_824": [
+      4
+    ],
+    "onnx::MatMul_828": [
+      256,
+      512
+    ],
+    "onnx::MatMul_832": [
+      32,
+      256
+    ],
+    "onnx::Concat_833": [
+      1
+    ],
+    "onnx::MatMul_837": [
+      32,
+      256
+    ],
+    "onnx::Concat_838": [
+      1
+    ],
+    "onnx::MatMul_842": [
+      128,
+      256
+    ],
+    "onnx::Concat_843": [
+      1
+    ],
+    "onnx::Concat_844": [
+      1
+    ],
+    "onnx::MatMul_848": [
+      256,
+      128
+    ],
+    "onnx::Upsample_849": [
+      4
+    ],
+    "onnx::MatMul_853": [
+      128,
+      2304
+    ],
+    "onnx::Upsample_854": [
+      4
+    ],
+    "onnx::MatMul_858": [
+      128,
+      256
+    ],
+    "onnx::Upsample_859": [
+      4
+    ],
+    "onnx::MatMul_863": [
+      64,
+      1152
+    ],
+    "onnx::Upsample_864": [
+      4
+    ],
+    "onnx::MatMul_868": [
+      64,
+      128
+    ],
+    "onnx::MatMul_872": [
+      3,
+      576
+    ],
+    "onnx::MatMul_876": [
+      64,
+      27
+    ],
+    "onnx::MatMul_880": [
+      64,
+      3
+    ],
+    "onnx::MatMul_884": [
+      128,
+      576
+    ],
+    "onnx::MatMul_888": [
+      128,
+      64
+    ],
+    "onnx::MatMul_892": [
+      16,
+      128
+    ],
+    "onnx::Concat_893": [
+      1
+    ],
+    "onnx::MatMul_897": [
+      16,
+      128
+    ],
+    "onnx::Concat_898": [
+      1
+    ],
+    "onnx::MatMul_902": [
+      64,
+      128
+    ],
+    "onnx::Concat_903": [
+      1
+    ],
+    "onnx::Concat_904": [
+      1
+    ],
+    "onnx::MatMul_908": [
+      128,
+      64
+    ],
+    "onnx::MatMul_912": [
+      256,
+      1152
+    ],
+    "onnx::MatMul_916": [
+      256,
+      128
+    ],
+    "onnx::MatMul_920": [
+      512,
+      2304
+    ],
+    "onnx::MatMul_924": [
+      512,
+      256
+    ],
+    "onnx::MatMul_928": [
+      1024,
+      4608
+    ],
+    "onnx::MatMul_932": [
+      1024,
+      512
+    ],
+    "onnx::MatMul_936": [
+      1024,
+      9216
+    ],
+    "onnx::MatMul_940": [
+      1,
+      1024
+    ],
+    "_v_546": [
+      8
+    ],
+    "_v_549": [
+      8
+    ],
+    "_v_552": [
+      8
+    ],
+    "_v_555": [
+      8
+    ],
+    "_v_558": [
+      8
+    ],
+    "_v_561": [
+      8
+    ],
+    "_v_564": [
+      8
+    ],
+    "_v_567": [
+      8
+    ],
+    "_v_570": [
+      8
+    ],
+    "_v_573": [
+      8
+    ],
+    "onnx::Reshape_248": [
+      4
+    ],
+    "_v_536": [
+      8
+    ],
+    "_v_537": [
+      8
+    ],
+    "_v_538": [
+      8
+    ],
+    "_v_539": [
+      8
+    ],
+    "_v_540": [
+      8
+    ],
+    "_v_541": [
+      8
+    ],
+    "onnx::Gather_344": [],
+    "onnx::Gather_347": [],
+    "onnx::Gather_350": [],
+    "onnx::Div_362": [],
+    "_v_576": [
+      1
+    ],
+    "_v_577": [
+      1
+    ],
+    "onnx::Div_384": [],
+    "onnx::Div_389": [],
+    "_v_578": [
+      1
+    ],
+    "_v_579": [
+      1
+    ],
+    "onnx::Div_413": [],
+    "onnx::Div_418": [],
+    "_v_583": [
+      1
+    ],
+    "_v_584": [
+      1
+    ],
+    "onnx::Div_430": [],
+    "_v_585": [
+      1
+    ],
+    "_v_586": [
+      1
+    ],
+    "_v_587": [
+      1
+    ],
+    "_v_542": [
+      0
+    ],
+    "_v_543": [
+      0
+    ],
+    "_v_544": [
+      0
+    ],
+    "_v_545": [
+      0
+    ],
+    "_v_548": [],
+    "_v_551": [],
+    "_v_554": [],
+    "_v_557": [],
+    "onnx::Gather_581": [],
+    "onnx::Gather_584": [],
+    "onnx::Gather_587": [],
+    "onnx::Div_599": [],
+    "_v_588": [
+      1
+    ],
+    "_v_589": [
+      1
+    ],
+    "onnx::Div_621": [],
+    "onnx::Div_626": [],
+    "_v_590": [
+      1
+    ],
+    "_v_591": [
+      1
+    ],
+    "onnx::Div_650": [],
+    "onnx::Div_655": [],
+    "_v_595": [
+      1
+    ],
+    "_v_596": [
+      1
+    ],
+    "onnx::Div_667": [],
+    "_v_597": [
+      1
+    ],
+    "_v_598": [
+      1
+    ],
+    "_v_599": [
+      1
+    ],
+    "_v_560": [],
+    "_v_563": [],
+    "_v_566": [],
+    "_v_569": [],
+    "_v_572": [],
+    "_v_575": [],
+    "onnx::Reshape_781": [
+      2
+    ],
+    "onnx::MatMul_244": [
+      1024
+    ],
+    "onnx::Div_245": [],
+    "onnx::Gemm_246": [
+      1024,
+      5
+    ],
+    "onnx::Reshape_247": [
+      1,
+      1024
+    ],
+    "input": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "input.3": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "onnx::Upsample_251": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "_v_526": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::MatMul_262": [
+      1024
+    ],
+    "onnx::Div_263": [],
+    "onnx::Conv_264": [
+      1024,
+      1024,
+      3,
+      3
+    ],
+    "onnx::Add_265": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "_v_527": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::MatMul_276": [
+      1024
+    ],
+    "onnx::Div_277": [],
+    "onnx::Conv_278": [
+      1024,
+      1024,
+      1,
+      1
+    ],
+    "onnx::Add_279": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "input.15": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "input.19": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::Upsample_282": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "_v_528": [
+      1,
+      1024,
+      4,
+      4
+    ],
+    "onnx::MatMul_293": [
+      512
+    ],
+    "onnx::Div_294": [],
+    "onnx::Conv_295": [
+      512,
+      1024,
+      3,
+      3
+    ],
+    "onnx::Add_296": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "_v_529": [
+      1,
+      1024,
+      4,
+      4
+    ],
+    "onnx::MatMul_307": [
+      512
+    ],
+    "onnx::Div_308": [],
+    "onnx::Conv_309": [
+      512,
+      1024,
+      1,
+      1
+    ],
+    "onnx::Add_310": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "input.31": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "input.35": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "onnx::Upsample_313": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "_v_530": [
+      1,
+      512,
+      8,
+      8
+    ],
+    "onnx::MatMul_324": [
+      256
+    ],
+    "onnx::Div_325": [],
+    "onnx::Conv_326": [
+      256,
+      512,
+      3,
+      3
+    ],
+    "onnx::Add_327": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "_v_531": [
+      1,
+      512,
+      8,
+      8
+    ],
+    "onnx::MatMul_338": [
+      256
+    ],
+    "onnx::Div_339": [],
+    "onnx::Conv_340": [
+      256,
+      512,
+      1,
+      1
+    ],
+    "onnx::Add_341": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "input.47": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::Gather_343": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::Div_345": 256,
+    "onnx::Gather_346": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::Mul_348": 8,
+    "onnx::Gather_349": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::Mul_351": 8,
+    "onnx::MatMul_358": [
+      32
+    ],
+    "onnx::Div_359": [],
+    "onnx::Conv_360": [
+      32,
+      256,
+      1,
+      1
+    ],
+    "onnx::Reshape_361": [
+      1,
+      32,
+      8,
+      8
+    ],
+    "onnx::Cast_363": 32,
+    "onnx::Cast_364": 32,
+    "onnx::Unsqueeze_365": 32,
+    "onnx::Unsqueeze_366": 64,
+    "onnx::Concat_369": [
+      32
+    ],
+    "onnx::Concat_370": [
+      64
+    ],
+    "onnx::Reshape_371": [
+      -1,
+      32,
+      64
+    ],
+    "onnx::Transpose_372": [
+      1,
+      32,
+      64
+    ],
+    "onnx::MatMul_379": [
+      32
+    ],
+    "onnx::Div_380": [],
+    "onnx::Conv_381": [
+      32,
+      256,
+      1,
+      1
+    ],
+    "onnx::MaxPool_382": [
+      1,
+      32,
+      8,
+      8
+    ],
+    "onnx::Reshape_383": [
+      1,
+      32,
+      4,
+      4
+    ],
+    "onnx::Cast_385": 32,
+    "onnx::Cast_386": 32,
+    "onnx::Unsqueeze_387": 32,
+    "onnx::Div_388": 64,
+    "onnx::Cast_390": 16,
+    "onnx::Cast_391": 16,
+    "onnx::Unsqueeze_392": 16,
+    "onnx::Concat_395": [
+      32
+    ],
+    "onnx::Concat_396": [
+      16
+    ],
+    "onnx::Reshape_397": [
+      -1,
+      32,
+      16
+    ],
+    "onnx::MatMul_398": [
+      1,
+      32,
+      16
+    ],
+    "onnx::MatMul_399": [
+      1,
+      64,
+      32
+    ],
+    "input.51": [
+      1,
+      64,
+      16
+    ],
+    "_v_580": [
+      1,
+      64,
+      16
+    ],
+    "_v_581": [
+      1,
+      64,
+      16
+    ],
+    "onnx::Transpose_401_intermediate": [
+      1,
+      64,
+      16
+    ],
+    "onnx::Transpose_401": [
+      1,
+      64,
+      16
+    ],
+    "onnx::MatMul_408": [
+      128
+    ],
+    "onnx::Div_409": [],
+    "onnx::Conv_410": [
+      128,
+      256,
+      1,
+      1
+    ],
+    "onnx::MaxPool_411": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::Reshape_412": [
+      1,
+      128,
+      4,
+      4
+    ],
+    "onnx::Cast_414": 128,
+    "onnx::Cast_415": 128,
+    "onnx::Unsqueeze_416": 128,
+    "onnx::Div_417": 64,
+    "onnx::Cast_419": 16,
+    "onnx::Cast_420": 16,
+    "onnx::Unsqueeze_421": 16,
+    "onnx::Concat_424": [
+      128
+    ],
+    "onnx::Concat_425": [
+      16
+    ],
+    "onnx::Reshape_426": [
+      -1,
+      128,
+      16
+    ],
+    "onnx::MatMul_427": [
+      1,
+      128,
+      16
+    ],
+    "onnx::MatMul_428": [
+      1,
+      16,
+      64
+    ],
+    "onnx::Reshape_429": [
+      1,
+      128,
+      64
+    ],
+    "onnx::Cast_431": 128,
+    "onnx::Cast_432": 128,
+    "onnx::Unsqueeze_433": 128,
+    "onnx::Concat_436": [
+      128
+    ],
+    "onnx::Concat_437": [
+      8
+    ],
+    "onnx::Concat_438": [
+      8
+    ],
+    "onnx::Reshape_439": [
+      -1,
+      128,
+      8,
+      8
+    ],
+    "input.55": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::MatMul_447": [
+      256
+    ],
+    "onnx::Div_448": [],
+    "onnx::Conv_449": [
+      256,
+      128,
+      1,
+      1
+    ],
+    "onnx::Mul_450": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::Add_451": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "input.59": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "input.63": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::Upsample_454": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "_v_532": [
+      1,
+      256,
+      16,
+      16
+    ],
+    "onnx::MatMul_465": [
+      128
+    ],
+    "onnx::Div_466": [],
+    "onnx::Conv_467": [
+      128,
+      256,
+      3,
+      3
+    ],
+    "onnx::Add_468": [
+      1,
+      128,
+      16,
+      16
+    ],
+    "_v_533": [
+      1,
+      256,
+      16,
+      16
+    ],
+    "onnx::MatMul_479": [
+      128
+    ],
+    "onnx::Div_480": [],
+    "onnx::Conv_481": [
+      128,
+      256,
+      1,
+      1
+    ],
+    "onnx::Add_482": [
+      1,
+      128,
+      16,
+      16
+    ],
+    "input.75": [
+      1,
+      128,
+      16,
+      16
+    ],
+    "input.79": [
+      1,
+      128,
+      16,
+      16
+    ],
+    "onnx::Upsample_485": [
+      1,
+      128,
+      16,
+      16
+    ],
+    "_v_534": [
+      1,
+      128,
+      32,
+      32
+    ],
+    "onnx::MatMul_496": [
+      64
+    ],
+    "onnx::Div_497": [],
+    "onnx::Conv_498": [
+      64,
+      128,
+      3,
+      3
+    ],
+    "onnx::Add_499": [
+      1,
+      64,
+      32,
+      32
+    ],
+    "_v_535": [
+      1,
+      128,
+      32,
+      32
+    ],
+    "onnx::MatMul_510": [
+      64
+    ],
+    "onnx::Div_511": [],
+    "onnx::Conv_512": [
+      64,
+      128,
+      1,
+      1
+    ],
+    "onnx::Add_513": [
+      1,
+      64,
+      32,
+      32
+    ],
+    "input.91": [
+      1,
+      64,
+      32,
+      32
+    ],
+    "input.95": [
+      1,
+      64,
+      32,
+      32
+    ],
+    "onnx::Conv_516": [
+      1,
+      64,
+      32,
+      32
+    ],
+    "onnx::MatMul_523": [
+      3
+    ],
+    "onnx::Div_524": [],
+    "onnx::Conv_525": [
+      3,
+      64,
+      3,
+      3
+    ],
+    "onnx::Tanh_526": [
+      1,
+      3,
+      32,
+      32
+    ],
+    "input.99": [
+      1,
+      3,
+      32,
+      32
+    ],
+    "onnx::MatMul_534": [
+      64
+    ],
+    "onnx::Div_535": [],
+    "onnx::Conv_536": [
+      64,
+      3,
+      3,
+      3
+    ],
+    "input.103": [
+      1,
+      64,
+      32,
+      32
+    ],
+    "onnx::Pad_538": [
+      1,
+      64,
+      32,
+      32
+    ],
+    "onnx::AveragePool_539": [
+      1,
+      64,
+      32,
+      32
+    ],
+    "onnx::Add_540": [
+      1,
+      64,
+      16,
+      16
+    ],
+    "onnx::AveragePool_541": [
+      1,
+      3,
+      32,
+      32
+    ],
+    "input.107": [
+      1,
+      3,
+      16,
+      16
+    ],
+    "onnx::MatMul_549": [
+      64
+    ],
+    "onnx::Div_550": [],
+    "onnx::Conv_551": [
+      64,
+      3,
+      1,
+      1
+    ],
+    "onnx::Add_552": [
+      1,
+      64,
+      16,
+      16
+    ],
+    "input.111": [
+      1,
+      64,
+      16,
+      16
+    ],
+    "onnx::Conv_554": [
+      1,
+      64,
+      16,
+      16
+    ],
+    "onnx::MatMul_561": [
+      128
+    ],
+    "onnx::Div_562": [],
+    "onnx::Conv_563": [
+      128,
+      64,
+      3,
+      3
+    ],
+    "onnx::Pad_564": [
+      1,
+      128,
+      16,
+      16
+    ],
+    "onnx::AveragePool_565": [
+      1,
+      128,
+      16,
+      16
+    ],
+    "onnx::Add_566": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::MatMul_573": [
+      128
+    ],
+    "onnx::Div_574": [],
+    "onnx::Conv_575": [
+      128,
+      64,
+      1,
+      1
+    ],
+    "onnx::Pad_576": [
+      1,
+      128,
+      16,
+      16
+    ],
+    "onnx::AveragePool_577": [
+      1,
+      128,
+      16,
+      16
+    ],
+    "onnx::Add_578": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "input.115": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::Gather_580": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::Div_582": 128,
+    "onnx::Gather_583": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::Mul_585": 8,
+    "onnx::Gather_586": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::Mul_588": 8,
+    "onnx::MatMul_595": [
+      16
+    ],
+    "onnx::Div_596": [],
+    "onnx::Conv_597": [
+      16,
+      128,
+      1,
+      1
+    ],
+    "onnx::Reshape_598": [
+      1,
+      16,
+      8,
+      8
+    ],
+    "onnx::Cast_600": 16,
+    "onnx::Cast_601": 16,
+    "onnx::Unsqueeze_602": 16,
+    "onnx::Unsqueeze_603": 64,
+    "onnx::Concat_606": [
+      16
+    ],
+    "onnx::Concat_607": [
+      64
+    ],
+    "onnx::Reshape_608": [
+      -1,
+      16,
+      64
+    ],
+    "onnx::Transpose_609": [
+      1,
+      16,
+      64
+    ],
+    "onnx::MatMul_616": [
+      16
+    ],
+    "onnx::Div_617": [],
+    "onnx::Conv_618": [
+      16,
+      128,
+      1,
+      1
+    ],
+    "onnx::MaxPool_619": [
+      1,
+      16,
+      8,
+      8
+    ],
+    "onnx::Reshape_620": [
+      1,
+      16,
+      4,
+      4
+    ],
+    "onnx::Cast_622": 16,
+    "onnx::Cast_623": 16,
+    "onnx::Unsqueeze_624": 16,
+    "onnx::Div_625": 64,
+    "onnx::Cast_627": 16,
+    "onnx::Cast_628": 16,
+    "onnx::Unsqueeze_629": 16,
+    "onnx::Concat_632": [
+      16
+    ],
+    "onnx::Concat_633": [
+      16
+    ],
+    "onnx::Reshape_634": [
+      -1,
+      16,
+      16
+    ],
+    "onnx::MatMul_635": [
+      1,
+      16,
+      16
+    ],
+    "onnx::MatMul_636": [
+      1,
+      64,
+      16
+    ],
+    "input.119": [
+      1,
+      64,
+      16
+    ],
+    "_v_592": [
+      1,
+      64,
+      16
+    ],
+    "_v_593": [
+      1,
+      64,
+      16
+    ],
+    "onnx::Transpose_638_intermediate": [
+      1,
+      64,
+      16
+    ],
+    "onnx::Transpose_638": [
+      1,
+      64,
+      16
+    ],
+    "onnx::MatMul_645": [
+      64
+    ],
+    "onnx::Div_646": [],
+    "onnx::Conv_647": [
+      64,
+      128,
+      1,
+      1
+    ],
+    "onnx::MaxPool_648": [
+      1,
+      64,
+      8,
+      8
+    ],
+    "onnx::Reshape_649": [
+      1,
+      64,
+      4,
+      4
+    ],
+    "onnx::Cast_651": 64,
+    "onnx::Cast_652": 64,
+    "onnx::Unsqueeze_653": 64,
+    "onnx::Div_654": 64,
+    "onnx::Cast_656": 16,
+    "onnx::Cast_657": 16,
+    "onnx::Unsqueeze_658": 16,
+    "onnx::Concat_661": [
+      64
+    ],
+    "onnx::Concat_662": [
+      16
+    ],
+    "onnx::Reshape_663": [
+      -1,
+      64,
+      16
+    ],
+    "onnx::MatMul_664": [
+      1,
+      64,
+      16
+    ],
+    "onnx::MatMul_665": [
+      1,
+      16,
+      64
+    ],
+    "onnx::Reshape_666": [
+      1,
+      64,
+      64
+    ],
+    "onnx::Cast_668": 64,
+    "onnx::Cast_669": 64,
+    "onnx::Unsqueeze_670": 64,
+    "onnx::Concat_673": [
+      64
+    ],
+    "onnx::Concat_674": [
+      8
+    ],
+    "onnx::Concat_675": [
+      8
+    ],
+    "onnx::Reshape_676": [
+      -1,
+      64,
+      8,
+      8
+    ],
+    "input.123": [
+      1,
+      64,
+      8,
+      8
+    ],
+    "onnx::MatMul_684": [
+      128
+    ],
+    "onnx::Div_685": [],
+    "onnx::Conv_686": [
+      128,
+      64,
+      1,
+      1
+    ],
+    "onnx::Mul_687": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::Add_688": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "input.127": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::Conv_690": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::MatMul_697": [
+      256
+    ],
+    "onnx::Div_698": [],
+    "onnx::Conv_699": [
+      256,
+      128,
+      3,
+      3
+    ],
+    "onnx::Pad_700": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::AveragePool_701": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::Add_702": [
+      1,
+      256,
+      4,
+      4
+    ],
+    "onnx::MatMul_709": [
+      256
+    ],
+    "onnx::Div_710": [],
+    "onnx::Conv_711": [
+      256,
+      128,
+      1,
+      1
+    ],
+    "onnx::Pad_712": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::AveragePool_713": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::Add_714": [
+      1,
+      256,
+      4,
+      4
+    ],
+    "input.131": [
+      1,
+      256,
+      4,
+      4
+    ],
+    "onnx::Conv_716": [
+      1,
+      256,
+      4,
+      4
+    ],
+    "onnx::MatMul_723": [
+      512
+    ],
+    "onnx::Div_724": [],
+    "onnx::Conv_725": [
+      512,
+      256,
+      3,
+      3
+    ],
+    "onnx::Pad_726": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "onnx::AveragePool_727": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "onnx::Add_728": [
+      1,
+      512,
+      2,
+      2
+    ],
+    "onnx::MatMul_735": [
+      512
+    ],
+    "onnx::Div_736": [],
+    "onnx::Conv_737": [
+      512,
+      256,
+      1,
+      1
+    ],
+    "onnx::Pad_738": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "onnx::AveragePool_739": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "onnx::Add_740": [
+      1,
+      512,
+      2,
+      2
+    ],
+    "input.135": [
+      1,
+      512,
+      2,
+      2
+    ],
+    "onnx::Conv_742": [
+      1,
+      512,
+      2,
+      2
+    ],
+    "onnx::MatMul_749": [
+      1024
+    ],
+    "onnx::Div_750": [],
+    "onnx::Conv_751": [
+      1024,
+      512,
+      3,
+      3
+    ],
+    "onnx::Pad_752": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::AveragePool_753": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::Add_754": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "onnx::MatMul_761": [
+      1024
+    ],
+    "onnx::Div_762": [],
+    "onnx::Conv_763": [
+      1024,
+      512,
+      1,
+      1
+    ],
+    "onnx::Pad_764": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::AveragePool_765": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::Add_766": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "input.139": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "onnx::Conv_768": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "onnx::MatMul_775": [
+      1024
+    ],
+    "onnx::Div_776": [],
+    "onnx::Conv_777": [
+      1024,
+      1024,
+      3,
+      3
+    ],
+    "onnx::Add_778": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "input.143": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "onnx::Reshape_780": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "onnx::Gemm_782": [
+      1,
+      1024
+    ],
+    "onnx::MatMul_789": [
+      1
+    ],
+    "onnx::Div_790": [],
+    "onnx::Gemm_791": [
+      1,
+      1024
+    ],
+    "onnx::Sigmoid_792": [
+      1,
+      1
+    ],
+    "onnx::Squeeze_793": [
+      1,
+      1
+    ]
+  },
+  "onnx_shapes": {
+    "onnx::MatMul_244": [
+      1024
+    ],
+    "onnx::Div_245": [],
+    "onnx::Gemm_246": [
+      1024,
+      5
+    ],
+    "onnx::Reshape_247": [
+      1,
+      1024
+    ],
+    "onnx::Reshape_248": [
+      4
+    ],
+    "input": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "input.3": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "onnx::Upsample_251": [
+      1,
+      1024,
+      1,
+      1
+    ],
+    "input.7": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::MatMul_262": [
+      1024
+    ],
+    "onnx::Div_263": [],
+    "onnx::Conv_264": [
+      1024,
+      1024,
+      3,
+      3
+    ],
+    "onnx::Add_265": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "input.11": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::MatMul_276": [
+      1024
+    ],
+    "onnx::Div_277": [],
+    "onnx::Conv_278": [
+      1024,
+      1024,
+      1,
+      1
+    ],
+    "onnx::Add_279": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "input.15": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "input.19": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "onnx::Upsample_282": [
+      1,
+      1024,
+      2,
+      2
+    ],
+    "input.23": [
+      1,
+      1024,
+      4,
+      4
+    ],
+    "onnx::MatMul_293": [
+      512
+    ],
+    "onnx::Div_294": [],
+    "onnx::Conv_295": [
+      512,
+      1024,
+      3,
+      3
+    ],
+    "onnx::Add_296": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "input.27": [
+      1,
+      1024,
+      4,
+      4
+    ],
+    "onnx::MatMul_307": [
+      512
+    ],
+    "onnx::Div_308": [],
+    "onnx::Conv_309": [
+      512,
+      1024,
+      1,
+      1
+    ],
+    "onnx::Add_310": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "input.31": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "input.35": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "onnx::Upsample_313": [
+      1,
+      512,
+      4,
+      4
+    ],
+    "input.39": [
+      1,
+      512,
+      8,
+      8
+    ],
+    "onnx::MatMul_324": [
+      256
+    ],
+    "onnx::Div_325": [],
+    "onnx::Conv_326": [
+      256,
+      512,
+      3,
+      3
+    ],
+    "onnx::Add_327": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "input.43": [
+      1,
+      512,
+      8,
+      8
+    ],
+    "onnx::MatMul_338": [
+      256
+    ],
+    "onnx::Div_339": [],
+    "onnx::Conv_340": [
+      256,
+      512,
+      1,
+      1
+    ],
+    "onnx::Add_341": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "input.47": [
+      1,
+      256,
+      8,
+      8
+    ],
+    "onnx::Gather_343": [
+      4
+    ],
+    "onnx::Gather_344": [],
+    "onnx::Div_345": [],
+    "onnx::Gather_346": [
+      4
+    ],
+    "onnx::Gather_347": [],
+    "onnx::Mul_348": [],
+    "onnx::Gather_349": [
+      4
+    ],
+    "onnx::Gather_350": [],
+    "onnx::Mul_351": [],
+    "onnx::MatMul_358": [
+      32
+    ],
+    "onnx::Div_359": [],
+    "onnx::Conv_360": [
+      32,
+      256,
+      1,
+      1
+    ],
+    "onnx::Reshape_361": [
+      1,
+      32,
+      8,
+      8
+    ],
+    "onnx::Div_362": [],
+    "onnx::Cast_363": [],
+    "onnx::Cast_364": [],
+    "onnx::Unsqueeze_365": [],
+    "onnx::Unsqueeze_366": [],
+    "onnx::Concat_369": [
+      1
+    ],
+    "onnx::Concat_370": [
+      1
+    ],
+    "onnx::Reshape_371": [
+      3
+    ],
+    "onnx::MatMul_379": [
+      32
+    ],
+    "onnx::Div_380": [],
+    "onnx::Conv_381": [
+      32,
+      256,
+      1,
+      1
+    ],
+    "onnx::MaxPool_382": [
+      1,
+      32,
+      8,
+      8
+    ],
+    "onnx::Reshape_383": [
+      1,
+      32,
+      4,
+      4
+    ],
+    "onnx::Div_384": [],
+    "onnx::Cast_385": [],
+    "onnx::Cast_386": [],
+    "onnx::Unsqueeze_387": [],
+    "onnx::Div_388": [],
+    "onnx::Div_389": [],
+    "onnx::Cast_390": [],
+    "onnx::Cast_391": [],
+    "onnx::Unsqueeze_392": [],
+    "onnx::Concat_395": [
+      1
+    ],
+    "onnx::Concat_396": [
+      1
+    ],
+    "onnx::Reshape_397": [
+      3
+    ],
+    "onnx::MatMul_408": [
+      128
+    ],
+    "onnx::Div_409": [],
+    "onnx::Conv_410": [
+      128,
+      256,
+      1,
+      1
+    ],
+    "onnx::MaxPool_411": [
+      1,
+      128,
+      8,
+      8
+    ],
+    "onnx::Reshape_412": [
+      1,
+      128,
+      4,
+      4
+    ],
+    "onnx::Div_413": [],
+    "onnx::Cast_414": [],
+    "onnx::Cast_415": [],
+    "onnx::Unsqueeze_416": [],
+    "onnx::Div_417": [],
+    "onnx::Div_418": [],
+    "onnx::Cast_419": [],
+    "onnx::Cast_420": [],
+    "onnx::Unsqueeze_421": [],
+    "onnx::Concat_424": [
+      1
+    ],
+    "onnx::Concat_425": [
+      1
+    ],
+    "onnx::Reshape_426": [
+      3
+    ],
+    "onnx::Div_430": [],
+    "onnx::Cast_431": [],
+    "onnx::Cast_432": [],
+    "onnx::Unsqueeze_433": [],
+    "onnx::Concat_436": [
+      1
+    ],
+    "onnx::Concat_437": [
+      1
+    ],
+    "onnx::Concat_438": [
+      1
+    ],
+    "onnx::Reshape_439": [
+      4
+    ],
+    "onnx::MatMul_447": [
+      256
+    ],
+    "onnx::Div_448": [],
+    "onnx::Conv_449": [
+      256,
+      128,
+      1,
+      1
+    ],
+    "onnx::MatMul_465": [
+      128
+    ],
+    "onnx::Div_466": [],
+    "onnx::Conv_467": [
+      128,
+      256,
+      3,
+      3
+    ],
+    "onnx::MatMul_479": [
+      128
+    ],
+    "onnx::Div_480": [],
+    "onnx::Conv_481": [
+      128,
+      256,
+      1,
+      1
+    ],
+    "onnx::MatMul_496": [
+      64
+    ],
+    "onnx::Div_497": [],
+    "onnx::Conv_498": [
+      64,
+      128,
+      3,
+      3
+    ],
+    "onnx::MatMul_510": [
+      64
+    ],
+    "onnx::Div_511": [],
+    "onnx::Conv_512": [
+      64,
+      128,
+      1,
+      1
+    ],
+    "onnx::MatMul_523": [
+      3
+    ],
+    "onnx::Div_524": [],
+    "onnx::Conv_525": [
+      3,
+      64,
+      3,
+      3
+    ],
+    "onnx::MatMul_534": [
+      64
+    ],
+    "onnx::Div_535": [],
+    "onnx::Conv_536": [
+      64,
+      3,
+      3,
+      3
+    ],
+    "onnx::MatMul_549": [
+      64
+    ],
+    "onnx::Div_550": [],
+    "onnx::Conv_551": [
+      64,
+      3,
+      1,
+      1
+    ],
+    "onnx::MatMul_561": [
+      128
+    ],
+    "onnx::Div_562": [],
+    "onnx::Conv_563": [
+      128,
+      64,
+      3,
+      3
+    ],
+    "onnx::MatMul_573": [
+      128
+    ],
+    "onnx::Div_574": [],
+    "onnx::Conv_575": [
+      128,
+      64,
+      1,
+      1
+    ],
+    "onnx::Gather_580": [
+      -1
+    ],
+    "onnx::Gather_581": [],
+    "onnx::Div_582": [],
+    "onnx::Gather_583": [
+      -1
+    ],
+    "onnx::Gather_584": [],
+    "onnx::Mul_585": [],
+    "onnx::Gather_586": [
+      -1
+    ],
+    "onnx::Gather_587": [],
+    "onnx::Mul_588": [],
+    "onnx::MatMul_595": [
+      16
+    ],
+    "onnx::Div_596": [],
+    "onnx::Conv_597": [
+      16,
+      128,
+      1,
+      1
+    ],
+    "onnx::Div_599": [],
+    "onnx::Cast_600": [],
+    "onnx::Cast_601": [],
+    "onnx::Unsqueeze_602": [],
+    "onnx::Unsqueeze_603": [],
+    "onnx::Concat_606": [
+      1
+    ],
+    "onnx::Concat_607": [
+      1
+    ],
+    "onnx::Reshape_608": [
+      3
+    ],
+    "onnx::MatMul_616": [
+      16
+    ],
+    "onnx::Div_617": [],
+    "onnx::Conv_618": [
+      16,
+      128,
+      1,
+      1
+    ],
+    "onnx::Div_621": [],
+    "onnx::Cast_622": [],
+    "onnx::Cast_623": [],
+    "onnx::Unsqueeze_624": [],
+    "onnx::Div_625": [],
+    "onnx::Div_626": [],
+    "onnx::Cast_627": [],
+    "onnx::Cast_628": [],
+    "onnx::Unsqueeze_629": [],
+    "onnx::Concat_632": [
+      1
+    ],
+    "onnx::Concat_633": [
+      1
+    ],
+    "onnx::Reshape_634": [
+      3
+    ],
+    "onnx::MatMul_645": [
+      64
+    ],
+    "onnx::Div_646": [],
+    "onnx::Conv_647": [
+      64,
+      128,
+      1,
+      1
+    ],
+    "onnx::Div_650": [],
+    "onnx::Cast_651": [],
+    "onnx::Cast_652": [],
+    "onnx::Unsqueeze_653": [],
+    "onnx::Div_654": [],
+    "onnx::Div_655": [],
+    "onnx::Cast_656": [],
+    "onnx::Cast_657": [],
+    "onnx::Unsqueeze_658": [],
+    "onnx::Concat_661": [
+      1
+    ],
+    "onnx::Concat_662": [
+      1
+    ],
+    "onnx::Reshape_663": [
+      3
+    ],
+    "onnx::Div_667": [],
+    "onnx::Cast_668": [],
+    "onnx::Cast_669": [],
+    "onnx::Unsqueeze_670": [],
+    "onnx::Concat_673": [
+      1
+    ],
+    "onnx::Concat_674": [
+      1
+    ],
+    "onnx::Concat_675": [
+      1
+    ],
+    "onnx::Reshape_676": [
+      4
+    ],
+    "onnx::MatMul_684": [
+      128
+    ],
+    "onnx::Div_685": [],
+    "onnx::Conv_686": [
+      128,
+      64,
+      1,
+      1
+    ],
+    "onnx::MatMul_697": [
+      256
+    ],
+    "onnx::Div_698": [],
+    "onnx::Conv_699": [
+      256,
+      128,
+      3,
+      3
+    ],
+    "onnx::MatMul_709": [
+      256
+    ],
+    "onnx::Div_710": [],
+    "onnx::Conv_711": [
+      256,
+      128,
+      1,
+      1
+    ],
+    "onnx::MatMul_723": [
+      512
+    ],
+    "onnx::Div_724": [],
+    "onnx::Conv_725": [
+      512,
+      256,
+      3,
+      3
+    ],
+    "onnx::MatMul_735": [
+      512
+    ],
+    "onnx::Div_736": [],
+    "onnx::Conv_737": [
+      512,
+      256,
+      1,
+      1
+    ],
+    "onnx::MatMul_749": [
+      1024
+    ],
+    "onnx::Div_750": [],
+    "onnx::Conv_751": [
+      1024,
+      512,
+      3,
+      3
+    ],
+    "onnx::MatMul_761": [
+      1024
+    ],
+    "onnx::Div_762": [],
+    "onnx::Conv_763": [
+      1024,
+      512,
+      1,
+      1
+    ],
+    "onnx::MatMul_775": [
+      1024
+    ],
+    "onnx::Div_776": [],
+    "onnx::Conv_777": [
+      1024,
+      1024,
+      3,
+      3
+    ],
+    "onnx::Reshape_781": [
+      2
+    ],
+    "onnx::Gemm_782": [
+      -1,
+      1024
+    ],
+    "onnx::MatMul_789": [
+      1
+    ],
+    "onnx::Div_790": [],
+    "onnx::Gemm_791": [
+      1,
+      1024
+    ],
+    "onnx::Sigmoid_792": [
+      -1,
+      1
+    ],
+    "onnx::Squeeze_793": [
+      -1,
+      1
+    ],
+    "Y": [],
+    "X": [
+      1,
+      5
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 355,
+    "onnx_only": 6,
+    "mismatches": 0,
+    "dynamic_diffs": 83
+  }
+}

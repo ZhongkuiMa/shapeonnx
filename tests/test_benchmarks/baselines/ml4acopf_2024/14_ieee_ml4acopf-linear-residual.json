@@ -1,0 +1,1651 @@
+{
+  "shapeonnx_shapes": {
+    "onnx::Gemm_0": [
+      1,
+      22
+    ],
+    "194": [
+      1,
+      186
+    ],
+    "layers.0.weight": [
+      32,
+      22
+    ],
+    "layers.0.bias": [
+      32
+    ],
+    "layers.2.weight": [
+      32,
+      32
+    ],
+    "layers.2.bias": [
+      32
+    ],
+    "layers.4.weight": [
+      32,
+      32
+    ],
+    "layers.4.bias": [
+      32
+    ],
+    "layers.6.weight": [
+      38,
+      32
+    ],
+    "layers.6.bias": [
+      38
+    ],
+    "layers.7.lower_bound": [
+      24
+    ],
+    "onnx::Mul_195": [
+      24
+    ],
+    "thresholds": [
+      18
+    ],
+    "delta_m": [
+      18
+    ],
+    "thresholds_Sin_x_99_34": [
+      18
+    ],
+    "delta_m_Sin_x_99_35": [
+      18
+    ],
+    "thresholds_Sigmoid_x_12_5": [
+      54
+    ],
+    "delta_m_Sigmoid_x_12_6": [
+      54
+    ],
+    "b": [],
+    "/layers.7/Constant_output_0": [
+      1
+    ],
+    "/layers.7/Constant_1_output_0": [
+      1
+    ],
+    "/layers.7/Constant_2_output_0": [
+      1
+    ],
+    "/layers.7/Constant_3_output_0": [
+      1
+    ],
+    "/Constant_output_0_Sigmoid_x_12_0": [
+      1
+    ],
+    "/layers.7/Constant_4_output_0": [
+      1
+    ],
+    "/layers.7/Constant_5_output_0": [
+      1
+    ],
+    "/layers.7/Constant_6_output_0": [
+      1
+    ],
+    "/layers.7/Constant_7_output_0": [
+      1
+    ],
+    "/Constant_output_0": [
+      1
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/Constant_4_output_0": [
+      1
+    ],
+    "/Constant_5_output_0": [
+      1
+    ],
+    "/Constant_6_output_0": [
+      1
+    ],
+    "/Constant_7_output_0": [
+      1
+    ],
+    "/Constant_8_output_0": [
+      1
+    ],
+    "/Constant_9_output_0": [
+      1
+    ],
+    "/Constant_10_output_0": [
+      1
+    ],
+    "/Constant_11_output_0": [
+      1
+    ],
+    "/Constant_12_output_0": [
+      1
+    ],
+    "/Constant_13_output_0": [
+      1
+    ],
+    "/Constant_14_output_0": [
+      1
+    ],
+    "/Constant_15_output_0": [
+      1
+    ],
+    "/Constant_16_output_0": [
+      1
+    ],
+    "/Constant_17_output_0": [
+      1
+    ],
+    "/Constant_18_output_0": [
+      1
+    ],
+    "/Constant_19_output_0": [
+      1
+    ],
+    "/Constant_20_output_0": [
+      1
+    ],
+    "/Constant_21_output_0": [
+      1
+    ],
+    "/Constant_22_output_0": [
+      1
+    ],
+    "/Constant_23_output_0": [
+      1
+    ],
+    "onnx::Gather_63": [
+      20
+    ],
+    "onnx::Gather_65": [
+      20
+    ],
+    "/Constant_output_0_Cos_x_62_0": [],
+    "/Constant_1_output_0_Cos_x_62_2": [],
+    "/Constant_2_output_0_Cos_x_62_3": [],
+    "/Constant_3_output_0_Cos_x_62_6": [],
+    "/Constant_output_0_Neg_x_77_0": [],
+    "/Constant_4_output_0_Cos_x_62_9": [],
+    "/Constant_5_output_0_Cos_x_62_12": [],
+    "/Constant_output_0_Neg_x_85_0": [],
+    "/Constant_6_output_0_Cos_x_62_14": [],
+    "/Constant_7_output_0_Cos_x_62_17": [],
+    "/Constant_output_0_Neg_x_92_0": [],
+    "/Constant_8_output_0_Cos_x_62_19": [],
+    "/Constant_9_output_0_Cos_x_62_22": [
+      1
+    ],
+    "/Constant_10_output_0_Cos_x_62_25": [],
+    "/Constant_output_0_Sin_x_99_0": [],
+    "/Constant_1_output_0_Sin_x_99_3": [],
+    "/Constant_2_output_0_Sin_x_99_6": [],
+    "/Constant_output_0_Neg_x_113_0": [],
+    "/Constant_3_output_0_Sin_x_99_10": [],
+    "/Constant_4_output_0_Sin_x_99_13": [],
+    "/Constant_output_0_Neg_x_121_0": [],
+    "/Constant_5_output_0_Sin_x_99_17": [],
+    "/Constant_6_output_0_Sin_x_99_20": [],
+    "/Constant_output_0_Neg_x_128_0": [],
+    "/Constant_7_output_0_Sin_x_99_24": [],
+    "/Constant_8_output_0_Sin_x_99_27": [
+      1
+    ],
+    "/Constant_9_output_0_Sin_x_99_32": [],
+    "/Constant_output_0_Neg_x_143_0": [],
+    "/Constant_26_output_0": [
+      20
+    ],
+    "/Constant_27_output_0": [
+      20
+    ],
+    "/Constant_28_output_0": [
+      20
+    ],
+    "/Constant_29_output_0": [
+      20
+    ],
+    "/Constant_30_output_0": [
+      20
+    ],
+    "/Constant_31_output_0": [
+      20
+    ],
+    "/Constant_32_output_0": [
+      20
+    ],
+    "/Constant_33_output_0": [
+      20
+    ],
+    "/Constant_34_output_0": [
+      20
+    ],
+    "/Constant_35_output_0": [
+      20
+    ],
+    "/Constant_36_output_0": [
+      20
+    ],
+    "/Constant_47_output_0": [
+      14,
+      11
+    ],
+    "/Constant_48_output_0": [
+      14,
+      5
+    ],
+    "onnx::MatMul_166": [
+      14,
+      20
+    ],
+    "onnx::MatMul_170": [
+      14,
+      20
+    ],
+    "/Constant_50_output_0": [
+      14
+    ],
+    "/Constant_51_output_0": [
+      14
+    ],
+    "/layers.0/Gemm_output_0": [
+      1,
+      32
+    ],
+    "/layers.1/Relu_output_0": [
+      1,
+      32
+    ],
+    "/layers.2/Gemm_output_0": [
+      1,
+      32
+    ],
+    "/layers.3/Relu_output_0": [
+      1,
+      32
+    ],
+    "/layers.4/Gemm_output_0": [
+      1,
+      32
+    ],
+    "/layers.5/Relu_output_0": [
+      1,
+      32
+    ],
+    "/layers.6/Gemm_output_0": [
+      1,
+      38
+    ],
+    "/layers.7/Slice_output_0": [
+      1,
+      24
+    ],
+    "/Unsqueeze_output_0_Sigmoid_x_12_1": [
+      1,
+      24,
+      1
+    ],
+    "/Sub_output_0_Sigmoid_x_12_2": [
+      1,
+      24,
+      54
+    ],
+    "/Relu_output_0_Sigmoid_x_12_3": [
+      1,
+      24,
+      54
+    ],
+    "/MatMul_output_0_Sigmoid_x_12_4": [
+      1,
+      24
+    ],
+    "/layers.7/Sigmoid_output_0": [
+      1,
+      24
+    ],
+    "/layers.7/Mul_output_0": [
+      1,
+      24
+    ],
+    "/layers.7/Add_output_0": [
+      1,
+      24
+    ],
+    "/layers.7/Slice_1_output_0": [
+      1,
+      14
+    ],
+    "/layers.7/Concat_output_0": [
+      1,
+      38
+    ],
+    "/Slice_output_0": [
+      1,
+      11
+    ],
+    "/Slice_1_output_0": [
+      1,
+      11
+    ],
+    "/Slice_2_output_0": [
+      1,
+      5
+    ],
+    "/Slice_3_output_0": [
+      1,
+      5
+    ],
+    "/Slice_4_output_0": [
+      1,
+      14
+    ],
+    "/Slice_5_output_0": [
+      1,
+      14
+    ],
+    "/Gather_output_0": [
+      1,
+      20
+    ],
+    "/Gather_1_output_0": [
+      1,
+      20
+    ],
+    "/Sub_output_0": [
+      1,
+      20
+    ],
+    "/Gather_2_output_0": [
+      1,
+      20
+    ],
+    "/Gather_3_output_0": [
+      1,
+      20
+    ],
+    "/Pow_output_0": [
+      1,
+      20
+    ],
+    "/Pow_1_output_0": [
+      1,
+      20
+    ],
+    "/Add_output_0_Cos_x_62_1": [
+      1,
+      20
+    ],
+    "/Div_output_0": [
+      1,
+      20
+    ],
+    "/Floor_output_0": [
+      1,
+      20
+    ],
+    "/Mul_output_0_Cos_x_62_4": [
+      1,
+      20
+    ],
+    "/Sub_output_0_Cos_x_62_5": [
+      1,
+      20
+    ],
+    "/Sub_1_output_0_Cos_x_62_7": [
+      1,
+      20
+    ],
+    "/Neg_output_0_Cos_x_62_8": [
+      1,
+      20
+    ],
+    "/Relu_output_0": [
+      1,
+      20
+    ],
+    "/Mul_1_output_0_Cos_x_62_10": [
+      1,
+      20
+    ],
+    "/Add_1_output_0_Cos_x_62_11": [
+      1,
+      20
+    ],
+    "/Sub_2_output_0_Cos_x_62_13": [
+      1,
+      20
+    ],
+    "/Neg_1_output_0": [
+      1,
+      20
+    ],
+    "/Relu_1_output_0": [
+      1,
+      20
+    ],
+    "/Mul_2_output_0_Cos_x_62_15": [
+      1,
+      20
+    ],
+    "/Add_2_output_0_Cos_x_62_16": [
+      1,
+      20
+    ],
+    "/Sub_3_output_0_Cos_x_62_18": [
+      1,
+      20
+    ],
+    "/Neg_2_output_0": [
+      1,
+      20
+    ],
+    "/Relu_2_output_0": [
+      1,
+      20
+    ],
+    "/Mul_3_output_0_Cos_x_62_20": [
+      1,
+      20
+    ],
+    "/Add_3_output_0_Cos_x_62_21": [
+      1,
+      20
+    ],
+    "/Unsqueeze_output_0": [
+      1,
+      20,
+      1
+    ],
+    "/Sub_4_output_0_Cos_x_62_23": [
+      1,
+      20,
+      18
+    ],
+    "/Relu_3_output_0": [
+      1,
+      20,
+      18
+    ],
+    "/MatMul_output_0_Cos_x_62_24": [
+      1,
+      20
+    ],
+    "/Add_4_output_0_Cos_x_62_26": [
+      1,
+      20
+    ],
+    "/Cos_output_0": [
+      1,
+      20
+    ],
+    "/Div_output_0_Sin_x_99_1": [
+      1,
+      20
+    ],
+    "/Floor_output_0_Sin_x_99_2": [
+      1,
+      20
+    ],
+    "/Mul_output_0_Sin_x_99_4": [
+      1,
+      20
+    ],
+    "/Sub_output_0_Sin_x_99_5": [
+      1,
+      20
+    ],
+    "/Sub_1_output_0_Sin_x_99_7": [
+      1,
+      20
+    ],
+    "/Neg_output_0_Sin_x_99_8": [
+      1,
+      20
+    ],
+    "/Relu_output_0_Sin_x_99_9": [
+      1,
+      20
+    ],
+    "/Mul_1_output_0_Sin_x_99_11": [
+      1,
+      20
+    ],
+    "/Add_output_0_Sin_x_99_12": [
+      1,
+      20
+    ],
+    "/Sub_2_output_0_Sin_x_99_14": [
+      1,
+      20
+    ],
+    "/Neg_1_output_0_Sin_x_99_15": [
+      1,
+      20
+    ],
+    "/Relu_1_output_0_Sin_x_99_16": [
+      1,
+      20
+    ],
+    "/Mul_2_output_0_Sin_x_99_18": [
+      1,
+      20
+    ],
+    "/Add_1_output_0_Sin_x_99_19": [
+      1,
+      20
+    ],
+    "/Sub_3_output_0_Sin_x_99_21": [
+      1,
+      20
+    ],
+    "/Neg_2_output_0_Sin_x_99_22": [
+      1,
+      20
+    ],
+    "/Relu_2_output_0_Sin_x_99_23": [
+      1,
+      20
+    ],
+    "/Mul_3_output_0_Sin_x_99_25": [
+      1,
+      20
+    ],
+    "/Add_2_output_0_Sin_x_99_26": [
+      1,
+      20
+    ],
+    "/Unsqueeze_output_0_Sin_x_99_28": [
+      1,
+      20,
+      1
+    ],
+    "/Sub_4_output_0_Sin_x_99_29": [
+      1,
+      20,
+      18
+    ],
+    "/Relu_3_output_0_Sin_x_99_30": [
+      1,
+      20,
+      18
+    ],
+    "/MatMul_output_0_Sin_x_99_31": [
+      1,
+      20
+    ],
+    "/Add_3_output_0_Sin_x_99_33": [
+      1,
+      20
+    ],
+    "/Sin_output_0": [
+      1,
+      20
+    ],
+    "/Mul_output_0": [
+      1,
+      20
+    ],
+    "/Mul_1_output_0": [
+      1,
+      20
+    ],
+    "/Mul_2_output_0": [
+      1,
+      20
+    ],
+    "/Neg_output_0": [
+      1,
+      20
+    ],
+    "/Mul_3_output_0": [
+      1,
+      20
+    ],
+    "/Mul_4_output_0": [
+      1,
+      20
+    ],
+    "/Add_output_0": [
+      1,
+      20
+    ],
+    "/Mul_5_output_0": [
+      1,
+      20
+    ],
+    "/Add_1_output_0": [
+      1,
+      20
+    ],
+    "/Mul_6_output_0": [
+      1,
+      20
+    ],
+    "/Mul_7_output_0": [
+      1,
+      20
+    ],
+    "/Sub_1_output_0": [
+      1,
+      20
+    ],
+    "/Mul_8_output_0": [
+      1,
+      20
+    ],
+    "/Add_2_output_0": [
+      1,
+      20
+    ],
+    "/Mul_9_output_0": [
+      1,
+      20
+    ],
+    "/Add_3_output_0": [
+      1,
+      20
+    ],
+    "/Mul_10_output_0": [
+      1,
+      20
+    ],
+    "/Add_4_output_0": [
+      1,
+      20
+    ],
+    "/Mul_11_output_0": [
+      1,
+      20
+    ],
+    "/Sub_2_output_0": [
+      1,
+      20
+    ],
+    "/Mul_12_output_0": [
+      1,
+      20
+    ],
+    "/Add_5_output_0": [
+      1,
+      20
+    ],
+    "/Pow_2_output_0": [
+      1,
+      20
+    ],
+    "/Pow_3_output_0": [
+      1,
+      20
+    ],
+    "/Add_6_output_0": [
+      1,
+      20
+    ],
+    "/Sub_3_output_0": [
+      1,
+      20
+    ],
+    "/Pow_4_output_0": [
+      1,
+      20
+    ],
+    "/Pow_5_output_0": [
+      1,
+      20
+    ],
+    "/Add_7_output_0": [
+      1,
+      20
+    ],
+    "/Sub_4_output_0": [
+      1,
+      20
+    ],
+    "/Transpose_output_0": [
+      11,
+      1
+    ],
+    "/MatMul_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_1_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_2_output_0": [
+      11,
+      1
+    ],
+    "/MatMul_1_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_3_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_4_output_0": [
+      5,
+      1
+    ],
+    "/MatMul_2_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_5_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_6_output_0": [
+      5,
+      1
+    ],
+    "/MatMul_3_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_7_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_8_output_0": [
+      20,
+      1
+    ],
+    "/MatMul_4_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_9_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_10_output_0": [
+      20,
+      1
+    ],
+    "/MatMul_5_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_11_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_12_output_0": [
+      20,
+      1
+    ],
+    "/MatMul_6_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_13_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_14_output_0": [
+      20,
+      1
+    ],
+    "/MatMul_7_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_15_output_0": [
+      1,
+      14
+    ],
+    "/Pow_6_output_0": [
+      1,
+      14
+    ],
+    "/Sub_5_output_0": [
+      1,
+      14
+    ],
+    "/Sub_6_output_0": [
+      1,
+      14
+    ],
+    "/Sub_7_output_0": [
+      1,
+      14
+    ],
+    "/Mul_15_output_0": [
+      1,
+      14
+    ],
+    "/Sub_8_output_0": [
+      1,
+      14
+    ],
+    "/Sub_9_output_0": [
+      1,
+      14
+    ],
+    "/Sub_10_output_0": [
+      1,
+      14
+    ],
+    "/Sub_11_output_0": [
+      1,
+      14
+    ],
+    "/Mul_16_output_0": [
+      1,
+      14
+    ],
+    "/Add_8_output_0": [
+      1,
+      14
+    ]
+  },
+  "onnx_shapes": {
+    "/layers.0/Gemm_output_0": [
+      1,
+      32
+    ],
+    "/layers.1/Relu_output_0": [
+      1,
+      32
+    ],
+    "/layers.2/Gemm_output_0": [
+      1,
+      32
+    ],
+    "/layers.3/Relu_output_0": [
+      1,
+      32
+    ],
+    "/layers.4/Gemm_output_0": [
+      1,
+      32
+    ],
+    "/layers.5/Relu_output_0": [
+      1,
+      32
+    ],
+    "/layers.6/Gemm_output_0": [
+      1,
+      38
+    ],
+    "/layers.7/Constant_output_0": [
+      1
+    ],
+    "/layers.7/Constant_1_output_0": [
+      1
+    ],
+    "/layers.7/Constant_2_output_0": [
+      1
+    ],
+    "/layers.7/Constant_3_output_0": [
+      1
+    ],
+    "/layers.7/Slice_output_0": [
+      1,
+      24
+    ],
+    "/Constant_output_0_Sigmoid_x_12_0": [
+      1
+    ],
+    "/Unsqueeze_output_0_Sigmoid_x_12_1": [
+      1,
+      24,
+      1
+    ],
+    "/Sub_output_0_Sigmoid_x_12_2": [
+      1,
+      24,
+      54
+    ],
+    "/Relu_output_0_Sigmoid_x_12_3": [
+      1,
+      24,
+      54
+    ],
+    "/MatMul_output_0_Sigmoid_x_12_4": [
+      1,
+      24
+    ],
+    "/layers.7/Sigmoid_output_0": [
+      1,
+      24
+    ],
+    "/layers.7/Mul_output_0": [
+      1,
+      24
+    ],
+    "/layers.7/Add_output_0": [
+      1,
+      24
+    ],
+    "/layers.7/Constant_4_output_0": [
+      1
+    ],
+    "/layers.7/Constant_5_output_0": [
+      1
+    ],
+    "/layers.7/Constant_6_output_0": [
+      1
+    ],
+    "/layers.7/Constant_7_output_0": [
+      1
+    ],
+    "/layers.7/Slice_1_output_0": [
+      1,
+      14
+    ],
+    "/layers.7/Concat_output_0": [
+      1,
+      38
+    ],
+    "/Constant_output_0": [
+      1
+    ],
+    "/Constant_1_output_0": [
+      1
+    ],
+    "/Constant_2_output_0": [
+      1
+    ],
+    "/Constant_3_output_0": [
+      1
+    ],
+    "/Slice_output_0": [
+      1,
+      11
+    ],
+    "/Constant_4_output_0": [
+      1
+    ],
+    "/Constant_5_output_0": [
+      1
+    ],
+    "/Constant_6_output_0": [
+      1
+    ],
+    "/Constant_7_output_0": [
+      1
+    ],
+    "/Slice_1_output_0": [
+      1,
+      11
+    ],
+    "/Constant_8_output_0": [
+      1
+    ],
+    "/Constant_9_output_0": [
+      1
+    ],
+    "/Constant_10_output_0": [
+      1
+    ],
+    "/Constant_11_output_0": [
+      1
+    ],
+    "/Slice_2_output_0": [
+      1,
+      5
+    ],
+    "/Constant_12_output_0": [
+      1
+    ],
+    "/Constant_13_output_0": [
+      1
+    ],
+    "/Constant_14_output_0": [
+      1
+    ],
+    "/Constant_15_output_0": [
+      1
+    ],
+    "/Slice_3_output_0": [
+      1,
+      5
+    ],
+    "/Constant_16_output_0": [
+      1
+    ],
+    "/Constant_17_output_0": [
+      1
+    ],
+    "/Constant_18_output_0": [
+      1
+    ],
+    "/Constant_19_output_0": [
+      1
+    ],
+    "/Slice_4_output_0": [
+      1,
+      14
+    ],
+    "/Constant_20_output_0": [
+      1
+    ],
+    "/Constant_21_output_0": [
+      1
+    ],
+    "/Constant_22_output_0": [
+      1
+    ],
+    "/Constant_23_output_0": [
+      1
+    ],
+    "/Slice_5_output_0": [
+      1,
+      14
+    ],
+    "onnx::Gather_63": [
+      20
+    ],
+    "/Gather_output_0": [
+      1,
+      20
+    ],
+    "onnx::Gather_65": [
+      20
+    ],
+    "/Gather_1_output_0": [
+      1,
+      20
+    ],
+    "/Sub_output_0": [
+      1,
+      20
+    ],
+    "/Gather_2_output_0": [
+      1,
+      20
+    ],
+    "/Gather_3_output_0": [
+      1,
+      20
+    ],
+    "/Pow_output_0": [
+      1,
+      20
+    ],
+    "/Pow_1_output_0": [
+      1,
+      20
+    ],
+    "/Constant_output_0_Cos_x_62_0": [],
+    "/Add_output_0_Cos_x_62_1": [
+      1,
+      20
+    ],
+    "/Constant_1_output_0_Cos_x_62_2": [],
+    "/Div_output_0": [
+      1,
+      20
+    ],
+    "/Floor_output_0": [
+      1,
+      20
+    ],
+    "/Constant_2_output_0_Cos_x_62_3": [],
+    "/Mul_output_0_Cos_x_62_4": [
+      1,
+      20
+    ],
+    "/Sub_output_0_Cos_x_62_5": [
+      1,
+      20
+    ],
+    "/Constant_3_output_0_Cos_x_62_6": [],
+    "/Sub_1_output_0_Cos_x_62_7": [
+      1,
+      20
+    ],
+    "/Constant_output_0_Neg_x_77_0": [],
+    "/Neg_output_0_Cos_x_62_8": [
+      1,
+      20
+    ],
+    "/Relu_output_0": [
+      1,
+      20
+    ],
+    "/Constant_4_output_0_Cos_x_62_9": [],
+    "/Mul_1_output_0_Cos_x_62_10": [
+      1,
+      20
+    ],
+    "/Add_1_output_0_Cos_x_62_11": [
+      1,
+      20
+    ],
+    "/Constant_5_output_0_Cos_x_62_12": [],
+    "/Sub_2_output_0_Cos_x_62_13": [
+      1,
+      20
+    ],
+    "/Constant_output_0_Neg_x_85_0": [],
+    "/Neg_1_output_0": [
+      1,
+      20
+    ],
+    "/Relu_1_output_0": [
+      1,
+      20
+    ],
+    "/Constant_6_output_0_Cos_x_62_14": [],
+    "/Mul_2_output_0_Cos_x_62_15": [
+      1,
+      20
+    ],
+    "/Add_2_output_0_Cos_x_62_16": [
+      1,
+      20
+    ],
+    "/Constant_7_output_0_Cos_x_62_17": [],
+    "/Sub_3_output_0_Cos_x_62_18": [
+      1,
+      20
+    ],
+    "/Constant_output_0_Neg_x_92_0": [],
+    "/Neg_2_output_0": [
+      1,
+      20
+    ],
+    "/Relu_2_output_0": [
+      1,
+      20
+    ],
+    "/Constant_8_output_0_Cos_x_62_19": [],
+    "/Mul_3_output_0_Cos_x_62_20": [
+      1,
+      20
+    ],
+    "/Add_3_output_0_Cos_x_62_21": [
+      1,
+      20
+    ],
+    "/Constant_9_output_0_Cos_x_62_22": [
+      1
+    ],
+    "/Unsqueeze_output_0": [
+      1,
+      20,
+      1
+    ],
+    "/Sub_4_output_0_Cos_x_62_23": [
+      1,
+      20,
+      18
+    ],
+    "/Relu_3_output_0": [
+      1,
+      20,
+      18
+    ],
+    "/MatMul_output_0_Cos_x_62_24": [
+      1,
+      20
+    ],
+    "/Constant_10_output_0_Cos_x_62_25": [],
+    "/Add_4_output_0_Cos_x_62_26": [
+      1,
+      20
+    ],
+    "/Cos_output_0": [
+      1,
+      20
+    ],
+    "/Constant_output_0_Sin_x_99_0": [],
+    "/Div_output_0_Sin_x_99_1": [
+      1,
+      20
+    ],
+    "/Floor_output_0_Sin_x_99_2": [
+      1,
+      20
+    ],
+    "/Constant_1_output_0_Sin_x_99_3": [],
+    "/Mul_output_0_Sin_x_99_4": [
+      1,
+      20
+    ],
+    "/Sub_output_0_Sin_x_99_5": [
+      1,
+      20
+    ],
+    "/Constant_2_output_0_Sin_x_99_6": [],
+    "/Sub_1_output_0_Sin_x_99_7": [
+      1,
+      20
+    ],
+    "/Constant_output_0_Neg_x_113_0": [],
+    "/Neg_output_0_Sin_x_99_8": [
+      1,
+      20
+    ],
+    "/Relu_output_0_Sin_x_99_9": [
+      1,
+      20
+    ],
+    "/Constant_3_output_0_Sin_x_99_10": [],
+    "/Mul_1_output_0_Sin_x_99_11": [
+      1,
+      20
+    ],
+    "/Add_output_0_Sin_x_99_12": [
+      1,
+      20
+    ],
+    "/Constant_4_output_0_Sin_x_99_13": [],
+    "/Sub_2_output_0_Sin_x_99_14": [
+      1,
+      20
+    ],
+    "/Constant_output_0_Neg_x_121_0": [],
+    "/Neg_1_output_0_Sin_x_99_15": [
+      1,
+      20
+    ],
+    "/Relu_1_output_0_Sin_x_99_16": [
+      1,
+      20
+    ],
+    "/Constant_5_output_0_Sin_x_99_17": [],
+    "/Mul_2_output_0_Sin_x_99_18": [
+      1,
+      20
+    ],
+    "/Add_1_output_0_Sin_x_99_19": [
+      1,
+      20
+    ],
+    "/Constant_6_output_0_Sin_x_99_20": [],
+    "/Sub_3_output_0_Sin_x_99_21": [
+      1,
+      20
+    ],
+    "/Constant_output_0_Neg_x_128_0": [],
+    "/Neg_2_output_0_Sin_x_99_22": [
+      1,
+      20
+    ],
+    "/Relu_2_output_0_Sin_x_99_23": [
+      1,
+      20
+    ],
+    "/Constant_7_output_0_Sin_x_99_24": [],
+    "/Mul_3_output_0_Sin_x_99_25": [
+      1,
+      20
+    ],
+    "/Add_2_output_0_Sin_x_99_26": [
+      1,
+      20
+    ],
+    "/Constant_8_output_0_Sin_x_99_27": [
+      1
+    ],
+    "/Unsqueeze_output_0_Sin_x_99_28": [
+      1,
+      20,
+      1
+    ],
+    "/Sub_4_output_0_Sin_x_99_29": [
+      1,
+      20,
+      18
+    ],
+    "/Relu_3_output_0_Sin_x_99_30": [
+      1,
+      20,
+      18
+    ],
+    "/MatMul_output_0_Sin_x_99_31": [
+      1,
+      20
+    ],
+    "/Constant_9_output_0_Sin_x_99_32": [],
+    "/Add_3_output_0_Sin_x_99_33": [
+      1,
+      20
+    ],
+    "/Sin_output_0": [
+      1,
+      20
+    ],
+    "/Mul_output_0": [
+      1,
+      20
+    ],
+    "/Mul_1_output_0": [
+      1,
+      20
+    ],
+    "/Mul_2_output_0": [
+      1,
+      20
+    ],
+    "/Constant_output_0_Neg_x_143_0": [],
+    "/Neg_output_0": [
+      1,
+      20
+    ],
+    "/Constant_26_output_0": [
+      20
+    ],
+    "/Mul_3_output_0": [
+      1,
+      20
+    ],
+    "/Constant_27_output_0": [
+      20
+    ],
+    "/Mul_4_output_0": [
+      1,
+      20
+    ],
+    "/Add_output_0": [
+      1,
+      20
+    ],
+    "/Constant_28_output_0": [
+      20
+    ],
+    "/Mul_5_output_0": [
+      1,
+      20
+    ],
+    "/Add_1_output_0": [
+      1,
+      20
+    ],
+    "/Constant_29_output_0": [
+      20
+    ],
+    "/Mul_6_output_0": [
+      1,
+      20
+    ],
+    "/Constant_30_output_0": [
+      20
+    ],
+    "/Mul_7_output_0": [
+      1,
+      20
+    ],
+    "/Sub_1_output_0": [
+      1,
+      20
+    ],
+    "/Constant_31_output_0": [
+      20
+    ],
+    "/Mul_8_output_0": [
+      1,
+      20
+    ],
+    "/Add_2_output_0": [
+      1,
+      20
+    ],
+    "/Constant_32_output_0": [
+      20
+    ],
+    "/Mul_9_output_0": [
+      1,
+      20
+    ],
+    "/Add_3_output_0": [
+      1,
+      20
+    ],
+    "/Constant_33_output_0": [
+      20
+    ],
+    "/Mul_10_output_0": [
+      1,
+      20
+    ],
+    "/Add_4_output_0": [
+      1,
+      20
+    ],
+    "/Constant_34_output_0": [
+      20
+    ],
+    "/Mul_11_output_0": [
+      1,
+      20
+    ],
+    "/Sub_2_output_0": [
+      1,
+      20
+    ],
+    "/Constant_35_output_0": [
+      20
+    ],
+    "/Mul_12_output_0": [
+      1,
+      20
+    ],
+    "/Add_5_output_0": [
+      1,
+      20
+    ],
+    "/Constant_36_output_0": [
+      20
+    ],
+    "/Pow_2_output_0": [
+      1,
+      20
+    ],
+    "/Pow_3_output_0": [
+      1,
+      20
+    ],
+    "/Add_6_output_0": [
+      1,
+      20
+    ],
+    "/Sub_3_output_0": [
+      1,
+      20
+    ],
+    "/Pow_4_output_0": [
+      1,
+      20
+    ],
+    "/Pow_5_output_0": [
+      1,
+      20
+    ],
+    "/Add_7_output_0": [
+      1,
+      20
+    ],
+    "/Sub_4_output_0": [
+      1,
+      20
+    ],
+    "/Transpose_output_0": [
+      11,
+      1
+    ],
+    "/Constant_47_output_0": [
+      14,
+      11
+    ],
+    "/MatMul_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_1_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_2_output_0": [
+      11,
+      1
+    ],
+    "/MatMul_1_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_3_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_4_output_0": [
+      5,
+      1
+    ],
+    "/Constant_48_output_0": [
+      14,
+      5
+    ],
+    "/MatMul_2_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_5_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_6_output_0": [
+      5,
+      1
+    ],
+    "/MatMul_3_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_7_output_0": [
+      1,
+      14
+    ],
+    "onnx::MatMul_166": [
+      14,
+      20
+    ],
+    "/Transpose_8_output_0": [
+      20,
+      1
+    ],
+    "/MatMul_4_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_9_output_0": [
+      1,
+      14
+    ],
+    "onnx::MatMul_170": [
+      14,
+      20
+    ],
+    "/Transpose_10_output_0": [
+      20,
+      1
+    ],
+    "/MatMul_5_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_11_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_12_output_0": [
+      20,
+      1
+    ],
+    "/MatMul_6_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_13_output_0": [
+      1,
+      14
+    ],
+    "/Transpose_14_output_0": [
+      20,
+      1
+    ],
+    "/MatMul_7_output_0": [
+      14,
+      1
+    ],
+    "/Transpose_15_output_0": [
+      1,
+      14
+    ],
+    "/Pow_6_output_0": [
+      1,
+      14
+    ],
+    "/Sub_5_output_0": [
+      1,
+      14
+    ],
+    "/Sub_6_output_0": [
+      1,
+      14
+    ],
+    "/Sub_7_output_0": [
+      1,
+      14
+    ],
+    "/Constant_50_output_0": [
+      14
+    ],
+    "/Mul_15_output_0": [
+      1,
+      14
+    ],
+    "/Sub_8_output_0": [
+      1,
+      14
+    ],
+    "/Sub_9_output_0": [
+      1,
+      14
+    ],
+    "/Sub_10_output_0": [
+      1,
+      14
+    ],
+    "/Sub_11_output_0": [
+      1,
+      14
+    ],
+    "/Constant_51_output_0": [
+      14
+    ],
+    "/Mul_16_output_0": [
+      1,
+      14
+    ],
+    "/Add_8_output_0": [
+      1,
+      14
+    ],
+    "194": [
+      1,
+      186
+    ],
+    "onnx::Gemm_0": [
+      1,
+      22
+    ]
+  },
+  "differences": {
+    "shapeonnx_only": 17,
+    "onnx_only": 0,
+    "mismatches": 0,
+    "dynamic_diffs": 0
+  }
+}
