@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "shapeonnx"
-version = "2026.1.0"
+version = "2026.2.0"
 description = "Shape inference and propagation for ONNX models"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -30,7 +30,7 @@ dependencies = [
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
-    "ruff>=0.14.0",
+    "ruff==0.15.0",
     "mypy>=1.0",
 ]
 
