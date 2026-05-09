@@ -16,6 +16,14 @@ from pathlib import Path
 
 import onnx
 
+from shapeonnx import extract_io_shapes, infer_onnx_shape
+from shapeonnx.utils import (
+    convert_constant_to_initializer,
+    get_initializers,
+    get_input_nodes,
+    get_output_nodes,
+)
+
 BENCHMARK_WITHOUT_BATCH_DIM = [
     "cctsdb_yolo",
     "cgan",
@@ -166,14 +174,6 @@ def infer_shape(
     :param verbose: Whether to print verbose output during inference
     :return: Dictionary mapping tensor names to inferred shapes
     """
-    from shapeonnx import extract_io_shapes, infer_onnx_shape
-    from shapeonnx.utils import (
-        convert_constant_to_initializer,
-        get_initializers,
-        get_input_nodes,
-        get_output_nodes,
-    )
-
     initializers = get_initializers(model)
     input_nodes = get_input_nodes(model, initializers, has_batch_dim)
     output_nodes = get_output_nodes(model, has_batch_dim)

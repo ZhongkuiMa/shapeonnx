@@ -254,8 +254,6 @@ def get_onnx_models():
 
     :return: List of ONNX file paths or empty list if benchmarks not found
     """
-    from pathlib import Path
-
     dir_name = "vnncomp2024_benchmarks"
     benchmarks_path = Path(__file__).parent / dir_name
 
@@ -313,7 +311,7 @@ def test_create_baseline(onnx_path, baselines_dir):
 
     # Verify baseline was created
     assert baseline_path.exists()
-    assert shapeonnx_shapes is not None
+    assert isinstance(shapeonnx_shapes, dict)
     assert len(shapeonnx_shapes) > 0
 
 
@@ -417,5 +415,8 @@ def test_onnx_consistency(onnx_path):
         pytest.fail("Shape mismatches between shapeonnx and ONNX:\n" + "\n".join(mismatch_details))
 
     # Test passes - differences are acceptable
+    assert isinstance(shapeonnx_shapes, dict)
+    assert len(shapeonnx_shapes) > 0
+    assert len(differences["mismatches"]) == 0
     if info_parts:
         print(f"\nInfo: {', '.join(info_parts)}")

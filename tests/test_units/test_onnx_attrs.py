@@ -188,9 +188,15 @@ class TestScanAttrs:
 
         result = _scan_attrs(defaults, node.attribute)
 
+        assert isinstance(result, dict)
+        assert len(result) >= 3
+        assert "kernel_shape" in result
         assert result["kernel_shape"] is None
+        assert "pads" in result
         assert result["pads"] is None
+        assert "strides" in result
         assert result["strides"] is None
+        assert result["group"] == 1
 
 
 # ============================================================================

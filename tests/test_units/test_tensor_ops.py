@@ -1,5 +1,7 @@
 """Unit tests for tensor manipulation operation shape inference."""
 
+import numpy as np
+import onnx
 import pytest
 
 from shapeonnx.infer_shape import (
@@ -31,8 +33,6 @@ class TestReshapeOperation:
     )
     def test_reshape_different_shapes(self, input_shape, target_shape, expected):
         """Test Reshape with different target shapes."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": input_shape},
             explicit_shapes={"target": target_shape},
@@ -41,12 +41,11 @@ class TestReshapeOperation:
         )
         node = onnx.helper.make_node("Reshape", inputs=["input", "target"], outputs=["output"])
         result = _infer_reshape_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_reshape_with_zero_dimension(self):
         """Test Reshape with zero dimension and -1 target."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [0]},
             explicit_shapes={"target": [-1, 4]},
@@ -59,8 +58,6 @@ class TestReshapeOperation:
 
     def test_reshape_scalar_input(self):
         """Test Reshape with scalar input returns [0]."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": 5},  # Scalar
             explicit_shapes={"target": [2, 3]},
@@ -74,8 +71,6 @@ class TestReshapeOperation:
 
     def test_reshape_missing_input_error(self):
         """Test Reshape raises error when input is missing."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={},  # Missing input
             explicit_shapes={"target": [2, 6]},
@@ -103,8 +98,6 @@ class TestFlattenOperation:
     )
     def test_flatten_different_axes(self, input_shape, axis, expected):
         """Test Flatten with different axis values."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": input_shape},
             explicit_shapes={},
@@ -113,12 +106,11 @@ class TestFlattenOperation:
         )
         node = onnx.helper.make_node("Flatten", inputs=["input"], outputs=["output"], axis=axis)
         result = _infer_flatten_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_flatten_with_zero_dimension(self):
         """Test Flatten with zero dimension."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [0]},
             explicit_shapes={},
@@ -145,8 +137,6 @@ class TestTransposeOperation:
     )
     def test_transpose_different_permutations(self, input_shape, perm, expected):
         """Test Transpose with different permutations."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": input_shape},
             explicit_shapes={},
@@ -155,12 +145,11 @@ class TestTransposeOperation:
         )
         node = onnx.helper.make_node("Transpose", inputs=["input"], outputs=["output"], perm=perm)
         result = _infer_transpose_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_transpose_with_zero_dimension(self):
         """Test Transpose with zero dimension (1d shape becomes 2d)."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [0]},
             explicit_shapes={},
@@ -188,12 +177,8 @@ class TestSqueezeOperation:
     )
     def test_squeeze_different_axes(self, input_shape, axes, expected):
         """Test Squeeze with different axis specifications."""
-        import onnx
-
         if axes:
             # Create axes tensor initializer
-            import numpy as np
-
             axes_array = np.array(axes, dtype=np.int64)
             axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -218,8 +203,6 @@ class TestSqueezeOperation:
 
     def test_squeeze_with_zero_dimension(self):
         """Test Squeeze with zero dimension."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [0]},
             explicit_shapes={},
@@ -232,9 +215,6 @@ class TestSqueezeOperation:
 
     def test_squeeze_single_element_input(self):
         """Test Squeeze with single element input."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([0], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -250,9 +230,6 @@ class TestSqueezeOperation:
 
     def test_squeeze_missing_input_error(self):
         """Test Squeeze raises error when input is missing."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([0], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -268,9 +245,6 @@ class TestSqueezeOperation:
 
     def test_squeeze_scalar_input_error(self):
         """Test Squeeze raises error when input is scalar."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([0], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -286,8 +260,6 @@ class TestSqueezeOperation:
 
     def test_squeeze_no_axes_auto_detect(self):
         """Test Squeeze without axes auto-detects 1 dimensions."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1, 3, 1, 4, 1]},  # Multiple 1 dimensions
             explicit_shapes={},
@@ -301,9 +273,6 @@ class TestSqueezeOperation:
 
     def test_squeeze_axes_is_scalar_int(self):
         """Test Squeeze when axes is a single scalar int."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array(1, dtype=np.int64)  # Scalar int, not array
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -320,9 +289,6 @@ class TestSqueezeOperation:
 
     def test_squeeze_non_unit_axis_error(self):
         """Test Squeeze raises error when trying to squeeze non-unit axis."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([1], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -353,9 +319,6 @@ class TestUnsqueezeOperation:
     )
     def test_unsqueeze_different_axes(self, input_shape, axes, expected):
         """Test Unsqueeze with different axis specifications."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array(axes, dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -371,9 +334,6 @@ class TestUnsqueezeOperation:
 
     def test_unsqueeze_with_zero_dimension(self):
         """Test Unsqueeze with zero dimension."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([0], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -389,9 +349,6 @@ class TestUnsqueezeOperation:
 
     def test_unsqueeze_negative_axis(self):
         """Test Unsqueeze with negative axis."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([-1], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -408,9 +365,6 @@ class TestUnsqueezeOperation:
 
     def test_unsqueeze_missing_input_error(self):
         """Test Unsqueeze raises error when input is missing."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([0], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -426,9 +380,6 @@ class TestUnsqueezeOperation:
 
     def test_unsqueeze_scalar_input_explicit(self):
         """Test Unsqueeze with scalar input from explicit shape."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([0], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -445,9 +396,6 @@ class TestUnsqueezeOperation:
 
     def test_unsqueeze_scalar_input_invalid_axes_error(self):
         """Test Unsqueeze with scalar input and invalid axes."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([1], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -477,8 +425,6 @@ class TestExpandOperation:
     )
     def test_expand_different_shapes(self, input_shape, target_shape, expected):
         """Test Expand with different target shapes."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": input_shape},
             explicit_shapes={"shape": target_shape},
@@ -491,8 +437,6 @@ class TestExpandOperation:
 
     def test_expand_with_zero_dimension(self):
         """Test Expand with zero dimension."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1]},
             explicit_shapes={"shape": [0]},
@@ -505,8 +449,6 @@ class TestExpandOperation:
 
     def test_expand_missing_target_shape_error(self):
         """Test Expand raises error when target shape is missing."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1, 3, 4]},
             explicit_shapes={},  # Missing shape
@@ -519,8 +461,6 @@ class TestExpandOperation:
 
     def test_expand_with_explicit_input_shape(self):
         """Test Expand with explicit input shape returns explicit output."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={},  # No data shape
             explicit_shapes={"input": [1, 3, 4], "shape": [2, 3, 4]},
@@ -538,8 +478,6 @@ class TestTransposeEdgeCases:
 
     def test_transpose_with_explicit_shape(self):
         """Test Transpose with explicit shape input."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={},
             explicit_shapes={"input": [2, 3]},  # Explicit shape
@@ -557,9 +495,6 @@ class TestUnsqueezeEdgeCases:
 
     def test_unsqueeze_with_explicit_shape(self):
         """Test Unsqueeze with explicit shape input."""
-        import numpy as np
-        import onnx
-
         axes_array = np.array([1], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 

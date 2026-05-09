@@ -3,6 +3,8 @@
 __docformat__ = "restructuredtext"
 __all__ = []
 
+from pathlib import Path
+
 import pytest
 
 from tests.test_benchmarks.utils import (
@@ -20,8 +22,6 @@ def get_onnx_models():
 
     :return: List of ONNX file paths or empty list if benchmarks not found
     """
-    from pathlib import Path
-
     dir_name = "vnncomp2024_benchmarks"
     benchmarks_path = Path(__file__).parent / dir_name
 
@@ -51,5 +51,5 @@ def test_shape_inference(onnx_path):
     data_shapes = infer_shape(model, has_batch_dim, verbose=False)
 
     # Verify we got some shapes back
-    assert data_shapes is not None
+    assert isinstance(data_shapes, dict)
     assert len(data_shapes) > 0

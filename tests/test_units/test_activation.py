@@ -1,5 +1,6 @@
 """Unit tests for activation functions shape inference."""
 
+import onnx
 import pytest
 
 from shapeonnx.infer_shape import ShapeInferenceContext, _infer_nochange_op_shape
@@ -25,8 +26,6 @@ class TestActivationFunctions:
     )
     def test_activation_shape_preserved(self, op_type, shape):
         """Test that activation functions preserve input shape."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": shape},
             explicit_shapes={},
@@ -35,6 +34,7 @@ class TestActivationFunctions:
         )
         node = onnx.helper.make_node(op_type, inputs=["input"], outputs=["output"])
         result = _infer_nochange_op_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == shape
 
 
@@ -52,8 +52,6 @@ class TestActivationEdgeCases:
     )
     def test_activation_edge_cases(self, op_type, shape):
         """Test activation functions with edge cases."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": shape},
             explicit_shapes={},
@@ -62,6 +60,7 @@ class TestActivationEdgeCases:
         )
         node = onnx.helper.make_node(op_type, inputs=["input"], outputs=["output"])
         result = _infer_nochange_op_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == shape
 
 
@@ -82,8 +81,6 @@ class TestActivationDifferentRanks:
     )
     def test_activation_different_ranks(self, op_type, rank):
         """Test activation functions preserve shapes of different ranks."""
-        import onnx
-
         # Create shape with rank=rank (e.g., [2,3,4] for rank 3)
         shape = [2] * rank
         ctx = ShapeInferenceContext(
@@ -94,12 +91,11 @@ class TestActivationDifferentRanks:
         )
         node = onnx.helper.make_node(op_type, inputs=["input"], outputs=["output"])
         result = _infer_nochange_op_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == shape
 
     def test_relu_with_explicit_shape(self):
         """Test Relu with explicit shape input."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={},
             explicit_shapes={"input": [2, 3, 4]},  # Explicit shape
@@ -109,12 +105,11 @@ class TestActivationDifferentRanks:
         node = onnx.helper.make_node("Relu", inputs=["input"], outputs=["output"])
         result = _infer_nochange_op_shape(node, ctx)
         # Explicit shape preserved
+        assert len(result) >= 1
         assert result[0][1] == [2, 3, 4]
 
     def test_activation_scalar_input(self):
         """Test activation function with scalar input."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": 5},  # Scalar
             explicit_shapes={},
@@ -124,12 +119,11 @@ class TestActivationDifferentRanks:
         node = onnx.helper.make_node("Sigmoid", inputs=["input"], outputs=["output"])
         result = _infer_nochange_op_shape(node, ctx)
         # Scalar preserved
+        assert len(result) >= 1
         assert result[0][0] == 5
 
     def test_activation_zero_dimension(self):
         """Test activation function with zero dimension."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [0]},
             explicit_shapes={},
@@ -139,4 +133,5 @@ class TestActivationDifferentRanks:
         node = onnx.helper.make_node("Tanh", inputs=["input"], outputs=["output"])
         result = _infer_nochange_op_shape(node, ctx)
         # Zero dimension preserved
+        assert len(result) >= 1
         assert result[0][0] == [0]

@@ -541,7 +541,7 @@ class TestMainAPIErrors:
 
         node = onnx.helper.make_node("Add", inputs=["input1", "input2"], outputs=["output"])
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError, match="Cannot get shape"):
             _infer_all_node_shapes([node], ctx)
 
     def test_error_node_has_multiple_outputs_mismatch(self):

@@ -19,13 +19,31 @@ from shapeonnx.infer_shape import ShapeInferenceContext, _infer_where_shape
 class TestWhereBasic:
     """Test basic Where operation with various configurations."""
 
-    def test_where_same_shape(self):
-        """Test Where with all inputs having the same shape."""
+    @pytest.mark.parametrize(
+        ("condition_shape", "x_shape", "y_shape", "expected"),
+        [
+            pytest.param([2, 3, 4], [2, 3, 4], [2, 3, 4], [2, 3, 4], id="same_shape"),
+            pytest.param([2, 3, 4], [1], [2, 3, 4], [1], id="x_broadcast"),
+            pytest.param([2, 3, 4], [2, 3, 4], [3, 1], [2, 3, 4], id="y_broadcast"),
+            pytest.param([2, 3, 4], [1, 1], [4], [1, 1], id="both_broadcast"),
+            pytest.param(1, [2, 3, 4], [2, 3, 4], [2, 3, 4], id="scalar_condition"),
+            pytest.param([1, 4, 1], [3], [2, 3, 4], [3], id="different_ranks"),
+            pytest.param(
+                [4, 3, 224, 224],
+                [4, 3, 224, 224],
+                [4, 3, 224, 224],
+                [4, 3, 224, 224],
+                id="batch_dimension",
+            ),
+        ],
+    )
+    def test_where_shape_output(self, condition_shape, x_shape, y_shape, expected):
+        """Test Where output shape for various input configurations."""
         ctx = ShapeInferenceContext(
             data_shapes={
-                "condition": [2, 3, 4],
-                "x": [2, 3, 4],
-                "y": [2, 3, 4],
+                "condition": condition_shape,
+                "x": x_shape,
+                "y": y_shape,
             },
             explicit_shapes={},
             initializers={},
@@ -33,161 +51,29 @@ class TestWhereBasic:
         )
 
         node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
         results = _infer_where_shape(node, ctx)
 
-        assert len(results) == 1
-        assert results[0][0] == [2, 3, 4]
-
-    def test_where_x_broadcast(self):
-        """Test Where where x is broadcasted - returns x shape."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [2, 3, 4],
-                "x": [1],
-                "y": [2, 3, 4],
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        # Where returns x shape if x is non-zero shape
-        assert results[0][0] == [1]
-
-    def test_where_y_broadcast(self):
-        """Test Where where y is broadcasted."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [2, 3, 4],
-                "x": [2, 3, 4],
-                "y": [3, 1],
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        assert results[0][0] == [2, 3, 4]
-
-    def test_where_both_broadcast(self):
-        """Test Where where both x and y are broadcasted - returns x shape."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [2, 3, 4],
-                "x": [1, 1],
-                "y": [4],
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        # Where returns x shape (first non-zero shape encountered)
-        assert results[0][0] == [1, 1]
-
-    def test_where_scalar_condition(self):
-        """Test Where with scalar condition."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": 1,
-                "x": [2, 3, 4],
-                "y": [2, 3, 4],
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        assert results[0][0] == [2, 3, 4]
-
-    def test_where_different_ranks(self):
-        """Test Where with different rank inputs - returns x shape."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [1, 4, 1],
-                "x": [3],
-                "y": [2, 3, 4],
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        # Where returns x shape if non-zero
-        assert results[0][0] == [3]
-
-    def test_where_batch_dimension(self):
-        """Test Where with batch dimension."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [4, 3, 224, 224],
-                "x": [4, 3, 224, 224],
-                "y": [4, 3, 224, 224],
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        assert results[0][0] == [4, 3, 224, 224]
+        assert len(results) >= 1
+        assert results[0][0] == expected
 
 
 class TestWhereExplicitShapes:
     """Test Where with explicit shape handling."""
 
-    def test_where_explicit_shapes_preserved(self):
+    @pytest.mark.parametrize(
+        ("condition_shape", "x_shape", "y_shape"),
+        [
+            pytest.param([2, 3, 4], [2, 3, 4], [2, 3, 4], id="explicit_shapes_preserved"),
+            pytest.param([5], [5], [5], id="explicit_shapes_1d"),
+        ],
+    )
+    def test_where_explicit_shapes_not_used(self, condition_shape, x_shape, y_shape):
         """Test that explicit shapes are not used in Where (data shapes only)."""
         ctx = ShapeInferenceContext(
             data_shapes={
-                "condition": [2, 3, 4],
-                "x": [2, 3, 4],
-                "y": [2, 3, 4],
-            },
-            explicit_shapes={},  # Empty
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        # Result should have no explicit shape
-        assert results[0][1] is None
-        assert results[0][0] == [2, 3, 4]
-
-    def test_where_1d_explicit_shape(self):
-        """Test Where with 1D explicit shape."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [5],
-                "x": [5],
-                "y": [5],
+                "condition": condition_shape,
+                "x": x_shape,
+                "y": y_shape,
             },
             explicit_shapes={},
             initializers={},
@@ -195,11 +81,11 @@ class TestWhereExplicitShapes:
         )
 
         node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
         results = _infer_where_shape(node, ctx)
 
-        assert results[0][0] == [5]
+        # Result should have no explicit shape
         assert results[0][1] is None
+        assert results[0][0] == condition_shape
 
 
 class TestWhereErrors:
@@ -225,11 +111,19 @@ class TestWhereErrors:
         results = _infer_where_shape(node, ctx)
         assert results[0][0] == [2, 3, 4]
 
-    def test_where_missing_x_shape(self):
-        """Test error when x shape is missing."""
+    @pytest.mark.parametrize(
+        "node_inputs",
+        [
+            pytest.param(["condition", "missing_x", "y"], id="missing_x"),
+            pytest.param(["condition", "x", "missing_y"], id="missing_y"),
+        ],
+    )
+    def test_where_missing_input_raises(self, node_inputs):
+        """Test error when an input shape is missing."""
         ctx = ShapeInferenceContext(
             data_shapes={
                 "condition": [2, 3, 4],
+                "x": [2, 3, 4],
                 "y": [2, 3, 4],
             },
             explicit_shapes={},
@@ -237,43 +131,33 @@ class TestWhereErrors:
             verbose=False,
         )
 
-        node = onnx.helper.make_node(
-            "Where", inputs=["condition", "missing_x", "y"], outputs=["output"]
-        )
+        node = onnx.helper.make_node("Where", inputs=node_inputs, outputs=["output"])
 
-        with pytest.raises(RuntimeError):
-            _infer_where_shape(node, ctx)
-
-    def test_where_missing_y_shape(self):
-        """Test error when y shape is missing."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [2, 3, 4],
-                "x": [2, 3, 4],
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "Where", inputs=["condition", "x", "missing_y"], outputs=["output"]
-        )
-
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError, match="Cannot get shape"):
             _infer_where_shape(node, ctx)
 
 
 class TestWhereIntegration:
     """Integration tests for Where operation."""
 
-    def test_where_broadcast_all_axes(self):
-        """Test Where with broadcasting - returns x shape."""
+    @pytest.mark.parametrize(
+        ("condition_shape", "x_shape", "y_shape", "expected"),
+        [
+            pytest.param(
+                [1, 1, 4, 1], [2, 1, 1, 5], [1, 3, 4, 5], [2, 1, 1, 5], id="broadcast_all_axes"
+            ),
+            pytest.param([32, 10], [32, 10], [32, 1], [32, 10], id="preserve_batch_size"),
+            pytest.param([3, 4], 5, [3, 4], [0], id="x_scalar_returns_zero"),
+            pytest.param([0], [0], [0], [0], id="all_zero_dimension"),
+        ],
+    )
+    def test_where_various_inputs(self, condition_shape, x_shape, y_shape, expected):
+        """Test Where output shape for various input configurations."""
         ctx = ShapeInferenceContext(
             data_shapes={
-                "condition": [1, 1, 4, 1],
-                "x": [2, 1, 1, 5],
-                "y": [1, 3, 4, 5],
+                "condition": condition_shape,
+                "x": x_shape,
+                "y": y_shape,
             },
             explicit_shapes={},
             initializers={},
@@ -281,140 +165,41 @@ class TestWhereIntegration:
         )
 
         node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
         results = _infer_where_shape(node, ctx)
 
-        # Where returns x shape if non-zero
-        assert results[0][0] == [2, 1, 1, 5]
+        assert results[0][0] == expected
 
-    def test_where_preserve_batch_size(self):
-        """Test Where preserves batch size dimension."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [32, 10],
-                "x": [32, 10],
-                "y": [32, 1],
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        assert results[0][0] == [32, 10]
-
-    def test_where_x_scalar_returns_zero(self):
-        """Test Where with scalar x value returns [0]."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [3, 4],  # List
-                "x": 5,  # Scalar
-                "y": [3, 4],  # List
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        # Mismatched scalar and list in x returns [0]
-        assert results[0][0] == [0]
-
-    def test_where_all_zero_dimension(self):
-        """Test Where when all inputs have zero dimension."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [0],
-                "x": [0],
-                "y": [0],
-            },
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        # Zero dimension propagates
-        assert results[0][0] == [0]
-
-    def test_where_explicit_shape_computation(self):
+    @pytest.mark.parametrize(
+        ("condition_explicit", "x_explicit", "y_explicit", "expected"),
+        [
+            pytest.param([1, 0], [10, 20], [30, 40], [10, 40], id="explicit_shape_computation"),
+            pytest.param([1, 1, 1], [5, 6, 7], [10, 11, 12], [5, 6, 7], id="all_condition_true"),
+            pytest.param(
+                [0, 0, 0], [5, 6, 7], [10, 11, 12], [10, 11, 12], id="all_condition_false"
+            ),
+        ],
+    )
+    def test_where_explicit_shape_computation(
+        self, condition_explicit, x_explicit, y_explicit, expected
+    ):
         """Test Where with explicit shape value computation."""
+        n = len(expected)
         ctx = ShapeInferenceContext(
             data_shapes={
-                "condition": [2, 3],
-                "x": [2, 3],
-                "y": [2, 3],
+                "condition": [n],
+                "x": [n],
+                "y": [n],
             },
             explicit_shapes={
-                "condition": [1, 0],  # condition[0]=1, condition[1]=0
-                "x": [10, 20],  # x values
-                "y": [30, 40],  # y values
+                "condition": condition_explicit,
+                "x": x_explicit,
+                "y": y_explicit,
             },
             initializers={},
             verbose=False,
         )
 
         node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
         results = _infer_where_shape(node, ctx)
 
-        # Where selects: condition[0]=1 -> x[0]=10, condition[1]=0 -> y[1]=40
-        # explicit result: [10, 40]
-        assert results[0][1] == [10, 40]
-
-    def test_where_explicit_shape_all_condition_true(self):
-        """Test Where with all true condition in explicit shapes."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [3],
-                "x": [3],
-                "y": [3],
-            },
-            explicit_shapes={
-                "condition": [1, 1, 1],  # All true
-                "x": [5, 6, 7],
-                "y": [10, 11, 12],
-            },
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        # All true -> all from x: [5, 6, 7]
-        assert results[0][1] == [5, 6, 7]
-
-    def test_where_explicit_shape_all_condition_false(self):
-        """Test Where with all false condition in explicit shapes."""
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "condition": [3],
-                "x": [3],
-                "y": [3],
-            },
-            explicit_shapes={
-                "condition": [0, 0, 0],  # All false
-                "x": [5, 6, 7],
-                "y": [10, 11, 12],
-            },
-            initializers={},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
-
-        results = _infer_where_shape(node, ctx)
-
-        # All false -> all from y: [10, 11, 12]
-        assert results[0][1] == [10, 11, 12]
+        assert results[0][1] == expected

@@ -276,7 +276,7 @@ class TestSplitErrors:
             "Split", inputs=["missing_input", "split"], outputs=["o1", "o2"], axis=0
         )
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError, match="Cannot get shape"):
             _infer_split_shape(node, ctx)
 
     def test_split_missing_initializer(self):
@@ -315,9 +315,14 @@ class TestSplitExplicitShapes:
 
         results = _infer_split_shape(node, ctx)
 
+        assert len(results) == 2
+        assert results[0][0] == [5, 20]
+        assert results[1][0] == [5, 20]
         # Explicit shape should be None for data shape operations
         assert results[0][1] is None
+        assert not isinstance(results[0][1], list)
         assert results[1][1] is None
+        assert not isinstance(results[1][1], list)
 
 
 class TestSplitIntegration:
@@ -365,8 +370,6 @@ class TestSplitIntegration:
 
     def test_split_zero_dimension(self):
         """Test Split with zero dimension input."""
-        import onnx
-
         split_initializer = onnx.numpy_helper.from_array(
             np.array([2, 2], dtype=np.int64), name="split"
         )
@@ -390,8 +393,6 @@ class TestSplitIntegration:
 
     def test_split_scalar_input_error(self):
         """Test Split raises error for scalar input."""
-        import onnx
-
         split_initializer = onnx.numpy_helper.from_array(
             np.array([2, 2], dtype=np.int64), name="split"
         )
@@ -412,8 +413,6 @@ class TestSplitIntegration:
 
     def test_split_missing_input_error(self):
         """Test Split raises error when input is missing."""
-        import onnx
-
         split_initializer = onnx.numpy_helper.from_array(
             np.array([2, 2], dtype=np.int64), name="split"
         )
@@ -434,8 +433,6 @@ class TestSplitIntegration:
 
     def test_split_num_outputs_not_supported_error(self):
         """Test Split with num_outputs raises NotImplementedError."""
-        import onnx
-
         split_initializer = onnx.numpy_helper.from_array(
             np.array([2, 2], dtype=np.int64), name="split"
         )

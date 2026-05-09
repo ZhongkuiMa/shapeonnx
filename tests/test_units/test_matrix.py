@@ -1,5 +1,7 @@
 """Unit tests for matrix operation shape inference."""
 
+import numpy as np
+import onnx
 import pytest
 
 from shapeonnx.infer_shape import (
@@ -24,8 +26,6 @@ class TestMatMulOperation:
     )
     def test_matmul_different_shapes(self, shape1, shape2, expected):
         """Test MatMul with different input shapes."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": shape1, "b": shape2},
             explicit_shapes={},
@@ -34,12 +34,11 @@ class TestMatMulOperation:
         )
         node = onnx.helper.make_node("MatMul", inputs=["a", "b"], outputs=["output"])
         result = _infer_matmul_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_matmul_with_zero_dimension(self):
         """Test MatMul with zero dimension."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": [0], "b": [5, 3]},
             explicit_shapes={},
@@ -66,8 +65,6 @@ class TestGemmOperation:
     )
     def test_gemm_different_transposes(self, shape_a, shape_b, trans_a, trans_b, expected):
         """Test Gemm with different transpose settings."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": shape_a, "b": shape_b, "c": [1]},
             explicit_shapes={},
@@ -82,12 +79,11 @@ class TestGemmOperation:
             transB=trans_b,
         )
         result = _infer_gemm_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_gemm_with_zero_dimension(self):
         """Test Gemm with zero dimension."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": [0], "b": [5, 3], "c": [1]},
             explicit_shapes={},
@@ -106,8 +102,6 @@ class TestGemmOperation:
 
     def test_gemm_scalar_input_error(self):
         """Test Gemm raises error for scalar input."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": 5, "b": [4, 5], "c": [1]},  # Scalar a
             explicit_shapes={},
@@ -126,8 +120,6 @@ class TestGemmOperation:
 
     def test_gemm_1d_shape(self):
         """Test Gemm with 1D input shapes."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": [3], "b": [3, 5], "c": [1]},
             explicit_shapes={},
@@ -150,8 +142,6 @@ class TestMatMulErrors:
 
     def test_matmul_scalar_input_error(self):
         """Test MatMul raises assertion for scalar input."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": 5, "b": [4, 5]},  # Scalar a
             explicit_shapes={},
@@ -164,8 +154,6 @@ class TestMatMulErrors:
 
     def test_matmul_missing_input_error(self):
         """Test MatMul raises error when input is missing."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": [3, 4]},  # Missing b
             explicit_shapes={},
@@ -182,9 +170,6 @@ class TestGatherVariants:
 
     def test_gather_2d_input_axis_1(self):
         """Test Gather on 2D input with axis=1."""
-        import numpy as np
-        import onnx
-
         indices_array = np.array([0, 2], dtype=np.int64)
         indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
 
@@ -202,9 +187,6 @@ class TestGatherVariants:
 
     def test_gather_3d_indices(self):
         """Test Gather with 3D indices shape."""
-        import numpy as np
-        import onnx
-
         indices_array = np.array([[[0, 1], [2, 3]], [[1, 2], [3, 0]]], dtype=np.int64)
         indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
 
@@ -223,9 +205,6 @@ class TestGatherVariants:
 
     def test_gather_missing_input_error(self):
         """Test Gather raises error when input is missing."""
-        import numpy as np
-        import onnx
-
         indices_array = np.array([0, 1], dtype=np.int64)
         indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
 

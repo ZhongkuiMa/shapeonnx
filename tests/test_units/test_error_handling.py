@@ -1,80 +1,65 @@
 """Unit tests for error handling and exception cases."""
 
+import numpy as np
+import onnx
 import pytest
+
+from shapeonnx.infer_shape import (
+    ShapeInferenceContext,
+    _infer_binary_op_shape,
+    _infer_concat_shape,
+    _infer_flatten_shape,
+    _infer_gather_shape,
+    _infer_nochange_op_shape,
+    _infer_slice_shape,
+    _infer_transpose_shape,
+)
 
 
 class TestMissingShapeErrors:
     """Test RuntimeError when shapes are missing or unavailable."""
 
-    def test_missing_input_shape(self):
-        """Test error when input shape is not in context."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_nochange_op_shape
-
+    @pytest.mark.parametrize(
+        ("data_shapes", "op_type", "inputs", "infer_fn"),
+        [
+            pytest.param({}, "Relu", ["input"], _infer_nochange_op_shape, id="missing_input"),
+            pytest.param(
+                {"a": [3, 4]}, "Add", ["a", "b"], _infer_binary_op_shape, id="missing_operand"
+            ),
+        ],
+    )
+    def test_missing_shape(self, data_shapes, op_type, inputs, infer_fn):
+        """Test error when required shape is missing from context."""
         ctx = ShapeInferenceContext(
-            data_shapes={},  # Empty - missing "input" shape
+            data_shapes=data_shapes,
             explicit_shapes={},
             initializers={},
             verbose=False,
         )
-        node = onnx.helper.make_node("Relu", inputs=["input"], outputs=["output"])
-
+        node = onnx.helper.make_node(op_type, inputs=inputs, outputs=["output"])
         with pytest.raises(RuntimeError, match="Cannot get shape"):
-            _infer_nochange_op_shape(node, ctx)
-
-    def test_missing_broadcast_operand(self):
-        """Test error when binary op operand shape is missing."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_binary_op_shape
-
-        ctx = ShapeInferenceContext(
-            data_shapes={"a": [3, 4]},  # Missing "b"
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-        node = onnx.helper.make_node("Add", inputs=["a", "b"], outputs=["output"])
-
-        with pytest.raises(RuntimeError, match="Cannot get shape"):
-            _infer_binary_op_shape(node, ctx)
+            infer_fn(node, ctx)
 
 
 class TestIncompatibleBroadcasting:
     """Test RuntimeError for incompatible shape broadcasting."""
 
-    def test_incompatible_binary_shapes(self):
+    @pytest.mark.parametrize(
+        ("a_shape", "b_shape"),
+        [
+            pytest.param([2, 3], [4, 5], id="incompatible_2d"),
+            pytest.param([2, 3, 4], [2, 5, 4], id="incompatible_middle_dim"),
+        ],
+    )
+    def test_incompatible_shapes(self, a_shape, b_shape):
         """Test error when shapes cannot be broadcast together."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_binary_op_shape
-
         ctx = ShapeInferenceContext(
-            data_shapes={"a": [2, 3], "b": [4, 5]},  # Cannot broadcast [2,3] and [4,5]
+            data_shapes={"a": a_shape, "b": b_shape},
             explicit_shapes={},
             initializers={},
             verbose=False,
         )
         node = onnx.helper.make_node("Add", inputs=["a", "b"], outputs=["output"])
-
-        with pytest.raises(RuntimeError, match="Cannot broadcast"):
-            _infer_binary_op_shape(node, ctx)
-
-    def test_incompatible_shapes_complex(self):
-        """Test incompatible shapes with more complex dimensions."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_binary_op_shape
-
-        ctx = ShapeInferenceContext(
-            data_shapes={"a": [2, 3, 4], "b": [2, 5, 4]},  # Middle dim incompatible
-            explicit_shapes={},
-            initializers={},
-            verbose=False,
-        )
-        node = onnx.helper.make_node("Mul", inputs=["a", "b"], outputs=["output"])
-
         with pytest.raises(RuntimeError, match="Cannot broadcast"):
             _infer_binary_op_shape(node, ctx)
 
@@ -84,10 +69,6 @@ class TestMissingRequiredAttributes:
 
     def test_concat_missing_axis(self):
         """Test error when Concat axis is not specified."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_concat_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"input0": [3, 4], "input1": [3, 5]},
             explicit_shapes={},
@@ -102,10 +83,6 @@ class TestMissingRequiredAttributes:
 
     def test_flatten_missing_axis(self):
         """Test Flatten handles missing axis gracefully (defaults to 1)."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_flatten_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [2, 3, 4]},
             explicit_shapes={},
@@ -117,6 +94,7 @@ class TestMissingRequiredAttributes:
 
         result = _infer_flatten_shape(node, ctx)
         # Default axis=1: [2, 12]
+        assert len(result) >= 1
         assert result[0][0] == [2, 12]
 
 
@@ -125,10 +103,6 @@ class TestInvalidAxisHandling:
 
     def test_transpose_axis_out_of_range(self):
         """Test Transpose with axis out of range for the shape."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_transpose_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [2, 3, 4]},  # 3D tensor
             explicit_shapes={},
@@ -145,11 +119,6 @@ class TestInvalidAxisHandling:
 
     def test_gather_valid_positive_axis(self):
         """Test Gather with valid positive axis indexing."""
-        import numpy as np
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_gather_shape
-
         indices_array = np.array([0, 1, 2], dtype=np.int64)
         indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
 
@@ -174,10 +143,6 @@ class TestZeroDimensionHandling:
 
     def test_zero_dim_propagation_binary_op(self):
         """Test that [0] dimension properly propagates through binary operations."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_binary_op_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": [0], "b": [5]},  # [0] is empty tensor
             explicit_shapes={},
@@ -191,10 +156,6 @@ class TestZeroDimensionHandling:
 
     def test_zero_dim_flatten(self):
         """Test flatten with zero dimension input."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_flatten_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [0]},
             explicit_shapes={},
@@ -208,10 +169,6 @@ class TestZeroDimensionHandling:
 
     def test_zero_dim_concat(self):
         """Test concat with zero dimension inputs returns [0]."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_concat_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"input0": [0], "input1": [0]},
             explicit_shapes={},
@@ -230,10 +187,6 @@ class TestScalarAndEmptyShapes:
 
     def test_scalar_shape_empty_list(self):
         """Test scalar shape represented as empty list []."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_nochange_op_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": []},  # Empty list = scalar
             explicit_shapes={},
@@ -247,10 +200,6 @@ class TestScalarAndEmptyShapes:
 
     def test_scalar_mul(self):
         """Test mul with scalar (empty) shape."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_binary_op_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"a": [], "b": [3, 4]},  # Scalar and 2D
             explicit_shapes={},
@@ -268,11 +217,6 @@ class TestExplicitShapeOperations:
 
     def test_explicit_shape_gather(self):
         """Test Gather operating on shape tensor (explicit shape)."""
-        import numpy as np
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_gather_shape
-
         indices_array = np.array([0, 2], dtype=np.int64)
         indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
 
@@ -297,10 +241,6 @@ class TestExplicitShapeOperations:
 
     def test_explicit_shape_inputs(self):
         """Test that explicit shapes are available in result tuple."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_nochange_op_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={},
             explicit_shapes={"input": [3, 4]},
@@ -312,7 +252,9 @@ class TestExplicitShapeOperations:
         result = _infer_nochange_op_shape(node, ctx)
         # Result tuple: (data_shape, explicit_shape)
         # When input is explicit, output should have explicit shape
-        assert result[0][0] is not None or result[0][1] is not None
+        assert isinstance(result, list)
+        assert len(result) > 0
+        assert isinstance(result[0][0], (int, list)) or isinstance(result[0][1], (int, list))
 
 
 class TestNegativeStepHandling:
@@ -320,11 +262,6 @@ class TestNegativeStepHandling:
 
     def test_slice_with_negative_step(self):
         """Test Slice with negative step (reverse indexing)."""
-        import numpy as np
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_slice_shape
-
         starts_array = np.array([5], dtype=np.int64)
         starts_tensor = onnx.numpy_helper.from_array(starts_array, name="starts")
         ends_array = np.array([0], dtype=np.int64)
@@ -357,10 +294,6 @@ class TestNegativeStepHandling:
 
     def test_flatten_missing_input(self):
         """Test Flatten raises error when input is missing."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_flatten_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={},  # Missing input
             explicit_shapes={},
@@ -374,10 +307,6 @@ class TestNegativeStepHandling:
 
     def test_flatten_scalar_input(self):
         """Test Flatten with scalar input returns scalar."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_flatten_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": 5},  # Scalar input
             explicit_shapes={},
@@ -392,10 +321,6 @@ class TestNegativeStepHandling:
 
     def test_transpose_scalar_input_error(self):
         """Test Transpose raises error for scalar input."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_transpose_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": 5},  # Scalar
             explicit_shapes={},
@@ -409,10 +334,6 @@ class TestNegativeStepHandling:
 
     def test_transpose_missing_shape_error(self):
         """Test Transpose raises error when shape is completely missing."""
-        import onnx
-
-        from shapeonnx.infer_shape import ShapeInferenceContext, _infer_transpose_shape
-
         ctx = ShapeInferenceContext(
             data_shapes={},  # No shape
             explicit_shapes={},  # No explicit shape either

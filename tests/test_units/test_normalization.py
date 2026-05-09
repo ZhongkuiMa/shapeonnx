@@ -1,5 +1,6 @@
 """Unit tests for normalization operation shape inference."""
 
+import onnx
 import pytest
 
 from shapeonnx.infer_shape import ShapeInferenceContext, _infer_batch_norm_shape
@@ -21,8 +22,6 @@ class TestBatchNormalizationOperation:
     )
     def test_batchnorm_preserves_shape(self, input_shape, expected):
         """Test BatchNormalization preserves input shape."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": input_shape},
             explicit_shapes={},
@@ -35,12 +34,11 @@ class TestBatchNormalizationOperation:
             outputs=["output"],
         )
         result = _infer_batch_norm_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_batchnorm_with_zero_dimension(self):
         """Test BatchNormalization with zero dimension."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [0]},
             explicit_shapes={},
@@ -65,8 +63,6 @@ class TestBatchNormalizationOperation:
     )
     def test_batchnorm_various_shapes(self, input_shape):
         """Test BatchNormalization with various input shapes."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": input_shape},
             explicit_shapes={},
@@ -83,8 +79,6 @@ class TestBatchNormalizationOperation:
 
     def test_batchnorm_missing_input_error(self):
         """Test BatchNormalization raises error when input is missing."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={},  # Missing input
             explicit_shapes={},

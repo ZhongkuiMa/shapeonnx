@@ -4,6 +4,7 @@ __docformat__ = "restructuredtext"
 __all__ = []
 
 import sys
+import traceback
 
 import numpy as np
 import onnx
@@ -144,7 +145,5 @@ if __name__ == "__main__":
         sys.exit(0)
     except (RuntimeError, ValueError, NotImplementedError, AssertionError) as e:
         print(f"\nTest failed with error: {e}")
-        import traceback
-
         traceback.print_exc()
         sys.exit(1)

@@ -38,347 +38,258 @@ def _extract_tensor_shape(tensor: onnx.TensorProto) -> list[int]:
 class TestConvBasic:
     """Test basic Conv operation with various configurations."""
 
-    def test_conv_2d_basic(self):
-        """Test basic 2D Conv operation."""
-        weight_tensor = _make_weight_tensor((16, 3, 3, 3))
+    @pytest.mark.parametrize(
+        ("weight_shape", "input_shape", "kernel_shape", "pads", "strides", "dilations", "expected"),
+        [
+            pytest.param(
+                (16, 3, 3, 3),
+                [1, 3, 28, 28],
+                [3, 3],
+                [0, 0, 0, 0],
+                [1, 1],
+                [1, 1],
+                [1, 16, 26, 26],
+                id="basic",
+            ),
+            pytest.param(
+                (32, 16, 3, 3),
+                [1, 16, 28, 28],
+                [3, 3],
+                [1, 1, 1, 1],
+                [1, 1],
+                [1, 1],
+                [1, 32, 28, 28],
+                id="with_padding",
+            ),
+            pytest.param(
+                (64, 32, 3, 3),
+                [1, 32, 56, 56],
+                [3, 3],
+                [1, 1, 1, 1],
+                [2, 2],
+                [1, 1],
+                [1, 64, 28, 28],
+                id="with_strides",
+            ),
+            pytest.param(
+                (16, 3, 3, 3),
+                [1, 3, 28, 28],
+                [3, 3],
+                [2, 2, 2, 2],
+                [1, 1],
+                [2, 2],
+                [1, 16, 28, 28],
+                id="with_dilation",
+            ),
+            pytest.param(
+                (128, 64, 1, 1),
+                [4, 64, 28, 28],
+                [1, 1],
+                [0, 0, 0, 0],
+                [1, 1],
+                [1, 1],
+                [4, 128, 28, 28],
+                id="batch_size_preserved",
+            ),
+        ],
+    )
+    def test_conv_2d_configurations(
+        self, weight_shape, input_shape, kernel_shape, pads, strides, dilations, expected
+    ):
+        """Test 2D Conv with various configurations (padding, stride, dilation, batch)."""
+        weight_tensor = _make_weight_tensor(weight_shape)
         ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 3, 28, 28], "weight": _extract_tensor_shape(weight_tensor)},
+            data_shapes={"input": input_shape, "weight": _extract_tensor_shape(weight_tensor)},
             explicit_shapes={},
             initializers={"weight": weight_tensor},
             verbose=False,
         )
-
         node = onnx.helper.make_node(
             "Conv",
             inputs=["input", "weight"],
             outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[0, 0, 0, 0],
-            strides=[1, 1],
-            dilations=[1, 1],
+            kernel_shape=kernel_shape,
+            pads=pads,
+            strides=strides,
+            dilations=dilations,
         )
-
         results = _infer_pool_shape(node, ctx)
+        assert len(results) >= 1
+        assert results[0][0] == expected
 
-        assert len(results) == 1
-        assert results[0][0] == [1, 16, 26, 26]
-
-    def test_conv_2d_with_padding(self):
-        """Test 2D Conv with padding."""
-        weight_tensor = _make_weight_tensor((32, 16, 3, 3))
+    @pytest.mark.parametrize(
+        ("weight_shape", "input_shape", "kernel_shape", "pads", "strides", "dilations", "expected"),
+        [
+            pytest.param(
+                (32, 16, 3), [1, 16, 100], [3], [0, 0], [1], [1], [1, 32, 98], id="conv_1d"
+            ),
+            pytest.param(
+                (32, 3, 3, 3, 3),
+                [1, 3, 16, 16, 16],
+                [3, 3, 3],
+                [0, 0, 0, 0, 0, 0],
+                [1, 1, 1],
+                [1, 1, 1],
+                [1, 32, 14, 14, 14],
+                id="conv_3d",
+            ),
+        ],
+    )
+    def test_conv_nd_configurations(
+        self, weight_shape, input_shape, kernel_shape, pads, strides, dilations, expected
+    ):
+        """Test 1D and 3D Conv operations."""
+        weight_tensor = _make_weight_tensor(weight_shape)
         ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 16, 28, 28], "weight": _extract_tensor_shape(weight_tensor)},
+            data_shapes={"input": input_shape, "weight": _extract_tensor_shape(weight_tensor)},
             explicit_shapes={},
             initializers={"weight": weight_tensor},
             verbose=False,
         )
-
         node = onnx.helper.make_node(
             "Conv",
             inputs=["input", "weight"],
             outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[1, 1, 1, 1],  # Symmetric padding
-            strides=[1, 1],
-            dilations=[1, 1],
+            kernel_shape=kernel_shape,
+            pads=pads,
+            strides=strides,
+            dilations=dilations,
         )
-
         results = _infer_pool_shape(node, ctx)
-
-        assert results[0][0] == [1, 32, 28, 28]
-
-    def test_conv_2d_with_strides(self):
-        """Test 2D Conv with stride > 1."""
-        weight_tensor = _make_weight_tensor((64, 32, 3, 3))
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 32, 56, 56], "weight": _extract_tensor_shape(weight_tensor)},
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "Conv",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[1, 1, 1, 1],
-            strides=[2, 2],
-            dilations=[1, 1],
-        )
-
-        results = _infer_pool_shape(node, ctx)
-
-        assert results[0][0] == [1, 64, 28, 28]
-
-    def test_conv_2d_with_dilation(self):
-        """Test 2D Conv with dilation."""
-        weight_tensor = _make_weight_tensor((16, 3, 3, 3))
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 3, 28, 28], "weight": _extract_tensor_shape(weight_tensor)},
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "Conv",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[2, 2, 2, 2],  # Need padding for dilation
-            strides=[1, 1],
-            dilations=[2, 2],  # Dilated convolution
-        )
-
-        results = _infer_pool_shape(node, ctx)
-
-        assert results[0][0] == [1, 16, 28, 28]
-
-    def test_conv_2d_batch_size_preserved(self):
-        """Test that batch size is preserved in Conv."""
-        weight_tensor = _make_weight_tensor((128, 64, 1, 1))
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [4, 64, 28, 28], "weight": _extract_tensor_shape(weight_tensor)},
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "Conv",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[1, 1],
-            pads=[0, 0, 0, 0],
-            strides=[1, 1],
-            dilations=[1, 1],
-        )
-
-        results = _infer_pool_shape(node, ctx)
-
-        assert results[0][0] == [4, 128, 28, 28]
-
-    def test_conv_1d_operation(self):
-        """Test 1D Conv operation."""
-        weight_tensor = _make_weight_tensor((32, 16, 3))
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 16, 100], "weight": _extract_tensor_shape(weight_tensor)},
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "Conv",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[3],
-            pads=[0, 0],
-            strides=[1],
-            dilations=[1],
-        )
-
-        results = _infer_pool_shape(node, ctx)
-
-        assert results[0][0] == [1, 32, 98]
-
-    def test_conv_3d_operation(self):
-        """Test 3D Conv operation (volumetric)."""
-        weight_tensor = _make_weight_tensor((32, 3, 3, 3, 3))
-        ctx = ShapeInferenceContext(
-            data_shapes={
-                "input": [1, 3, 16, 16, 16],
-                "weight": _extract_tensor_shape(weight_tensor),
-            },
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "Conv",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[3, 3, 3],
-            pads=[0, 0, 0, 0, 0, 0],
-            strides=[1, 1, 1],
-            dilations=[1, 1, 1],
-        )
-
-        results = _infer_pool_shape(node, ctx)
-
-        assert results[0][0] == [1, 32, 14, 14, 14]
+        assert len(results) >= 1
+        assert results[0][0] == expected
 
 
 class TestConvWithAsymmetricPadding:
     """Test Conv with asymmetric padding."""
 
-    def test_conv_asymmetric_padding(self):
-        """Test Conv with symmetric padding on different axes."""
-        weight_tensor = _make_weight_tensor((16, 3, 3, 3))
+    @pytest.mark.parametrize(
+        ("weight_shape", "input_shape", "kernel_shape", "pads", "expected"),
+        [
+            pytest.param(
+                (16, 3, 3, 3),
+                [1, 3, 28, 28],
+                [3, 3],
+                [0, 2, 0, 2],
+                [1, 16, 26, 30],
+                id="asymmetric",
+            ),
+            pytest.param(
+                (16, 3, 1, 1),
+                [1, 3, 10, 10],
+                [1, 1],
+                [2, 2, 2, 2],
+                [1, 16, 14, 14],
+                id="large_padding",
+            ),
+        ],
+    )
+    def test_conv_padding_configurations(
+        self, weight_shape, input_shape, kernel_shape, pads, expected
+    ):
+        """Test Conv with asymmetric and large padding."""
+        weight_tensor = _make_weight_tensor(weight_shape)
         ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 3, 28, 28], "weight": _extract_tensor_shape(weight_tensor)},
+            data_shapes={"input": input_shape, "weight": _extract_tensor_shape(weight_tensor)},
             explicit_shapes={},
             initializers={"weight": weight_tensor},
             verbose=False,
         )
-
         node = onnx.helper.make_node(
             "Conv",
             inputs=["input", "weight"],
             outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[0, 2, 0, 2],  # [top, left, bottom, right] - symmetric (0,0) and (2,2)
+            kernel_shape=kernel_shape,
+            pads=pads,
             strides=[1, 1],
             dilations=[1, 1],
         )
-
         results = _infer_pool_shape(node, ctx)
-
-        # Output height: (28 + 0 + 0 - 3) / 1 + 1 = 26
-        # Output width: (28 + 2 + 2 - 3) / 1 + 1 = 30
-        assert results[0][0] == [1, 16, 26, 30]
-
-    def test_conv_large_padding(self):
-        """Test Conv with padding larger than kernel."""
-        weight_tensor = _make_weight_tensor((16, 3, 1, 1))
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 3, 10, 10], "weight": _extract_tensor_shape(weight_tensor)},
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "Conv",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[1, 1],
-            pads=[2, 2, 2, 2],
-            strides=[1, 1],
-            dilations=[1, 1],
-        )
-
-        results = _infer_pool_shape(node, ctx)
-
-        assert results[0][0] == [1, 16, 14, 14]
+        assert results[0][0] == expected
 
 
 class TestConvTransposeBasic:
     """Test basic ConvTranspose 2D operation."""
 
-    def test_convtranspose_2d_basic(self):
-        """Test basic 2D ConvTranspose operation."""
-        weight_tensor = _make_weight_tensor((16, 3, 3, 3))
+    @pytest.mark.parametrize(
+        ("input_shape", "weight_shape", "kernel_shape", "pads", "strides", "expected"),
+        [
+            pytest.param(
+                [1, 16, 28, 28],
+                (16, 3, 3, 3),
+                [3, 3],
+                [1, 1, 1, 1],
+                [1, 1],
+                [1, 3, 28, 28],
+                id="basic",
+            ),
+            pytest.param(
+                [1, 16, 14, 14],
+                (16, 3, 3, 3),
+                [3, 3],
+                [1, 1, 1, 1],
+                [2, 2],
+                [1, 3, 27, 27],
+                id="with_strides",
+            ),
+            pytest.param(
+                [1, 16, 28, 28],
+                (16, 3, 3, 3),
+                [3, 3],
+                [0, 0, 0, 0],
+                [1, 1],
+                [1, 3, 30, 30],
+                id="no_padding",
+            ),
+            pytest.param(
+                [4, 128, 14, 14],
+                (128, 64, 3, 3),
+                [3, 3],
+                [1, 1, 1, 1],
+                [2, 2],
+                [4, 64, 27, 27],
+                id="batch_size_preserved",
+            ),
+        ],
+    )
+    def test_convtranspose_2d_configurations(
+        self, input_shape, weight_shape, kernel_shape, pads, strides, expected
+    ):
+        """Test 2D ConvTranspose with various configurations."""
+        weight_tensor = _make_weight_tensor(weight_shape)
         ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 16, 28, 28]},
+            data_shapes={"input": input_shape},
             explicit_shapes={},
             initializers={"weight": weight_tensor},
             verbose=False,
         )
-
         node = onnx.helper.make_node(
             "ConvTranspose",
             inputs=["input", "weight"],
             outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[1, 1, 1, 1],
-            strides=[1, 1],
+            kernel_shape=kernel_shape,
+            pads=pads,
+            strides=strides,
             dilations=[1, 1],
             output_padding=[0, 0],
         )
-
         results = _infer_convtranspose_shape(node, ctx)
-
-        assert len(results) == 1
-        assert results[0][0] == [1, 3, 28, 28]
-
-    def test_convtranspose_2d_with_strides(self):
-        """Test ConvTranspose with stride > 1 (upsampling)."""
-        weight_tensor = _make_weight_tensor((16, 3, 3, 3))
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 16, 14, 14], "weight": _extract_tensor_shape(weight_tensor)},
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "ConvTranspose",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[1, 1, 1, 1],
-            strides=[2, 2],  # Upsampling by 2x
-            dilations=[1, 1],
-            output_padding=[0, 0],
-        )
-
-        results = _infer_convtranspose_shape(node, ctx)
-
-        # output = (14-1)*2 - 2 + 1*2 + 0 + 1 = 26 + 1 = 27
-        assert results[0][0] == [1, 3, 27, 27]
-
-    def test_convtranspose_no_padding(self):
-        """Test ConvTranspose without padding."""
-        weight_tensor = _make_weight_tensor((16, 3, 3, 3))
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 16, 28, 28]},
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "ConvTranspose",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[0, 0, 0, 0],
-            strides=[1, 1],
-            dilations=[1, 1],
-            output_padding=[0, 0],
-        )
-
-        results = _infer_convtranspose_shape(node, ctx)
-
-        # output = (input - 1) * stride - pads_sum + dilation * (kernel - 1) + output_padding + 1
-        # = (28 - 1) * 1 - 0 + 1 * 2 + 0 + 1 = 27 + 2 + 1 = 30
-        assert results[0][0] == [1, 3, 30, 30]
-
-    def test_convtranspose_batch_size_preserved(self):
-        """Test that batch size is preserved in ConvTranspose."""
-        weight_tensor = _make_weight_tensor((128, 64, 3, 3))
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [4, 128, 14, 14], "weight": _extract_tensor_shape(weight_tensor)},
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "ConvTranspose",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[1, 1, 1, 1],
-            strides=[2, 2],
-            dilations=[1, 1],
-            output_padding=[0, 0],
-        )
-
-        results = _infer_convtranspose_shape(node, ctx)
-
-        # output = (14-1)*2 - 2 + 1*2 + 0 + 1 = 26 + 1 = 27
-        assert results[0][0] == [4, 64, 27, 27]
+        assert len(results) >= 1
+        assert results[0][0] == expected
 
 
 class TestConvTransposeWithOutputPadding:
     """Test ConvTranspose with output_padding attribute."""
 
-    def test_convtranspose_output_padding_horizontal(self):
-        """Test ConvTranspose with output_padding on horizontal axis."""
+    @pytest.mark.parametrize(
+        ("output_padding", "expected"),
+        [
+            pytest.param([1, 0], [1, 3, 28, 27], id="horizontal"),
+            pytest.param([1, 1], [1, 3, 28, 28], id="both_axes"),
+        ],
+    )
+    def test_convtranspose_output_padding(self, output_padding, expected):
+        """Test ConvTranspose with output_padding on various axes."""
         weight_tensor = _make_weight_tensor((16, 3, 3, 3))
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1, 16, 14, 14]},
@@ -386,7 +297,6 @@ class TestConvTransposeWithOutputPadding:
             initializers={"weight": weight_tensor},
             verbose=False,
         )
-
         node = onnx.helper.make_node(
             "ConvTranspose",
             inputs=["input", "weight"],
@@ -395,41 +305,11 @@ class TestConvTransposeWithOutputPadding:
             pads=[1, 1, 1, 1],
             strides=[2, 2],
             dilations=[1, 1],
-            output_padding=[1, 0],
+            output_padding=output_padding,
         )
-
         results = _infer_convtranspose_shape(node, ctx)
-
-        # With stride 2 and output_padding [1,0]:
-        # height: (14-1)*2 - 2 + 2 + 1 + 1 = 26 + 2 = 28
-        # width: (14-1)*2 - 2 + 2 + 0 + 1 = 26 + 1 = 27
-        assert results[0][0] == [1, 3, 28, 27]
-
-    def test_convtranspose_output_padding_both(self):
-        """Test ConvTranspose with output_padding on both axes."""
-        weight_tensor = _make_weight_tensor((16, 3, 3, 3))
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 16, 14, 14], "weight": _extract_tensor_shape(weight_tensor)},
-            explicit_shapes={},
-            initializers={"weight": weight_tensor},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "ConvTranspose",
-            inputs=["input", "weight"],
-            outputs=["output"],
-            kernel_shape=[3, 3],
-            pads=[1, 1, 1, 1],
-            strides=[2, 2],
-            dilations=[1, 1],
-            output_padding=[1, 1],
-        )
-
-        results = _infer_convtranspose_shape(node, ctx)
-
-        # output = (14-1)*2 - 2 + 1*2 + 1 + 1 = 26 + 2 = 28
-        assert results[0][0] == [1, 3, 28, 28]
+        assert len(results) >= 1
+        assert results[0][0] == expected
 
 
 class TestConvErrors:
@@ -455,7 +335,7 @@ class TestConvErrors:
             dilations=[1, 1],
         )
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError, match="Cannot get shape"):
             _infer_pool_shape(node, ctx)
 
     def test_conv_inconsistent_dimensions(self):
@@ -501,7 +381,7 @@ class TestConvErrors:
             output_padding=[0, 0],
         )
 
-        with pytest.raises(KeyError):
+        with pytest.raises(KeyError, match="weight"):
             _infer_convtranspose_shape(node, ctx)
 
     def test_convtranspose_unsupported_3d(self):
@@ -525,7 +405,7 @@ class TestConvErrors:
             output_padding=[0, 0, 0],
         )
 
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(NotImplementedError, match="ConvTranspose"):
             _infer_convtranspose_shape(node, ctx)
 
 

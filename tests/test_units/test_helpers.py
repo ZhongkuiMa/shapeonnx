@@ -1,5 +1,6 @@
 """Unit tests for shape inference helper functions."""
 
+import numpy as np
 import onnx
 import pytest
 
@@ -16,30 +17,20 @@ from shapeonnx.infer_shape import (
 class TestAlignShapes:
     """Tests for align_shapes function."""
 
-    def test_align_both_empty(self):
-        """Test aligning two empty shapes."""
-        result = _align_shapes([], [])
-        assert result == []
-
-    def test_align_matching_dimensions(self):
-        """Test aligning shapes with matching dimensions."""
-        result = _align_shapes([3, 4], [3, 4])
-        assert result == [3, 4]
-
-    def test_align_base_matches_target(self):
-        """Test aligning when base dimensions match target dimensions."""
-        result = _align_shapes([3, 4], [3, 4, 5])
-        assert result == [3, 4, 1]
-
-    def test_align_single_base_dimension(self):
-        """Test aligning single base dimension."""
-        result = _align_shapes([3], [3, 4, 5])
-        assert result == [3, 1, 1]
-
-    def test_align_no_matching_dimensions(self):
-        """Test aligning when no dimensions match."""
-        result = _align_shapes([2], [3, 4, 5])
-        assert result == [1, 1, 1]
+    @pytest.mark.parametrize(
+        ("base", "target", "expected"),
+        [
+            pytest.param([], [], [], id="both_empty"),
+            pytest.param([3, 4], [3, 4], [3, 4], id="matching_dimensions"),
+            pytest.param([3, 4], [3, 4, 5], [3, 4, 1], id="base_shorter"),
+            pytest.param([3], [3, 4, 5], [3, 1, 1], id="single_base"),
+            pytest.param([2], [3, 4, 5], [1, 1, 1], id="no_matching"),
+        ],
+    )
+    def test_align(self, base, target, expected):
+        """Test shape alignment with various base/target combinations."""
+        result = _align_shapes(base, target)
+        assert result == expected
 
 
 class TestRightAlignShapes:
@@ -77,7 +68,10 @@ class TestGetShape:
     def test_get_shape_from_explicit(self):
         """Test getting shape from explicit_shapes."""
         result = _get_shape("x", {}, {"x": [2, 5]})
-        assert result == ([2, 5], True)
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+        assert result[0] == [2, 5]
+        assert result[1] is True
 
     def test_get_shape_not_found(self):
         """Test getting shape that doesn't exist."""
@@ -104,9 +98,10 @@ class TestGetDataShape:
         assert result == 5
 
     def test_get_data_shape_not_found(self):
-        """Test getting shape that doesn't exist."""
+        """Test getting shape that doesn't exist returns None."""
         result = _get_data_shape("x", {})
         assert result is None
+        assert not isinstance(result, (list, int))
 
 
 class TestGetExplicitShape:
@@ -123,9 +118,10 @@ class TestGetExplicitShape:
         assert result == 5
 
     def test_get_explicit_shape_not_found(self):
-        """Test getting shape that doesn't exist."""
+        """Test getting shape that doesn't exist returns None."""
         result = _get_explicit_shape("x", {})
         assert result is None
+        assert not isinstance(result, (list, int))
 
 
 class TestPreconvertIntegerInitializers:
@@ -138,8 +134,6 @@ class TestPreconvertIntegerInitializers:
 
     def test_preconvert_float_initializer(self):
         """Test that float initializers are not converted."""
-        import numpy as np
-
         weights = np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float32)
         weight_tensor = onnx.numpy_helper.from_array(weights, name="weight")
         result = _preconvert_integer_initializers({"weight": weight_tensor})
@@ -147,8 +141,6 @@ class TestPreconvertIntegerInitializers:
 
     def test_preconvert_int_initializer(self):
         """Test preconverting integer initializers."""
-        import numpy as np
-
         shape_array = np.array([1, 256], dtype=np.int64)
         shape_tensor = onnx.numpy_helper.from_array(shape_array, name="shape")
         result = _preconvert_integer_initializers({"shape": shape_tensor})

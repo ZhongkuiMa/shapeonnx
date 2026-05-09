@@ -1,6 +1,7 @@
 """Unit tests for slicing operation shape inference."""
 
 import numpy as np
+import onnx
 import pytest
 
 from shapeonnx.infer_shape import (
@@ -25,8 +26,6 @@ class TestSliceOperation:
     )
     def test_slice_different_ranges(self, input_shape, starts, ends, axes, steps, expected):
         """Test Slice with different start/end/axis/step values."""
-        import onnx
-
         starts_array = np.array(starts, dtype=np.int64)
         starts_tensor = onnx.numpy_helper.from_array(starts_array, name="starts")
         ends_array = np.array(ends, dtype=np.int64)
@@ -53,12 +52,11 @@ class TestSliceOperation:
             outputs=["output"],
         )
         result = _infer_slice_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_slice_with_zero_dimension(self):
         """Test Slice with zero dimension."""
-        import onnx
-
         starts_array = np.array([0], dtype=np.int64)
         starts_tensor = onnx.numpy_helper.from_array(starts_array, name="starts")
         ends_array = np.array([1], dtype=np.int64)
@@ -86,8 +84,6 @@ class TestSliceOperation:
     )
     def test_slice_without_axes_or_steps(self, input_shape, starts, ends, expected):
         """Test Slice with missing axes or steps parameters."""
-        import onnx
-
         starts_array = np.array(starts, dtype=np.int64)
         starts_tensor = onnx.numpy_helper.from_array(starts_array, name="starts")
         ends_array = np.array(ends, dtype=np.int64)
@@ -103,12 +99,11 @@ class TestSliceOperation:
             "Slice", inputs=["input", "starts", "ends"], outputs=["output"]
         )
         result = _infer_slice_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_slice_large_step(self):
         """Test Slice with large step value."""
-        import onnx
-
         starts_array = np.array([0], dtype=np.int64)
         starts_tensor = onnx.numpy_helper.from_array(starts_array, name="starts")
         ends_array = np.array([10], dtype=np.int64)
@@ -153,8 +148,6 @@ class TestGatherOperation:
     )
     def test_gather_different_axes_and_indices(self, input_shape, indices, axis, expected):
         """Test Gather with different axes and indices."""
-        import onnx
-
         indices_array = np.array(indices, dtype=np.int64)
         indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
 
@@ -168,12 +161,11 @@ class TestGatherOperation:
             "Gather", inputs=["input", "indices"], outputs=["output"], axis=axis
         )
         result = _infer_gather_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_gather_single_index(self):
         """Test Gather with single scalar index."""
-        import onnx
-
         indices_array = np.array(2, dtype=np.int64)
         indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
 
@@ -191,8 +183,6 @@ class TestGatherOperation:
 
     def test_gather_with_broadcast_indices(self):
         """Test Gather with scalar index."""
-        import onnx
-
         indices_array = np.array(1, dtype=np.int64)
         indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
 
@@ -211,8 +201,6 @@ class TestGatherOperation:
 
     def test_gather_from_explicit_shape(self):
         """Test Gather from explicit shape tensor (output from Shape op)."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={},
             explicit_shapes={"shape_tensor": [2, 3, 4]},  # Explicit shape from Shape op
@@ -233,8 +221,6 @@ class TestGatherOperation:
 
     def test_gather_invalid_axis_on_explicit_shape_error(self):
         """Test Gather raises error for invalid axis on explicit shape."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={},
             explicit_shapes={"shape_tensor": [2, 3, 4]},  # 1D explicit shape
@@ -253,8 +239,6 @@ class TestGatherOperation:
 
     def test_gather_explicit_shape_non_list_error(self):
         """Test Gather raises error for non-list explicit shape."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={},
             explicit_shapes={"shape_scalar": 5},  # Scalar explicit shape (invalid)
@@ -277,8 +261,6 @@ class TestSliceExplicitShapes:
 
     def test_slice_explicit_shape_from_shape_tensor(self):
         """Test Slice on explicit shape tensor (output from Shape op)."""
-        import onnx
-
         starts_array = np.array([0], dtype=np.int64)
         starts_tensor = onnx.numpy_helper.from_array(starts_array, name="starts")
         ends_array = np.array([2], dtype=np.int64)
@@ -310,8 +292,6 @@ class TestSliceExplicitShapes:
 
     def test_slice_explicit_shape_non_axis_0_error(self):
         """Test Slice on explicit shape with non-axis-0 raises error."""
-        import onnx
-
         starts_array = np.array([1], dtype=np.int64)
         starts_tensor = onnx.numpy_helper.from_array(starts_array, name="starts")
         ends_array = np.array([2], dtype=np.int64)
@@ -342,8 +322,6 @@ class TestSliceExplicitShapes:
 
     def test_slice_missing_input_error(self):
         """Test Slice raises error when input is missing."""
-        import onnx
-
         starts_array = np.array([0], dtype=np.int64)
         starts_tensor = onnx.numpy_helper.from_array(starts_array, name="starts")
         ends_array = np.array([2], dtype=np.int64)

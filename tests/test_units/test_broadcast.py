@@ -2,119 +2,66 @@
 
 import pytest
 
-from shapeonnx.infer_shape import (
-    _broadcast_shapes,
-    _compute_broadcasted_shape,
-)
+from shapeonnx.infer_shape import _broadcast_shapes, _compute_broadcasted_shape
+
+_BROADCAST_CASES = [
+    pytest.param([], [], [], id="scalar_scalar"),
+    pytest.param([], [3, 4], [3, 4], id="scalar_vector"),
+    pytest.param([3, 4], [], [3, 4], id="vector_scalar"),
+    pytest.param([3, 4], [3, 4], [3, 4], id="same_shape"),
+    pytest.param([1, 4], [3, 4], [3, 4], id="compatible"),
+    pytest.param([3, 1], [3, 4], [3, 4], id="compatible_reversed"),
+    pytest.param([4], [3, 4], [3, 4], id="different_ranks"),
+    pytest.param([1, 3, 1], [2, 1, 4], [2, 3, 4], id="multiple_dims"),
+    pytest.param([0], [3, 4], [0], id="with_zero_dim"),
+    pytest.param([0, 4], [0, 4], [0, 4], id="both_with_zero"),
+    pytest.param([1, 1, 1], [3, 4, 5], [3, 4, 5], id="all_ones"),
+    pytest.param([3, 4, 5], [1, 1, 1], [3, 4, 5], id="all_ones_reversed"),
+    pytest.param([1], [4], [4], id="single_dim"),
+    pytest.param([1024, 768], [1024, 768], [1024, 768], id="large_dims"),
+]
+
+_COMPUTE_CASES = [
+    pytest.param([3, 4], [3, 4], [3, 4], id="same_shapes"),
+    pytest.param([1, 4], [3, 4], [3, 4], id="one_dimension_one"),
+    pytest.param([1, 1, 4], [3, 4, 4], [3, 4, 4], id="multiple_ones"),
+    pytest.param([1, 1], [3, 4], [3, 4], id="all_ones"),
+    pytest.param([1, 3, 1, 4], [2, 1, 5, 4], [2, 3, 5, 4], id="complex"),
+]
 
 
 class TestBroadcastShapes:
-    """Tests for broadcast_shapes function."""
+    """Tests for _broadcast_shapes function."""
 
-    def test_broadcast_scalar_scalar(self):
-        """Test broadcasting scalar with scalar."""
-        result = _broadcast_shapes([], [])
-        assert result == []
+    @pytest.mark.parametrize(("shape1", "shape2", "expected"), _BROADCAST_CASES)
+    def test_broadcast_returns_expected_shape(
+        self, shape1: list[int], shape2: list[int], expected: list[int]
+    ) -> None:
+        """Verify _broadcast_shapes returns the expected merged shape.
 
-    def test_broadcast_scalar_vector(self):
-        """Test broadcasting scalar with vector."""
-        result = _broadcast_shapes([], [3, 4])
-        assert result == [3, 4]
-
-    def test_broadcast_vector_scalar(self):
-        """Test broadcasting vector with scalar."""
-        result = _broadcast_shapes([3, 4], [])
-        assert result == [3, 4]
-
-    def test_broadcast_same_shape(self):
-        """Test broadcasting shapes that are the same."""
-        result = _broadcast_shapes([3, 4], [3, 4])
-        assert result == [3, 4]
-
-    def test_broadcast_compatible_shapes(self):
-        """Test broadcasting compatible shapes."""
-        result = _broadcast_shapes([1, 4], [3, 4])
-        assert result == [3, 4]
-
-    def test_broadcast_compatible_shapes_reversed(self):
-        """Test broadcasting compatible shapes reversed."""
-        result = _broadcast_shapes([3, 1], [3, 4])
-        assert result == [3, 4]
-
-    def test_broadcast_different_ranks_compatible(self):
-        """Test broadcasting shapes with different ranks."""
-        result = _broadcast_shapes([4], [3, 4])
-        assert result == [3, 4]
-
-    def test_broadcast_multiple_dimensions(self):
-        """Test broadcasting multiple dimensions."""
-        result = _broadcast_shapes([1, 3, 1], [2, 1, 4])
-        assert result == [2, 3, 4]
-
-    def test_broadcast_with_zero_dimension(self):
-        """Test broadcasting with 0 dimension."""
-        result = _broadcast_shapes([0], [3, 4])
-        assert result == [0]
-
-    def test_broadcast_both_with_zero(self):
-        """Test broadcasting when both have 0."""
-        result = _broadcast_shapes([0, 4], [0, 4])
-        assert result == [0, 4]
+        :param shape1: first input shape
+        :param shape2: second input shape
+        :param expected: expected broadcasted output shape
+        """
+        assert _broadcast_shapes(shape1, shape2) == expected
 
 
 class TestComputeBroadcastedShape:
-    """Tests for compute_broadcasted_shape function."""
+    """Tests for _compute_broadcasted_shape function."""
 
-    def test_compute_same_shapes(self):
-        """Test computing same shapes."""
-        result = _compute_broadcasted_shape([3, 4], [3, 4])
-        assert result == [3, 4]
+    @pytest.mark.parametrize(("shape1", "shape2", "expected"), _COMPUTE_CASES)
+    def test_compute_returns_expected_shape(
+        self, shape1: list[int], shape2: list[int], expected: list[int]
+    ) -> None:
+        """Verify _compute_broadcasted_shape returns the expected merged shape.
 
-    def test_compute_one_dimension_one(self):
-        """Test computing when one dimension is 1."""
-        result = _compute_broadcasted_shape([1, 4], [3, 4])
-        assert result == [3, 4]
+        :param shape1: first input shape
+        :param shape2: second input shape
+        :param expected: expected broadcasted output shape
+        """
+        assert _compute_broadcasted_shape(shape1, shape2) == expected
 
-    def test_compute_multiple_ones(self):
-        """Test computing with multiple 1 dimensions."""
-        result = _compute_broadcasted_shape([1, 1, 4], [3, 4, 4])
-        assert result == [3, 4, 4]
-
-    def test_compute_all_ones(self):
-        """Test computing when all dimensions are 1."""
-        result = _compute_broadcasted_shape([1, 1], [3, 4])
-        assert result == [3, 4]
-
-    def test_compute_complex_broadcasting(self):
-        """Test complex broadcasting scenario."""
-        result = _compute_broadcasted_shape([1, 3, 1, 4], [2, 1, 5, 4])
-        assert result == [2, 3, 5, 4]
-
-    def test_compute_incompatible_shapes(self):
-        """Test computing incompatible shapes."""
+    def test_compute_incompatible_shapes_raises(self) -> None:
+        """Verify _compute_broadcasted_shape rejects incompatible shapes."""
         with pytest.raises(RuntimeError, match="Cannot broadcast"):
             _compute_broadcasted_shape([2, 3], [4, 5])
-
-
-class TestBroadcastingEdgeCases:
-    """Tests for edge cases in broadcasting."""
-
-    def test_broadcast_all_ones(self):
-        """Test broadcasting all 1 dimensions."""
-        result = _broadcast_shapes([1, 1, 1], [3, 4, 5])
-        assert result == [3, 4, 5]
-
-    def test_broadcast_all_ones_reversed(self):
-        """Test broadcasting all 1 dimensions reversed."""
-        result = _broadcast_shapes([3, 4, 5], [1, 1, 1])
-        assert result == [3, 4, 5]
-
-    def test_broadcast_single_dimension(self):
-        """Test broadcasting single dimension."""
-        result = _broadcast_shapes([1], [4])
-        assert result == [4]
-
-    def test_broadcast_large_dimensions(self):
-        """Test broadcasting large dimensions."""
-        result = _broadcast_shapes([1024, 768], [1024, 768])
-        assert result == [1024, 768]

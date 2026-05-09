@@ -1,5 +1,6 @@
 """Unit tests for pooling operation shape inference."""
 
+import onnx
 import pytest
 
 from shapeonnx.infer_shape import ShapeInferenceContext, _infer_pool_shape
@@ -33,8 +34,6 @@ class TestMaxPoolOperation:
     )
     def test_maxpool_different_shapes(self, input_shape, kernel, strides, pads, expected):
         """Test MaxPool with different kernel, stride, and padding."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": input_shape},
             explicit_shapes={},
@@ -50,12 +49,11 @@ class TestMaxPoolOperation:
             pads=pads,
         )
         result = _infer_pool_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_maxpool_with_zero_dimension(self):
         """Test MaxPool with zero dimension."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [0]},
             explicit_shapes={},
@@ -93,8 +91,6 @@ class TestAveragePoolOperation:
     )
     def test_avgpool_different_shapes(self, input_shape, kernel, strides, pads, expected):
         """Test AveragePool with different kernel, stride, and padding."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": input_shape},
             explicit_shapes={},
@@ -110,12 +106,11 @@ class TestAveragePoolOperation:
             pads=pads,
         )
         result = _infer_pool_shape(node, ctx)
+        assert len(result) >= 1
         assert result[0][0] == expected
 
     def test_maxpool_with_ceil_mode(self):
         """Test MaxPool with ceil_mode=True."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1, 3, 5, 5]},
             explicit_shapes={},
@@ -137,8 +132,6 @@ class TestAveragePoolOperation:
 
     def test_avgpool_with_dilations(self):
         """Test AveragePool with dilations."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1, 3, 7, 7]},
             explicit_shapes={},
@@ -160,8 +153,6 @@ class TestAveragePoolOperation:
 
     def test_maxpool_ceil_mode(self):
         """Test MaxPool with ceil_mode=1."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1, 3, 7, 7]},
             explicit_shapes={},
@@ -183,8 +174,6 @@ class TestAveragePoolOperation:
 
     def test_averagepool_with_pads(self):
         """Test AveragePool with padding."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1, 3, 5, 5]},
             explicit_shapes={},
@@ -205,8 +194,6 @@ class TestAveragePoolOperation:
 
     def test_maxpool_ceil_mode_with_dilation(self):
         """Test MaxPool with ceil_mode and dilation."""
-        import onnx
-
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1, 3, 10, 10]},
             explicit_shapes={},

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "shapeonnx"
-version = "2026.2.0"
+version = "2026.5.0"
 description = "Shape inference and propagation for ONNX models"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -61,7 +61,7 @@ exclude = [
 # Comprehensive rule set (matches main rover project)
 select = [
     "E", "W", "F", "I", "N", "UP", "B", "C4", "PIE", "RET", "SIM", "TID",
-    "A", "BLE", "C90", "FBT", "ICN", "ISC", "PGH", "Q", "RSE", "SLF",
+    "A", "BLE", "C90", "DOC", "FBT", "ICN", "ISC", "PGH", "Q", "RSE", "SLF",
     "TD", "D", "PERF", "FURB", "PT", "T10", "PTH", "INP", "NPY", "RUF",
 ]
 
