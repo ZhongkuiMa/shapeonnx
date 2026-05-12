@@ -1,5 +1,7 @@
 """Unit tests for broadcasting functions."""
 
+__docformat__ = "restructuredtext"
+
 import pytest
 
 from shapeonnx.infer_shape import _broadcast_shapes, _compute_broadcasted_shape
@@ -39,9 +41,12 @@ class TestBroadcastShapes:
     ) -> None:
         """Verify _broadcast_shapes returns the expected merged shape.
 
-        :param shape1: first input shape
-        :param shape2: second input shape
-        :param expected: expected broadcasted output shape
+        :param shape1: first input shape.
+
+        :param shape2: second input shape.
+
+        :param expected: expected broadcasted output shape.
+
         """
         assert _broadcast_shapes(shape1, shape2) == expected
 
@@ -55,9 +60,12 @@ class TestComputeBroadcastedShape:
     ) -> None:
         """Verify _compute_broadcasted_shape returns the expected merged shape.
 
-        :param shape1: first input shape
-        :param shape2: second input shape
-        :param expected: expected broadcasted output shape
+        :param shape1: first input shape.
+
+        :param shape2: second input shape.
+
+        :param expected: expected broadcasted output shape.
+
         """
         assert _compute_broadcasted_shape(shape1, shape2) == expected
 

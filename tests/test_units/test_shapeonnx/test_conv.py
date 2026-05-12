@@ -12,6 +12,8 @@ Test organization:
 - TestConvErrors: Error handling
 """
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest
@@ -480,7 +482,9 @@ class TestConvIntegration:
         assert results1[0][0] == [1, 64, 56, 56]
 
         # Update context for second conv
-        ctx.data_shapes["hidden"] = results1[0][0]
+        hidden_shape = results1[0][0]
+        assert hidden_shape is not None
+        ctx.data_shapes["hidden"] = hidden_shape
         results2 = _infer_pool_shape(node2, ctx)
         assert results2[0][0] == [1, 64, 56, 56]
 

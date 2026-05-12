@@ -1,13 +1,11 @@
 """VNNComp Benchmark Test Runner for ShapeONNX."""
 
 __docformat__ = "restructuredtext"
-__all__ = []
 
 from pathlib import Path
 
 import pytest
-
-from tests.test_benchmarks.utils import (
+from utils import (  # type: ignore[import-not-found]
     find_benchmarks_folders,
     get_all_onnx_files,
     if_has_batch_dim,
@@ -36,13 +34,13 @@ def get_onnx_models():
         return []
 
 
-@pytest.mark.benchmark
 @pytest.mark.parametrize("onnx_path", get_onnx_models())
 def test_shape_inference(onnx_path):
     """
     Test shape inference on a single ONNX model.
 
-    :param onnx_path: Path to ONNX model file
+    :param onnx_path: Path to ONNX model file.
+
     """
     model = load_onnx_model(onnx_path)
     has_batch_dim = if_has_batch_dim(onnx_path)

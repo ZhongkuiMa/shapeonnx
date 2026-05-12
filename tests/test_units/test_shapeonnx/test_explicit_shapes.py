@@ -1,5 +1,7 @@
 """Unit tests for explicit shape handling in tensor operations."""
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest

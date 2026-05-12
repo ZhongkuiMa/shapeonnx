@@ -8,6 +8,8 @@ broadcasting alignment, scalar arithmetic, initializer conversion, and the
 ``infer_onnx_shape`` public-API entrypoint on a minimal synthetic graph.
 """
 
+__docformat__ = "restructuredtext"
+
 import dataclasses
 
 import numpy as np
@@ -37,9 +39,12 @@ def _make_int_initializer(
 ) -> onnx.TensorProto:
     """Build a 1-D integer TensorProto initializer.
 
-    :param values: integer values to store
-    :param name: initializer name
-    :param dtype: ONNX TensorProto dtype (default INT64)
+    :param values: integer values to store.
+
+    :param name: initializer name.
+
+    :param dtype: ONNX TensorProto dtype (default INT64).
+
     :return: TensorProto holding ``values``
     """
     np_dtype = onnx.helper.tensor_dtype_to_np_dtype(dtype)
@@ -177,8 +182,10 @@ class TestPreconvertIntegerInitializers:
     def test_integer_dtypes_are_converted(self, dtype: int, values: list[int]) -> None:
         """Verify integer-typed initializers are converted to Python lists.
 
-        :param dtype: ONNX integer dtype
-        :param values: integer payload
+        :param dtype: ONNX integer dtype.
+
+        :param values: integer payload.
+
         """
         init = _make_int_initializer(values, "k", dtype=dtype)
 
@@ -226,9 +233,12 @@ class TestRightAlignShapes:
     ) -> None:
         """Verify _right_align_shapes left-pads the shorter shape with 1s.
 
-        :param shape1: first input shape
-        :param shape2: second input shape
-        :param expected: expected pair of right-aligned shapes
+        :param shape1: first input shape.
+
+        :param shape2: second input shape.
+
+        :param expected: expected pair of right-aligned shapes.
+
         """
         assert _right_align_shapes(shape1, shape2) == expected
 
@@ -249,9 +259,12 @@ class TestAlignShapes:
     ) -> None:
         """Verify _align_shapes maps target dims into base structure.
 
-        :param base: base shape providing structure
-        :param target: target shape to align
-        :param expected: expected aligned shape
+        :param base: base shape providing structure.
+
+        :param target: target shape to align.
+
+        :param expected: expected aligned shape.
+
         """
         assert _align_shapes(base, target) == expected
 
@@ -282,11 +295,16 @@ class TestComputeBinaryOpValue:
     ) -> None:
         """Verify _compute_binary_op_value returns expected value and type.
 
-        :param op_type: ONNX op name
-        :param value1: first operand
-        :param value2: second operand
-        :param expected: expected numeric result
-        :param expected_type: expected Python type of the result
+        :param op_type: ONNX op name.
+
+        :param value1: first operand.
+
+        :param value2: second operand.
+
+        :param expected: expected numeric result.
+
+        :param expected_type: expected Python type of the result.
+
         """
         result = _compute_binary_op_value(op_type, value1, value2)
 

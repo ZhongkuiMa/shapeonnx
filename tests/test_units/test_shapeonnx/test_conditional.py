@@ -10,6 +10,8 @@ Test organization:
 - TestWhereErrors: Error handling
 """
 
+__docformat__ = "restructuredtext"
+
 import onnx
 import pytest
 

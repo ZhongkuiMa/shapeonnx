@@ -1,5 +1,7 @@
 """Unit tests for shapeonnx utility functions."""
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest

@@ -1,5 +1,7 @@
 """Unit tests for matrix operation shape inference."""
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest

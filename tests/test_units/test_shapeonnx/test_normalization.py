@@ -1,5 +1,7 @@
 """Unit tests for normalization operation shape inference."""
 
+__docformat__ = "restructuredtext"
+
 import onnx
 import pytest
 

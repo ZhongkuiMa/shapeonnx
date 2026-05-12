@@ -1,6 +1,9 @@
 """Shared fixtures for shapeonnx unit tests."""
 
+__docformat__ = "restructuredtext"
+
 from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import onnx
@@ -57,7 +60,7 @@ def simple_node() -> Callable[..., onnx.NodeProto]:
     """
 
     def _make_node(
-        op_type: str, inputs: list[str], outputs: list[str], **kwargs: object
+        op_type: str, inputs: list[str], outputs: list[str], **kwargs: Any
     ) -> onnx.NodeProto:
         return onnx.helper.make_node(op_type, inputs=inputs, outputs=outputs, **kwargs)
 

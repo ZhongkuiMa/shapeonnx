@@ -9,6 +9,8 @@ Test organization:
 - TestArgMaxOperation: ArgMax shape inference
 """
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest
@@ -23,8 +25,10 @@ from shapeonnx.infer_shape import (
 def _make_axes_initializer(axes: list[int], name: str = "axes") -> onnx.TensorProto:
     """Create an axes initializer tensor.
 
-    :param axes: list of axis indices (may be negative)
-    :param name: initializer name
+    :param axes: list of axis indices (may be negative).
+
+    :param name: initializer name.
+
     :return: ONNX TensorProto holding ``axes`` as int64
     """
     array = np.array(axes, dtype=np.int64)
@@ -34,8 +38,10 @@ def _make_axes_initializer(axes: list[int], name: str = "axes") -> onnx.TensorPr
 def _make_reduce_ctx(input_shape: list[int] | int, axes: list[int]) -> ShapeInferenceContext:
     """Build a ShapeInferenceContext for a single reduce-op test case.
 
-    :param input_shape: shape (or scalar) attached to ``input``
-    :param axes: axes initializer values
+    :param input_shape: shape (or scalar) attached to ``input``.
+
+    :param axes: axes initializer values.
+
     :return: populated ShapeInferenceContext
     """
     return ShapeInferenceContext(
@@ -102,11 +108,16 @@ class TestReduceShape:
     ) -> None:
         """Verify _infer_reduce_shape returns the expected output shape.
 
-        :param op_type: ONNX op type, "ReduceMean" or "ReduceSum"
-        :param input_shape: shape attached to "input"
-        :param axes: axes initializer values
-        :param keepdims: 0 or 1, ONNX keepdims attribute
-        :param expected: expected output shape
+        :param op_type: ONNX op type, "ReduceMean" or "ReduceSum".
+
+        :param input_shape: shape attached to "input".
+
+        :param axes: axes initializer values.
+
+        :param keepdims: 0 or 1, ONNX keepdims attribute.
+
+        :param expected: expected output shape.
+
         """
         ctx = _make_reduce_ctx(input_shape, axes)
         node = onnx.helper.make_node(
@@ -126,7 +137,8 @@ class TestReduceErrors:
     def test_missing_input_shape_raises(self, op_type: str) -> None:
         """Verify _infer_reduce_shape rejects missing input shapes.
 
-        :param op_type: ONNX op type to test
+        :param op_type: ONNX op type to test.
+
         """
         ctx = ShapeInferenceContext(
             data_shapes={},
@@ -188,10 +200,14 @@ class TestArgMaxOperation:
     ) -> None:
         """Verify _infer_argmax_shape returns the expected reduced shape.
 
-        :param input_shape: shape attached to "input"
-        :param axis: ArgMax axis attribute
-        :param keepdims: 0 or 1
-        :param expected: expected output shape
+        :param input_shape: shape attached to "input".
+
+        :param axis: ArgMax axis attribute.
+
+        :param keepdims: 0 or 1.
+
+        :param expected: expected output shape.
+
         """
         ctx = ShapeInferenceContext(
             data_shapes={"input": input_shape},

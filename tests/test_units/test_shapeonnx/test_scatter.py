@@ -1,5 +1,7 @@
 """Unit tests for scatter operation shape inference."""
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest

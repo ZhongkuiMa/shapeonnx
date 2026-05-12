@@ -1,5 +1,7 @@
 """Unit tests for slicing operation shape inference."""
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest

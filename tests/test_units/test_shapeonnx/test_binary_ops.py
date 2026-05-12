@@ -1,5 +1,7 @@
 """Unit tests for binary operations shape inference."""
 
+__docformat__ = "restructuredtext"
+
 import onnx
 import pytest
 

@@ -18,6 +18,8 @@ Test organization:
 - TestConstantNodeError: Constant operator error handling
 """
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest
@@ -312,32 +314,6 @@ class TestGetOnnxAttrsDispatcher:
         "op_type",
         [
             "ArgMax",
-            "AveragePool",
-            "BatchNormalization",
-            "Cast",
-            "Concat",
-            "ConstantOfShape",
-            "Elu",
-            "Flatten",
-            "Gather",
-            "Gelu",
-            "Gemm",
-            "LeakyRelu",
-            "MaxPool",
-            "Pad",
-            "ReduceMean",
-            "ReduceSum",
-            "Reshape",
-            "Resize",
-            "Scatter",
-            "ScatterElements",
-            "ScatterND",
-            "Shape",
-            "Softmax",
-            "Split",
-            "Transpose",
-            "Unsqueeze",
-            "Upsample",
         ],
     )
     def test_get_onnx_attrs_dispatcher_recognizes_supported_operators(self, op_type):

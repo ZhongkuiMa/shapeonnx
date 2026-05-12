@@ -5,7 +5,7 @@ __all__ = ["extract_io_shapes", "infer_onnx_shape"]
 
 import math
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -21,10 +21,14 @@ class ShapeInferenceContext:
     """
     Immutable context for shape inference.
 
-    :param data_shapes: Maps tensor names to their inferred shapes
-    :param explicit_shapes: Maps tensor names to constant shape values
-    :param initializers: ONNX model initializers
-    :param verbose: Whether to print debug information
+    :param data_shapes: Maps tensor names to their inferred shapes.
+
+    :param explicit_shapes: Maps tensor names to constant shape values.
+
+    :param initializers: ONNX model initializers.
+
+    :param verbose: Whether to print debug information.
+
     """
 
     data_shapes: dict[str, int | list[int]]
@@ -37,8 +41,10 @@ def extract_io_shapes(nodes: list[ValueInfoProto], has_batch_dim: bool) -> dict[
     """
     Extract shapes from model input/output nodes.
 
-    :param nodes: List of ONNX value info nodes
-    :param has_batch_dim: Whether nodes have a batch dimension
+    :param nodes: List of ONNX value info nodes.
+
+    :param has_batch_dim: Whether nodes have a batch dimension.
+
     :return: Dictionary mapping node names to shapes
     """
     return {node.name: _reformat_io_shape(node, has_batch_dim) for node in nodes}
@@ -50,7 +56,8 @@ def _extract_initializer_shapes(
     """
     Extract shapes from model initializers.
 
-    :param initializers: Dictionary of ONNX initializers
+    :param initializers: Dictionary of ONNX initializers.
+
     :return: Dictionary mapping initializer names to shapes
     """
     return {name: list(map(int, init.dims)) for name, init in initializers.items()}
@@ -60,8 +67,10 @@ def _get_data_shape(name: str, shapes: dict[str, int | list[int]]) -> int | list
     """
     Retrieve data shape by name.
 
-    :param name: Tensor name
-    :param shapes: Shape dictionary
+    :param name: Tensor name.
+
+    :param shapes: Shape dictionary.
+
     :return: Shape if found, None otherwise
     """
     return shapes.get(name)
@@ -73,7 +82,8 @@ def _preconvert_integer_initializers(
     """
     Pre-convert integer-type initializers to Python int/list for shape operations.
 
-    :param initializers: ONNX initializers
+    :param initializers: ONNX initializers.
+
     :return: Dictionary mapping initializer names to converted values
     """
     converted = {}
@@ -100,8 +110,10 @@ def _get_explicit_shape(
     """
     Retrieve explicit constant shape value.
 
-    :param name: Tensor name
-    :param explicit_shapes: Explicit shape dictionary
+    :param name: Tensor name.
+
+    :param explicit_shapes: Explicit shape dictionary.
+
     :return: Constant value if found, None otherwise
     """
     return explicit_shapes.get(name)
@@ -115,9 +127,12 @@ def _get_shape(
     """
     Retrieve shape from any available source.
 
-    :param name: Tensor name
-    :param shapes: Data shape dictionary
-    :param explicit_shapes: Explicit shape dictionary
+    :param name: Tensor name.
+
+    :param shapes: Data shape dictionary.
+
+    :param explicit_shapes: Explicit shape dictionary.
+
     :return: Tuple of (shape, is_explicit)
     """
     if (shape := shapes.get(name)) is not None:
@@ -131,9 +146,12 @@ def _store_data_shape(shape: list[int], shapes: dict[str, list[int]], name: str)
     """
     Store inferred data shape.
 
-    :param shape: Inferred shape
-    :param shapes: Shape dictionary to update
-    :param name: Tensor name
+    :param shape: Inferred shape.
+
+    :param shapes: Shape dictionary to update.
+
+    :param name: Tensor name.
+
     """
     shapes[name] = shape
 
@@ -144,9 +162,12 @@ def _store_explicit_shape(
     """
     Store constant shape value.
 
-    :param shape: Constant shape value
-    :param explicit_shapes: Explicit shape dictionary to update
-    :param name: Tensor name
+    :param shape: Constant shape value.
+
+    :param explicit_shapes: Explicit shape dictionary to update.
+
+    :param name: Tensor name.
+
     """
     explicit_shapes[name] = shape
 
@@ -155,8 +176,10 @@ def _align_shapes(base: list[int], target: list[int]) -> list[int]:
     """
     Align target shape to base shape structure.
 
-    :param base: Base shape
-    :param target: Target shape to align
+    :param base: Base shape.
+
+    :param target: Target shape to align.
+
     :return: Aligned shape
     """
     aligned = [1] * max(len(base), len(target))
@@ -174,8 +197,10 @@ def _right_align_shapes(shape1: list[int], shape2: list[int]) -> tuple[list[int]
     """
     Right-align two shapes by padding with 1s.
 
-    :param shape1: First shape
-    :param shape2: Second shape
+    :param shape1: First shape.
+
+    :param shape2: Second shape.
+
     :return: Tuple of right-aligned shapes
     """
     max_len = max(len(shape1), len(shape2))
@@ -188,8 +213,10 @@ def _compute_broadcasted_shape(shape1: list[int], shape2: list[int]) -> list[int
     """
     Compute broadcasted shape from two aligned shapes.
 
-    :param shape1: First shape
-    :param shape2: Second shape
+    :param shape1: First shape.
+
+    :param shape2: Second shape.
+
     :return: Broadcasted shape
     """
     result = []
@@ -204,8 +231,10 @@ def _broadcast_shapes(shape1: list[int], shape2: list[int]) -> list[int]:
     """
     Broadcast two shapes using numpy broadcasting rules.
 
-    :param shape1: First shape
-    :param shape2: Second shape
+    :param shape1: First shape.
+
+    :param shape2: Second shape.
+
     :return: Broadcasted shape
     """
     if [0] in (shape1, shape2):
@@ -230,8 +259,10 @@ def _infer_nochange_op_shape(
     """
     Infer shape for operators that preserve input shape.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape, is_explicit = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
@@ -244,9 +275,12 @@ def _compute_binary_op_value(op_type: str, value1: int | float, value2: int | fl
     """
     Compute binary operation on scalar values.
 
-    :param op_type: Operation type
-    :param value1: First operand
-    :param value2: Second operand
+    :param op_type: Operation type.
+
+    :param value1: First operand.
+
+    :param value2: Second operand.
+
     :return: Operation result
     """
     operations = {
@@ -267,9 +301,12 @@ def _compute_explicit_binary_shape(
     """
     Compute explicit shape for binary operations.
 
-    :param op_type: Operation type
-    :param e_shape1: First explicit shape
-    :param e_shape2: Second explicit shape
+    :param op_type: Operation type.
+
+    :param e_shape1: First explicit shape.
+
+    :param e_shape2: Second explicit shape.
+
     :return: Computed explicit shape
     """
     if op_type == "Mul":
@@ -293,9 +330,12 @@ def _compute_equal_explicit_shape(
     """
     Compute explicit shape for Equal operator.
 
-    :param input1: First input name
-    :param input2: Second input name
-    :param explicit_shapes: Dictionary of explicit shapes
+    :param input1: First input name.
+
+    :param input2: Second input name.
+
+    :param explicit_shapes: Dictionary of explicit shapes.
+
     :return: Explicit shape for Equal result, or None
     """
     e_shape1 = _get_explicit_shape(input1, explicit_shapes)
@@ -318,10 +358,14 @@ def _compute_binary_explicit_shape(
     """
     Compute explicit shape for binary operators.
 
-    :param op_type: Operator type
-    :param input1: First input name
-    :param input2: Second input name
-    :param explicit_shapes: Dictionary of explicit shapes
+    :param op_type: Operator type.
+
+    :param input1: First input name.
+
+    :param input2: Second input name.
+
+    :param explicit_shapes: Dictionary of explicit shapes.
+
     :return: Explicit shape result, or None
     """
     e_shape1 = _get_explicit_shape(input1, explicit_shapes)
@@ -341,8 +385,10 @@ def _infer_binary_op_shape(
     """
     Infer shape for binary operators.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape1, is_e1 = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
@@ -400,8 +446,10 @@ def _infer_argmax_shape(
     """
     Infer shape for ArgMax operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = _get_onnx_attrs(node, ctx.initializers)
@@ -429,8 +477,10 @@ def _infer_batch_norm_shape(
     """
     Infer shape for BatchNormalization operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape = _get_data_shape(node.input[0], ctx.data_shapes)
@@ -440,13 +490,15 @@ def _infer_batch_norm_shape(
 
 
 def _collect_concat_input_shapes(
-    input_names: list[str], ctx: ShapeInferenceContext
+    input_names: Sequence[str], ctx: ShapeInferenceContext
 ) -> tuple[list[list[int]], bool, bool] | tuple[list[int], None]:
     """
     Collect shapes from all concat inputs.
 
-    :param input_names: List of input tensor names
-    :param ctx: Shape inference context
+    :param input_names: List of input tensor names.
+
+    :param ctx: Shape inference context.
+
     :return: Either (shape_list, all_explicit, any_explicit) or ([0], None) for early return
     """
     shape_list = []
@@ -484,8 +536,10 @@ def _normalize_concat_shapes_different_ranks(shape_list: list[list[int]], axis: 
     """
     Normalize and concatenate shapes with different ranks.
 
-    :param shape_list: List of input shapes
-    :param axis: Concatenation axis
+    :param shape_list: List of input shapes.
+
+    :param axis: Concatenation axis.
+
     :return: Concatenated shape
     """
     max_ndim = max(len(s) for s in shape_list)
@@ -509,8 +563,10 @@ def _infer_concat_shape(
     """
     Infer shape for Concat operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = _get_onnx_attrs(node, ctx.initializers)
@@ -553,8 +609,10 @@ def _infer_constant_of_shape_shape(
     """
     Infer shape for ConstantOfShape operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
@@ -582,13 +640,20 @@ def _compute_convtranspose_output_hw(
     """
     Compute output height/width for ConvTranspose.
 
-    :param input_shape: Input tensor shape
-    :param weight_shape: Weight tensor shape
-    :param kernel_shape: Kernel dimensions
-    :param dilations: Dilation factors
-    :param output_padding: Output padding
-    :param pads: Input padding
-    :param strides: Stride values
+    :param input_shape: Input tensor shape.
+
+    :param weight_shape: Weight tensor shape.
+
+    :param kernel_shape: Kernel dimensions.
+
+    :param dilations: Dilation factors.
+
+    :param output_padding: Output padding.
+
+    :param pads: Input padding.
+
+    :param strides: Stride values.
+
     :return: Output height/width
     """
     dim = len(kernel_shape)
@@ -609,8 +674,10 @@ def _infer_convtranspose_shape(
     """
     Infer shape for ConvTranspose operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = _get_onnx_attrs(node, ctx.initializers)
@@ -656,8 +723,10 @@ def _infer_expand_shape(
     """
     Infer shape for Expand operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape1, is_e1 = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
@@ -683,8 +752,10 @@ def _infer_flatten_shape(
     """
     Infer shape for Flatten operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape = _get_data_shape(node.input[0], ctx.data_shapes)
@@ -710,8 +781,10 @@ def _infer_gather_shape(
     """
     Infer shape for Gather operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     axis = _get_onnx_attrs(node, ctx.initializers)["axis"]
@@ -759,8 +832,10 @@ def _infer_gemm_shape(
     """
     Infer shape for Gemm operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = _get_onnx_attrs(node, ctx.initializers)
@@ -792,8 +867,10 @@ def _infer_matmul_shape(
     """
     Infer shape for MatMul operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape1, _ = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
@@ -825,12 +902,18 @@ def _compute_pool_output_hw(
     """
     Compute output height/width for pooling operations.
 
-    :param input_shape: Input tensor shape
-    :param kernel_shape: Kernel dimensions
-    :param dilations: Dilation factors
-    :param pads: Padding values
-    :param strides: Stride values
-    :param ceil_mode: Whether to use ceiling for output size
+    :param input_shape: Input tensor shape.
+
+    :param kernel_shape: Kernel dimensions.
+
+    :param dilations: Dilation factors.
+
+    :param pads: Padding values.
+
+    :param strides: Stride values.
+
+    :param ceil_mode: Whether to use ceiling for output size.
+
     :return: Output height/width
     """
     dim = len(kernel_shape)
@@ -849,8 +932,10 @@ def _infer_pool_shape(
     """
     Infer shape for pooling operators.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = _get_onnx_attrs(node, ctx.initializers)
@@ -898,8 +983,10 @@ def _infer_pad_shape(
     """
     Infer shape for Pad operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     input_shape, is_explicit = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
@@ -931,8 +1018,10 @@ def _infer_range_shape(
     """
     Infer shape for Range operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     start = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
@@ -958,8 +1047,10 @@ def _infer_reduce_shape(
     """
     Infer shape for reduction operators.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     keepdims = _get_onnx_attrs(node, ctx.initializers)["keepdims"]
@@ -987,8 +1078,10 @@ def _infer_reshape_output_shape(ori_shape: list[int], new_shape: list[int]) -> l
     """
     Infer reshaped output shape without actual computation.
 
-    :param ori_shape: Original shape
-    :param new_shape: Target shape with possible -1
+    :param ori_shape: Original shape.
+
+    :param new_shape: Target shape with possible -1.
+
     :return: Inferred output shape
     """
     total = math.prod(ori_shape)
@@ -1014,8 +1107,10 @@ def _infer_reshape_shape(
     """
     Infer shape for Reshape operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     data_shape, _ = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
@@ -1035,7 +1130,8 @@ def _create_resize_rounding_op(nearest_mode: str) -> Callable:
     """
     Create rounding function for resize operation.
 
-    :param nearest_mode: Nearest mode strategy
+    :param nearest_mode: Nearest mode strategy.
+
     :return: Rounding function
     """
     if nearest_mode == "floor":
@@ -1055,8 +1151,10 @@ def _infer_resize_shape(
     """
     Infer shape for Resize operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = _get_onnx_attrs(node, ctx.initializers)
@@ -1096,8 +1194,10 @@ def _infer_shape_op_shape(
     """
     Infer shape for Shape operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape, is_explicit = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
@@ -1130,11 +1230,16 @@ def _infer_sliced_shape(
     """
     Infer shape after slicing operation.
 
-    :param shape: Original shape
-    :param axes: Axes to slice
-    :param starts: Start indices
-    :param ends: End indices
-    :param steps: Step sizes
+    :param shape: Original shape.
+
+    :param axes: Axes to slice.
+
+    :param starts: Start indices.
+
+    :param ends: End indices.
+
+    :param steps: Step sizes.
+
     :return: Sliced shape
     """
     new_shape = list(shape)
@@ -1154,8 +1259,10 @@ def _infer_slice_shape(
     """
     Infer shape for Slice operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     if any(name not in ctx.initializers for name in node.input[1:]):
@@ -1208,8 +1315,10 @@ def _infer_split_shape(
     """
     Infer shape for Split operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape = _get_data_shape(node.input[0], ctx.data_shapes)
@@ -1248,8 +1357,10 @@ def _infer_squeeze_shape(
     """
     Infer shape for Squeeze operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     input_shape, _ = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
@@ -1287,8 +1398,10 @@ def _infer_transpose_shape(
     """
     Infer shape for Transpose operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     attrs = _get_onnx_attrs(node, ctx.initializers)
@@ -1324,8 +1437,10 @@ def _infer_unsqueeze_output_shape(ori_shape: list[int], axes: list[int]) -> list
     """
     Infer output shape for unsqueeze operation.
 
-    :param ori_shape: Original shape
-    :param axes: Axes to unsqueeze
+    :param ori_shape: Original shape.
+
+    :param axes: Axes to unsqueeze.
+
     :return: Unsqueezed shape
     """
     new_shape = list(ori_shape)
@@ -1342,8 +1457,10 @@ def _infer_unsqueeze_shape(
     """
     Infer shape for Unsqueeze operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape, is_explicit = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
@@ -1372,8 +1489,10 @@ def _infer_where_shape(
     """
     Infer shape for Where operator.
 
-    :param node: ONNX node
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param ctx: Shape inference context.
+
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape1, is_e = _get_shape(node.input[1], ctx.data_shapes, ctx.explicit_shapes)
@@ -1464,9 +1583,12 @@ def _print_shapes(title: str, shapes: dict[str, list[int]], verbose: bool) -> No
     """
     Print shape information if verbose mode is enabled.
 
-    :param title: Section title
-    :param shapes: Shape dictionary
-    :param verbose: Whether to print
+    :param title: Section title.
+
+    :param shapes: Shape dictionary.
+
+    :param verbose: Whether to print.
+
     """
     if not verbose:
         return
@@ -1478,15 +1600,18 @@ def _print_shapes(title: str, shapes: dict[str, list[int]], verbose: bool) -> No
 
 def _process_node_outputs(
     node: NodeProto,
-    results: list[tuple[int | list[int] | None, int | list[int] | None]],
+    results: Sequence[tuple[int | list[int] | None, int | list[int] | None]],
     ctx: ShapeInferenceContext,
 ) -> None:
     """
     Process and store node output shapes.
 
-    :param node: ONNX node
-    :param results: Inference results
-    :param ctx: Shape inference context
+    :param node: ONNX node.
+
+    :param results: Inference results.
+
+    :param ctx: Shape inference context.
+
     """
     for output_name, (data_shape, explicit_shape) in zip(node.output, results, strict=True):
         if data_shape is not None:
@@ -1507,8 +1632,10 @@ def _infer_all_node_shapes(nodes: list[NodeProto], ctx: ShapeInferenceContext) -
     """
     Infer shapes for all nodes in the graph.
 
-    :param nodes: List of ONNX nodes
-    :param ctx: Shape inference context
+    :param nodes: List of ONNX nodes.
+
+    :param ctx: Shape inference context.
+
     """
     for node in nodes:
         if node.op_type == "Constant":
@@ -1541,12 +1668,18 @@ def infer_onnx_shape(
     """
     Infer shapes for all tensors in an ONNX model.
 
-    :param input_nodes: Model input value infos
-    :param output_nodes: Model output value infos
-    :param nodes: Model computation nodes
-    :param initializers: Model initializers
-    :param has_batch_dim: Whether tensors have batch dimension
-    :param verbose: Whether to print debug information
+    :param input_nodes: Model input value infos.
+
+    :param output_nodes: Model output value infos.
+
+    :param nodes: Model computation nodes.
+
+    :param initializers: Model initializers.
+
+    :param has_batch_dim: Whether tensors have batch dimension.
+
+    :param verbose: Whether to print debug information.
+
     :return: Dictionary mapping all tensor names to their inferred shapes
     """
     input_shapes = extract_io_shapes(input_nodes, has_batch_dim)

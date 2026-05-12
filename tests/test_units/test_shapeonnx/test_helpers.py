@@ -1,5 +1,7 @@
 """Unit tests for shape inference helper functions."""
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest
@@ -36,25 +38,19 @@ class TestAlignShapes:
 class TestRightAlignShapes:
     """Tests for right_align_shapes function."""
 
-    def test_right_align_same_rank(self):
-        """Test right alignment with same rank."""
-        result = _right_align_shapes([3, 4], [3, 4])
-        assert result == ([3, 4], [3, 4])
-
-    def test_right_align_different_rank(self):
-        """Test right alignment with different ranks."""
-        result = _right_align_shapes([4, 5], [3, 4, 5])
-        assert result == ([1, 4, 5], [3, 4, 5])
-
-    def test_right_align_scalar(self):
-        """Test right alignment with scalar (empty list)."""
-        result = _right_align_shapes([], [3, 4])
-        assert result == ([1, 1], [3, 4])
-
-    def test_right_align_both_empty(self):
-        """Test right alignment with both empty."""
-        result = _right_align_shapes([], [])
-        assert result == ([], [])
+    @pytest.mark.parametrize(
+        ("base", "target", "expected"),
+        [
+            pytest.param([3, 4], [3, 4], ([3, 4], [3, 4]), id="same_rank"),
+            pytest.param([4, 5], [3, 4, 5], ([1, 4, 5], [3, 4, 5]), id="different_rank"),
+            pytest.param([], [3, 4], ([1, 1], [3, 4]), id="scalar_base"),
+            pytest.param([], [], ([], []), id="both_empty"),
+        ],
+    )
+    def test_right_align(self, base, target, expected):
+        """Test right alignment with various base/target shape combinations."""
+        result = _right_align_shapes(base, target)
+        assert result == expected
 
 
 class TestGetShape:

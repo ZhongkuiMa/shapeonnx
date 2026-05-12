@@ -1,5 +1,7 @@
 """Unit tests for activation functions shape inference."""
 
+__docformat__ = "restructuredtext"
+
 import onnx
 import pytest
 

@@ -1,5 +1,7 @@
 """Unit tests for error handling and exception cases."""
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest

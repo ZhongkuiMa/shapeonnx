@@ -1,5 +1,7 @@
 """Unit tests for tensor manipulation operation shape inference."""
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest
@@ -228,34 +230,41 @@ class TestSqueezeOperation:
         result = _infer_squeeze_shape(node, ctx)
         assert result[0][0] == [3, 4]
 
-    def test_squeeze_missing_input_error(self):
-        """Test Squeeze raises error when input is missing."""
-        axes_array = np.array([0], dtype=np.int64)
+    @pytest.mark.parametrize(
+        ("data_shapes", "axes_value", "exc_type", "match_pattern"),
+        [
+            pytest.param({}, [0], RuntimeError, "Cannot get shape", id="missing_input"),
+            pytest.param(
+                {"input": 5},
+                [0],
+                RuntimeError,
+                "Input shape must be a list",
+                id="scalar_input",
+            ),
+            pytest.param(
+                {"input": [2, 3, 4]},
+                [1],
+                ValueError,
+                "Cannot squeeze axis",
+                id="non_unit_axis",
+            ),
+        ],
+    )
+    def test_squeeze_raises_for_invalid_inputs(
+        self, data_shapes, axes_value, exc_type, match_pattern
+    ):
+        """Test Squeeze raises the expected error for invalid inputs."""
+        axes_array = np.array(axes_value, dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
         ctx = ShapeInferenceContext(
-            data_shapes={},  # Missing input
-            explicit_shapes={"axes": [0]},
+            data_shapes=data_shapes,
+            explicit_shapes={"axes": axes_value},
             initializers={"axes": axes_tensor},
             verbose=False,
         )
         node = onnx.helper.make_node("Squeeze", inputs=["input", "axes"], outputs=["output"])
-        with pytest.raises(RuntimeError, match="Cannot get shape"):
-            _infer_squeeze_shape(node, ctx)
-
-    def test_squeeze_scalar_input_error(self):
-        """Test Squeeze raises error when input is scalar."""
-        axes_array = np.array([0], dtype=np.int64)
-        axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
-
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": 5},  # Scalar input
-            explicit_shapes={"axes": [0]},
-            initializers={"axes": axes_tensor},
-            verbose=False,
-        )
-        node = onnx.helper.make_node("Squeeze", inputs=["input", "axes"], outputs=["output"])
-        with pytest.raises(RuntimeError, match="Input shape must be a list"):
+        with pytest.raises(exc_type, match=match_pattern):
             _infer_squeeze_shape(node, ctx)
 
     def test_squeeze_no_axes_auto_detect(self):
@@ -286,21 +295,6 @@ class TestSqueezeOperation:
         result = _infer_squeeze_shape(node, ctx)
         # Should squeeze axis 1
         assert result[0][0] == [2, 4]
-
-    def test_squeeze_non_unit_axis_error(self):
-        """Test Squeeze raises error when trying to squeeze non-unit axis."""
-        axes_array = np.array([1], dtype=np.int64)
-        axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
-
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [2, 3, 4]},  # Axis 1 has size 3, not 1
-            explicit_shapes={"axes": [1]},
-            initializers={"axes": axes_tensor},
-            verbose=False,
-        )
-        node = onnx.helper.make_node("Squeeze", inputs=["input", "axes"], outputs=["output"])
-        with pytest.raises(ValueError, match="Cannot squeeze axis"):
-            _infer_squeeze_shape(node, ctx)
 
 
 class TestUnsqueezeOperation:

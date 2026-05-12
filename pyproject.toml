@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "shapeonnx"
-version = "2026.5.0"
+version = "2026.5.1"
 description = "Shape inference and propagation for ONNX models"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -93,6 +93,11 @@ docstring-quotes = "double"
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
 
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "standard"
+include = ["src/shapeonnx"]
+
 [tool.mypy]
 python_version = "3.11"
 mypy_path = "src"
@@ -116,10 +121,6 @@ addopts = [
     "-v",                    # Verbose: show each test name
     "--tb=short",            # Short traceback format
     "-ra",                   # Show summary of all test outcomes
-    "--strict-markers",      # Enforce marker registration
-]
-markers = [
-    "benchmark: Slow benchmark tests for manual runs",
 ]
 
 [tool.coverage.run]

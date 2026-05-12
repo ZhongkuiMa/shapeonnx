@@ -1,15 +1,6 @@
 """Utility functions for ShapeONNX testing."""
 
 __docformat__ = "restructuredtext"
-__all__ = [
-    "check_shape_compatibility",
-    "find_benchmarks_folders",
-    "get_benchmark_name",
-    "get_onnx_files_from_instances",
-    "if_has_batch_dim",
-    "infer_shape",
-    "load_onnx_model",
-]
 
 import csv
 from pathlib import Path
@@ -26,13 +17,6 @@ from shapeonnx.utils import (
 
 BENCHMARK_WITHOUT_BATCH_DIM = [
     "cctsdb_yolo",
-    "cgan",
-    "pensieve_big_parallel.onnx",
-    "pensieve_mid_parallel.onnx",
-    "pensieve_small_parallel.onnx",
-    "test_nano.onnx",
-    "test_small.onnx",
-    "test_tiny.onnx",
 ]
 
 
@@ -40,7 +24,8 @@ def find_benchmarks_folders(base_dir: str) -> list[str]:
     """
     Find all benchmark directories in base_dir.
 
-    :param base_dir: Root directory containing benchmark subdirectories
+    :param base_dir: Root directory containing benchmark subdirectories.
+
     :return: List of benchmark directory paths
     """
     # Make path relative to this test file's location
@@ -62,8 +47,10 @@ def get_onnx_files_from_instances(
     """
     Get unique ONNX file paths from instances.csv in a benchmark directory.
 
-    :param benchmark_dir: Benchmark directory path
-    :param max_instances: Maximum unique instances to load (None = all)
+    :param benchmark_dir: Benchmark directory path.
+
+    :param max_instances: Maximum unique instances to load (None = all).
+
     :return: List of absolute ONNX file paths (deduplicated)
     """
     instances_csv = Path(benchmark_dir) / "instances.csv"
@@ -93,8 +80,10 @@ def get_all_onnx_files(benchmark_dirs: list[str], max_per_benchmark: int | None 
     """
     Get all ONNX files from benchmark directories using instances.csv.
 
-    :param benchmark_dirs: List of benchmark directory paths
-    :param max_per_benchmark: Maximum ONNX files per benchmark
+    :param benchmark_dirs: List of benchmark directory paths.
+
+    :param max_per_benchmark: Maximum ONNX files per benchmark.
+
     :return: List of ONNX file paths
     """
     onnx_files = []
@@ -107,8 +96,10 @@ def get_benchmark_name(onnx_path: str, benchmarks_dir: str = "benchmarks") -> st
     """
     Extract benchmark name from ONNX file path.
 
-    :param onnx_path: Path to ONNX model file
-    :param benchmarks_dir: Root benchmarks directory name
+    :param onnx_path: Path to ONNX model file.
+
+    :param benchmarks_dir: Root benchmarks directory name.
+
     :return: Benchmark name
     """
     path = Path(onnx_path)
@@ -128,7 +119,8 @@ def load_onnx_model(onnx_path: str):
     """
     Load ONNX model and convert to version 21.
 
-    :param onnx_path: Path to ONNX model file
+    :param onnx_path: Path to ONNX model file.
+
     :return: ONNX ModelProto converted to version 21
     """
     model = onnx.load(onnx_path)
@@ -139,7 +131,8 @@ def if_has_batch_dim(onnx_path: str) -> bool:
     """
     Determine if model has batch dimension.
 
-    :param onnx_path: Path to ONNX model file
+    :param onnx_path: Path to ONNX model file.
+
     :return: True if model has batch dimension, False otherwise
     """
     return all(bname not in onnx_path for bname in BENCHMARK_WITHOUT_BATCH_DIM)
@@ -149,8 +142,10 @@ def check_shape_compatibility(inferred_shape: int | list[int], expected_shape: l
     """
     Check if inferred shape is compatible with expected shape.
 
-    :param inferred_shape: Shape inferred by shape inference
-    :param expected_shape: Expected shape from model metadata
+    :param inferred_shape: Shape inferred by shape inference.
+
+    :param expected_shape: Expected shape from model metadata.
+
     :return: True if shapes are compatible, False otherwise
     """
     if inferred_shape == expected_shape:
@@ -169,9 +164,12 @@ def infer_shape(
     """
     Run shape inference on model and validate against expected shapes.
 
-    :param model: ONNX ModelProto
-    :param has_batch_dim: Whether model has batch dimension
-    :param verbose: Whether to print verbose output during inference
+    :param model: ONNX ModelProto.
+
+    :param has_batch_dim: Whether model has batch dimension.
+
+    :param verbose: Whether to print verbose output during inference.
+
     :return: Dictionary mapping tensor names to inferred shapes
     """
     initializers = get_initializers(model)

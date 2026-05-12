@@ -1,14 +1,12 @@
 """Basic functionality test for shapeonnx optimizations."""
 
 __docformat__ = "restructuredtext"
-__all__ = []
 
 import sys
 import traceback
 
 import numpy as np
 import onnx
-import pytest
 
 from shapeonnx import infer_onnx_shape
 from shapeonnx.utils import (
@@ -82,7 +80,6 @@ def create_simple_model():
     return model
 
 
-@pytest.mark.benchmark
 def test_basic_inference():
     """Test basic shape inference."""
     print("Creating test model")

@@ -1,5 +1,7 @@
 """Unit tests for pooling operation shape inference."""
 
+__docformat__ = "restructuredtext"
+
 import onnx
 import pytest
 

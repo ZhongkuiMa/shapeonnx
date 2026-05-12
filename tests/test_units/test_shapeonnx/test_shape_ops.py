@@ -1,5 +1,7 @@
 """Unit tests for shape operation shape inference."""
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest
@@ -40,44 +42,25 @@ class TestShapeOperation:
         assert len(result) >= 1
         assert result[0][1] == expected_shape
 
-    def test_shape_explicit_input(self):
-        """Test Shape with explicit shape input."""
+    @pytest.mark.parametrize(
+        ("explicit_input", "expected_explicit"),
+        [
+            pytest.param([2, 3, 4], [2, 3, 4], id="list_3d"),
+            pytest.param(5, [], id="scalar"),
+            pytest.param([0], [0], id="zero_dimension"),
+        ],
+    )
+    def test_shape_with_explicit_input(self, explicit_input, expected_explicit):
+        """Test Shape with various explicit shape inputs."""
         ctx = ShapeInferenceContext(
             data_shapes={},
-            explicit_shapes={"input": [2, 3, 4]},  # Explicit shape
+            explicit_shapes={"input": explicit_input},
             initializers={},
             verbose=False,
         )
         node = onnx.helper.make_node("Shape", inputs=["input"], outputs=["output"])
         result = _infer_shape_op_shape(node, ctx)
-        # Shape of explicit shape returns the shape itself
-        assert result[0][1] == [2, 3, 4]
-
-    def test_shape_scalar_explicit(self):
-        """Test Shape with scalar explicit shape input."""
-        ctx = ShapeInferenceContext(
-            data_shapes={},
-            explicit_shapes={"input": 5},  # Scalar explicit shape
-            initializers={},
-            verbose=False,
-        )
-        node = onnx.helper.make_node("Shape", inputs=["input"], outputs=["output"])
-        result = _infer_shape_op_shape(node, ctx)
-        # Shape of scalar returns empty list
-        assert result[0][1] == []
-
-    def test_shape_zero_dimension_explicit(self):
-        """Test Shape with zero dimension explicit shape."""
-        ctx = ShapeInferenceContext(
-            data_shapes={},
-            explicit_shapes={"input": [0]},  # Zero dimension
-            initializers={},
-            verbose=False,
-        )
-        node = onnx.helper.make_node("Shape", inputs=["input"], outputs=["output"])
-        result = _infer_shape_op_shape(node, ctx)
-        # Shape of [0] returns [0]
-        assert result[0][1] == [0]
+        assert result[0][1] == expected_explicit
 
     def test_shape_data_shape_not_list_error(self):
         """Test Shape raises error when data shape is not a list."""
@@ -252,13 +235,82 @@ class TestResizeOperation:
         assert len(result) >= 1
         assert result[0][0] == expected
 
-    def test_resize_missing_input_shape_error(self):
-        """Test Resize raises error when input shape is missing."""
-        scales_array = np.array([1.0, 1.0, 2.0], dtype=np.float32)
+    @pytest.mark.parametrize(
+        ("data_shapes", "scales", "node_kwargs", "exc_type", "match_pattern"),
+        [
+            pytest.param(
+                {},
+                [1.0, 1.0, 2.0],
+                {
+                    "coordinate_transformation_mode": "asymmetric",
+                },
+                RuntimeError,
+                "Cannot get shape",
+                id="missing_input_shape",
+            ),
+            pytest.param(
+                {"input": 5},
+                [1.0, 1.0],
+                {
+                    "coordinate_transformation_mode": "asymmetric",
+                },
+                RuntimeError,
+                "Resize input shape cannot be scalar",
+                id="scalar_input",
+            ),
+            pytest.param(
+                {"input": [2, 3, 4]},
+                [],
+                {
+                    "coordinate_transformation_mode": "asymmetric",
+                },
+                ValueError,
+                "Resize with empty scales",
+                id="empty_scales",
+            ),
+            pytest.param(
+                {"input": [2, 3, 4]},
+                [1.0, 1.0, 2.0],
+                {
+                    "coordinate_transformation_mode": "asymmetric",
+                    "mode": "linear",
+                },
+                NotImplementedError,
+                "Resize mode=linear",
+                id="unsupported_mode",
+            ),
+            pytest.param(
+                {"input": [2, 3, 4]},
+                [1.0, 1.0, 2.0],
+                {
+                    "coordinate_transformation_mode": "tf_crop_and_resize",
+                },
+                NotImplementedError,
+                "Resize align_mode=",
+                id="unsupported_align_mode",
+            ),
+            pytest.param(
+                {"input": [2, 3, 4]},
+                [1.0, 1.0, 2.0],
+                {
+                    "coordinate_transformation_mode": "asymmetric",
+                    "nearest_mode": "invalid_nearest_mode",
+                },
+                NotImplementedError,
+                "Resize nearest_mode=",
+                id="unsupported_nearest_mode",
+            ),
+        ],
+    )
+    def test_resize_raises_for_invalid_inputs(
+        self, data_shapes, scales, node_kwargs, exc_type, match_pattern
+    ):
+        """Test Resize raises the expected error for invalid inputs/attrs."""
+        scales_array = np.array(scales, dtype=np.float32)
         scales_tensor = onnx.numpy_helper.from_array(scales_array, name="scales")
 
         ctx = ShapeInferenceContext(
-            data_shapes={},  # Missing input
+            data_shapes=data_shapes,
             explicit_shapes={},
             initializers={"scales": scales_tensor},
             verbose=False,
@@ -267,121 +319,9 @@ class TestResizeOperation:
             "Resize",
             inputs=["input", "", "scales"],
             outputs=["output"],
-            coordinate_transformation_mode="asymmetric",
-            mode="nearest",
-            nearest_mode="floor",
+            **node_kwargs,
         )
-        with pytest.raises(RuntimeError, match="Cannot get shape"):
-            _infer_resize_shape(node, ctx)
-
-    def test_resize_scalar_input_error(self):
-        """Test Resize raises error for scalar input."""
-        scales_array = np.array([1.0, 1.0], dtype=np.float32)
-        scales_tensor = onnx.numpy_helper.from_array(scales_array, name="scales")
-
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": 5},  # Scalar input
-            explicit_shapes={},
-            initializers={"scales": scales_tensor},
-            verbose=False,
-        )
-        node = onnx.helper.make_node(
-            "Resize",
-            inputs=["input", "", "scales"],
-            outputs=["output"],
-            coordinate_transformation_mode="asymmetric",
-            mode="nearest",
-            nearest_mode="floor",
-        )
-        with pytest.raises(RuntimeError, match="Resize input shape cannot be scalar"):
-            _infer_resize_shape(node, ctx)
-
-    def test_resize_empty_scales_error(self):
-        """Test Resize raises error for empty scales."""
-        scales_array = np.array([], dtype=np.float32)
-        scales_tensor = onnx.numpy_helper.from_array(scales_array, name="scales")
-
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [2, 3, 4]},
-            explicit_shapes={},
-            initializers={"scales": scales_tensor},
-            verbose=False,
-        )
-        node = onnx.helper.make_node(
-            "Resize",
-            inputs=["input", "", "scales"],
-            outputs=["output"],
-            coordinate_transformation_mode="asymmetric",
-            mode="nearest",
-            nearest_mode="floor",
-        )
-        with pytest.raises(ValueError, match="Resize with empty scales"):
-            _infer_resize_shape(node, ctx)
-
-    def test_resize_unsupported_mode_error(self):
-        """Test Resize raises error for unsupported mode."""
-        scales_array = np.array([1.0, 1.0, 2.0], dtype=np.float32)
-        scales_tensor = onnx.numpy_helper.from_array(scales_array, name="scales")
-
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [2, 3, 4]},
-            explicit_shapes={},
-            initializers={"scales": scales_tensor},
-            verbose=False,
-        )
-        node = onnx.helper.make_node(
-            "Resize",
-            inputs=["input", "", "scales"],
-            outputs=["output"],
-            coordinate_transformation_mode="asymmetric",
-            mode="linear",  # Unsupported mode
-            nearest_mode="floor",
-        )
-        with pytest.raises(NotImplementedError, match="Resize mode=linear"):
-            _infer_resize_shape(node, ctx)
-
-    def test_resize_unsupported_align_mode_error(self):
-        """Test Resize raises error for unsupported align_mode."""
-        scales_array = np.array([1.0, 1.0, 2.0], dtype=np.float32)
-        scales_tensor = onnx.numpy_helper.from_array(scales_array, name="scales")
-
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [2, 3, 4]},
-            explicit_shapes={},
-            initializers={"scales": scales_tensor},
-            verbose=False,
-        )
-        node = onnx.helper.make_node(
-            "Resize",
-            inputs=["input", "", "scales"],
-            outputs=["output"],
-            coordinate_transformation_mode="tf_crop_and_resize",  # Unsupported
-            mode="nearest",
-            nearest_mode="floor",
-        )
-        with pytest.raises(NotImplementedError, match="Resize align_mode="):
-            _infer_resize_shape(node, ctx)
-
-    def test_resize_unsupported_nearest_mode_error(self):
-        """Test Resize raises error for unsupported nearest_mode."""
-        scales_array = np.array([1.0, 1.0, 2.0], dtype=np.float32)
-        scales_tensor = onnx.numpy_helper.from_array(scales_array, name="scales")
-
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [2, 3, 4]},
-            explicit_shapes={},
-            initializers={"scales": scales_tensor},
-            verbose=False,
-        )
-        node = onnx.helper.make_node(
-            "Resize",
-            inputs=["input", "", "scales"],
-            outputs=["output"],
-            coordinate_transformation_mode="asymmetric",
-            mode="nearest",
-            nearest_mode="invalid_mode",  # Unsupported nearest_mode
-        )
-        with pytest.raises(NotImplementedError, match="Resize nearest_mode="):
+        with pytest.raises(exc_type, match=match_pattern):
             _infer_resize_shape(node, ctx)
 
 

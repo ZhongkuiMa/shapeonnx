@@ -13,6 +13,8 @@ Test organization:
 - TestMainAPIErrors: Error handling and edge cases
 """
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest
@@ -620,4 +622,6 @@ class TestMainAPIIntegration:
         assert shapes["input"] == [1, 3, 28, 28]
         assert "conv_out" in shapes
         assert "relu_out" in shapes
-        assert shapes["output"][0] == 1  # Batch size preserved
+        output_shape = shapes["output"]
+        assert isinstance(output_shape, list)
+        assert output_shape[0] == 1  # Batch size preserved

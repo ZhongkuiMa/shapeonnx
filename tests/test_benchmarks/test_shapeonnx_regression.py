@@ -8,6 +8,12 @@ from pathlib import Path
 import onnx
 import onnx.shape_inference
 import pytest
+from utils import (  # type: ignore[import-not-found]
+    find_benchmarks_folders,
+    get_all_onnx_files,
+    if_has_batch_dim,
+    load_onnx_model,
+)
 
 from shapeonnx import infer_onnx_shape
 from shapeonnx.utils import (
@@ -16,20 +22,16 @@ from shapeonnx.utils import (
     get_input_nodes,
     get_output_nodes,
 )
-from tests.test_benchmarks.utils import (
-    find_benchmarks_folders,
-    get_all_onnx_files,
-    if_has_batch_dim,
-    load_onnx_model,
-)
 
 
 def get_baseline_path(onnx_path: str, baselines_dir: Path) -> Path:
     """
     Get baseline JSON path for an ONNX model.
 
-    :param onnx_path: Path to ONNX model file
-    :param baselines_dir: Root directory (Path object) to store baseline files
+    :param onnx_path: Path to ONNX model file.
+
+    :param baselines_dir: Root directory (Path object) to store baseline files.
+
     :return: Path to baseline JSON file
     """
     path = Path(onnx_path)
@@ -46,7 +48,8 @@ def load_baseline_shapes(baseline_path: str | Path) -> dict | None:
     """
     Load baseline data from JSON file.
 
-    :param baseline_path: Path to baseline JSON file (str or Path)
+    :param baseline_path: Path to baseline JSON file (str or Path).
+
     :return: Baseline data dictionary, or None if file not found
     """
     path = Path(baseline_path) if isinstance(baseline_path, str) else baseline_path
@@ -66,7 +69,8 @@ def _extract_shape_from_value_info(value_info: onnx.ValueInfoProto) -> list[int]
     """
     Extract shape from ONNX ValueInfoProto.
 
-    :param value_info: ONNX value info proto
+    :param value_info: ONNX value info proto.
+
     :return: List of dimension sizes, or None if no shape available
     """
     if not value_info.type.HasField("tensor_type"):
@@ -89,7 +93,8 @@ def get_onnx_reference_shapes(onnx_path: str) -> dict[str, list[int]]:
     """
     Get shapes using ONNX's built-in shape inference.
 
-    :param onnx_path: Path to ONNX model file
+    :param onnx_path: Path to ONNX model file.
+
     :return: Dictionary mapping tensor names to shapes
     """
     model = onnx.load(onnx_path)
@@ -122,8 +127,10 @@ def _is_shape_tensor_match(shape_onnx: list[int], shape_shapeonnx: int | list[in
     """
     Check if shapes match due to shape tensor metadata vs actual values.
 
-    :param shape_onnx: ONNX inferred shape
-    :param shape_shapeonnx: ShapeONNX inferred shape
+    :param shape_onnx: ONNX inferred shape.
+
+    :param shape_shapeonnx: ShapeONNX inferred shape.
+
     :return: True if this is a shape tensor metadata mismatch (acceptable)
     """
     # ONNX: [n] (metadata), shapeonnx: list with n elements (actual values)
@@ -138,8 +145,10 @@ def _normalize_shapes(
     """
     Normalize shapes by treating dynamic dimensions consistently.
 
-    :param shape_onnx: ONNX inferred shape
-    :param shape_shapeonnx: ShapeONNX inferred shape
+    :param shape_onnx: ONNX inferred shape.
+
+    :param shape_shapeonnx: ShapeONNX inferred shape.
+
     :return: Tuple of (normalized_onnx, normalized_shapeonnx)
     """
     # Handle scalar shapes - return as-is wrapped in lists
@@ -149,7 +158,7 @@ def _normalize_shapes(
     normalized_onnx = []
     normalized_shapeonnx = []
 
-    for _i, (d_onnx, d_shapeonnx) in enumerate(zip(shape_onnx, shape_shapeonnx, strict=False)):
+    for d_onnx, d_shapeonnx in zip(shape_onnx, shape_shapeonnx, strict=False):
         # If one side has -1 (dynamic) and the other has 1, treat both as dynamic
         if (
             (d_onnx == -1 and d_shapeonnx == 1)
@@ -172,8 +181,10 @@ def compare_with_onnx_reference(
     """
     Compare shapeonnx results with ONNX reference implementation.
 
-    :param onnx_path: Path to ONNX model file
-    :param shapeonnx_shapes: Shapes inferred by shapeonnx
+    :param onnx_path: Path to ONNX model file.
+
+    :param shapeonnx_shapes: Shapes inferred by shapeonnx.
+
     :return: Dictionary categorizing differences
     """
     try:
@@ -225,7 +236,8 @@ def infer_shapeonnx_shapes(onnx_path: str) -> dict[str, int | list[int]]:
     """
     Run shapeonnx shape inference on a model.
 
-    :param onnx_path: Path to ONNX model file
+    :param onnx_path: Path to ONNX model file.
+
     :return: Dictionary mapping tensor names to inferred shapes
     """
     has_batch_dim = if_has_batch_dim(onnx_path)
@@ -271,7 +283,6 @@ def get_onnx_models():
 # Main regression tests (baselines_dir fixture is defined in conftest.py)
 
 
-@pytest.mark.benchmark
 @pytest.mark.parametrize("onnx_path", get_onnx_models())
 def test_create_baseline(onnx_path, baselines_dir):
     """
@@ -280,8 +291,10 @@ def test_create_baseline(onnx_path, baselines_dir):
     This test creates baselines that include both shapeonnx and ONNX reference
     shapes for comparison.
 
-    :param onnx_path: Path to ONNX model file
-    :param baselines_dir: Directory to store baselines
+    :param onnx_path: Path to ONNX model file.
+
+    :param baselines_dir: Directory to store baselines.
+
     """
     # Run shapeonnx inference
     shapeonnx_shapes = infer_shapeonnx_shapes(onnx_path)
@@ -315,14 +328,15 @@ def test_create_baseline(onnx_path, baselines_dir):
     assert len(shapeonnx_shapes) > 0
 
 
-@pytest.mark.benchmark
 @pytest.mark.parametrize("onnx_path", get_onnx_models())
 def test_verify_baseline(onnx_path, baselines_dir):
     """
     Verify current shapeonnx inference matches stored baseline.
 
-    :param onnx_path: Path to ONNX model file
-    :param baselines_dir: Directory containing baselines
+    :param onnx_path: Path to ONNX model file.
+
+    :param baselines_dir: Directory containing baselines.
+
     """
     baseline_path = get_baseline_path(onnx_path, baselines_dir)
     baseline_data = load_baseline_shapes(baseline_path)
@@ -372,7 +386,6 @@ def test_verify_baseline(onnx_path, baselines_dir):
     assert current_shapes == baseline_shapes
 
 
-@pytest.mark.benchmark
 @pytest.mark.parametrize("onnx_path", get_onnx_models())
 def test_onnx_consistency(onnx_path):
     """
@@ -383,7 +396,8 @@ def test_onnx_consistency(onnx_path):
     - Tensors only shapeonnx infers (shape tensors, intermediate values)
     - Different dynamic dimension representations
 
-    :param onnx_path: Path to ONNX model file
+    :param onnx_path: Path to ONNX model file.
+
     """
     # Run shapeonnx inference
     shapeonnx_shapes = infer_shapeonnx_shapes(onnx_path)

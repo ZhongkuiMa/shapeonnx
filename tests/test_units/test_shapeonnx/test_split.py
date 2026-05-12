@@ -9,6 +9,8 @@ Test organization:
 - TestSplitErrors: Error handling
 """
 
+__docformat__ = "restructuredtext"
+
 import numpy as np
 import onnx
 import pytest
@@ -25,45 +27,33 @@ def _make_split_initializer(split_sizes: list[int], name: str = "split") -> onnx
 class TestSplitBasic:
     """Test basic Split operation with various configurations."""
 
-    def test_split_axis0_equal_sizes(self):
-        """Test split along axis 0 with equal sized chunks."""
-        split_initializer = _make_split_initializer([5, 5])
+    @pytest.mark.parametrize(
+        ("input_shape", "split_sizes", "axis", "expected"),
+        [
+            pytest.param([10, 20], [5, 5], 0, [[5, 20], [5, 20]], id="axis0_equal"),
+            pytest.param([10, 20], [3, 7], 0, [[3, 20], [7, 20]], id="axis0_unequal"),
+            pytest.param([2, 3, 4], [1, 2], 1, [[2, 1, 4], [2, 2, 4]], id="3d_axis1"),
+        ],
+    )
+    def test_split_basic_two_way(self, input_shape, split_sizes, axis, expected):
+        """Test 2-way Split along an axis with various input shapes/sizes."""
+        split_initializer = _make_split_initializer(split_sizes)
         ctx = ShapeInferenceContext(
-            data_shapes={"input": [10, 20]},
+            data_shapes={"input": input_shape},
             explicit_shapes={},
             initializers={"split": split_initializer},
             verbose=False,
         )
 
         node = onnx.helper.make_node(
-            "Split", inputs=["input", "split"], outputs=["output1", "output2"], axis=0
+            "Split", inputs=["input", "split"], outputs=["output1", "output2"], axis=axis
         )
 
         results = _infer_split_shape(node, ctx)
 
-        assert len(results) == 2
-        assert results[0][0] == [5, 20]
-        assert results[1][0] == [5, 20]
-
-    def test_split_axis0_unequal_sizes(self):
-        """Test split along axis 0 with unequal sized chunks."""
-        split_initializer = _make_split_initializer([3, 7])
-        ctx = ShapeInferenceContext(
-            data_shapes={"input": [10, 20]},
-            explicit_shapes={},
-            initializers={"split": split_initializer},
-            verbose=False,
-        )
-
-        node = onnx.helper.make_node(
-            "Split", inputs=["input", "split"], outputs=["output1", "output2"], axis=0
-        )
-
-        results = _infer_split_shape(node, ctx)
-
-        assert len(results) == 2
-        assert results[0][0] == [3, 20]
-        assert results[1][0] == [7, 20]
+        assert len(results) == len(expected)
+        for actual, want in zip(results, expected, strict=True):
+            assert actual[0] == want
 
     def test_split_axis1_basic(self):
         """Test split along axis 1."""

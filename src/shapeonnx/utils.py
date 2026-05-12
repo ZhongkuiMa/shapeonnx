@@ -16,8 +16,10 @@ def _reformat_io_shape(node: ValueInfoProto, has_batch_dim: bool = True) -> list
     """
     Extract and reformat shape from ONNX value info node.
 
-    :param node: ONNX value info node
-    :param has_batch_dim: Whether to normalize batch dimension
+    :param node: ONNX value info node.
+
+    :param has_batch_dim: Whether to normalize batch dimension.
+
     :return: Shape as list of integers
     """
     shape = [d.dim_value for d in node.type.tensor_type.shape.dim]
@@ -42,9 +44,12 @@ def get_input_nodes(
     """
     Get model input nodes excluding initializers.
 
-    :param model: ONNX model
-    :param initializers: Model initializers dictionary
-    :param has_batch_dim: Whether to normalize batch dimension
+    :param model: ONNX model.
+
+    :param initializers: Model initializers dictionary.
+
+    :param has_batch_dim: Whether to normalize batch dimension.
+
     :return: List of input value info nodes
     """
     nodes = []
@@ -65,8 +70,10 @@ def get_output_nodes(model: ModelProto, has_batch_dim: bool = True) -> list[Valu
     """
     Get model output nodes.
 
-    :param model: ONNX model
-    :param has_batch_dim: Whether to normalize batch dimension
+    :param model: ONNX model.
+
+    :param has_batch_dim: Whether to normalize batch dimension.
+
     :return: List of output value info nodes
     """
     nodes = []
@@ -86,7 +93,8 @@ def get_initializers(model: ModelProto) -> dict[str, TensorProto]:
     """
     Extract initializers from ONNX model.
 
-    :param model: ONNX model
+    :param model: ONNX model.
+
     :return: Dictionary mapping initializer names to TensorProto
     """
     return {initializer.name: initializer for initializer in model.graph.initializer}
@@ -98,8 +106,10 @@ def convert_constant_to_initializer(
     """
     Convert Constant nodes to initializers.
 
-    :param nodes: List of ONNX nodes
-    :param initializers: Initializers dictionary to update
+    :param nodes: List of ONNX nodes.
+
+    :param initializers: Initializers dictionary to update.
+
     :return: List of nodes with Constant nodes removed
     """
     new_nodes = []
