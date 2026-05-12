@@ -1,6 +1,6 @@
 """Core shape inference module."""
 
-__version__ = "2026.5.0"
+__version__ = "2026.5.1"
 
 __docformat__ = "restructuredtext"
 __all__ = ["__version__", "extract_io_shapes", "infer_onnx_shape"]
