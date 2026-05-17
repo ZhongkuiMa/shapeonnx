@@ -8,7 +8,7 @@ from pathlib import Path
 import onnx
 import onnx.shape_inference
 import pytest
-from utils import (  # type: ignore[import-not-found]
+from utils import (
     find_benchmarks_folders,
     get_all_onnx_files,
     if_has_batch_dim,
@@ -345,7 +345,7 @@ def test_verify_baseline(onnx_path, baselines_dir):
     if baseline_data is None:
         pytest.skip(f"No baseline for {Path(onnx_path).name}")
 
-    baseline_shapes = baseline_data["shapeonnx_shapes"]
+    baseline_shapes = baseline_data["shapeonnx_shapes"]  # type: ignore[index]
 
     # Run current inference
     current_shapes = infer_shapeonnx_shapes(onnx_path)

@@ -5,7 +5,7 @@ __docformat__ = "restructuredtext"
 from pathlib import Path
 
 import pytest
-from utils import (  # type: ignore[import-not-found]
+from utils import (
     find_benchmarks_folders,
     get_all_onnx_files,
     if_has_batch_dim,

@@ -213,4 +213,3 @@ tests/
 | 11.9 | Test module docstrings: 1-3 lines max summarizing what the file validates | ☐ |
 | 11.10 | **Default test suite**: `pytest` runs `tests/test_units/` by default. Benchmark tests are opt-in | ☐ |
 | 11.11 | **No `@pytest.mark.skip`** in committed code — use conditional early return with `[REVIEW]` comment | ☐ |
-
