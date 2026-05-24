@@ -3,6 +3,7 @@
 __docformat__ = "restructuredtext"
 __all__ = ["extract_io_shapes", "infer_onnx_shape"]
 
+import logging
 import math
 import warnings
 from collections.abc import Callable, Sequence
@@ -14,6 +15,8 @@ from onnx import NodeProto, TensorProto, ValueInfoProto
 
 from shapeonnx.onnx_attrs import _get_onnx_attrs
 from shapeonnx.utils import _reformat_io_shape
+
+_logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -1592,10 +1595,10 @@ def _print_shapes(title: str, shapes: dict[str, list[int]], verbose: bool) -> No
     """
     if not verbose:
         return
-    print(f"{title}")
-    print(f"{'Name':<20} Shape")
+    _logger.debug(title)
+    _logger.debug(f"{'Name':<20} Shape")
     for name, shape in shapes.items():
-        print(f"{name:<20} {shape}")
+        _logger.debug(f"{name:<20} {shape}")
 
 
 def _process_node_outputs(
@@ -1617,12 +1620,12 @@ def _process_node_outputs(
         if data_shape is not None:
             ctx.data_shapes[output_name] = data_shape
             if ctx.verbose:
-                print(f"{node.op_type:<20} {output_name:<20} {data_shape}")
+                _logger.debug(f"{node.op_type:<20} {output_name:<20} {data_shape}")
 
         if explicit_shape is not None:
             ctx.explicit_shapes[output_name] = explicit_shape
             if ctx.verbose:
-                print(f"{node.op_type:<20} {output_name:<20} {explicit_shape} (explicit)")
+                _logger.debug(f"{node.op_type:<20} {output_name:<20} {explicit_shape} (explicit)")
             # Only use explicit_shape as data_shape if data_shape was not set
             if data_shape is None:
                 ctx.data_shapes[output_name] = explicit_shape
@@ -1698,8 +1701,8 @@ def infer_onnx_shape(
         _print_shapes("Input shapes", input_shapes, verbose=True)
         _print_shapes("Output shapes", output_shapes, verbose=True)
         _print_shapes("Initializer shapes", initializer_shapes, verbose=True)
-        print("Inferring node shapes")
-        print(f"{'Op Type':20} {'Name':20} Output Shape")
+        _logger.debug("Inferring node shapes")
+        _logger.debug(f"{'Op Type':20} {'Name':20} Output Shape")
 
     ctx = ShapeInferenceContext(
         data_shapes=data_shapes,

@@ -8,7 +8,7 @@ import pytest
 from utils import (
     find_benchmarks_folders,
     get_all_onnx_files,
-    if_has_batch_dim,
+    has_batch_dim,
     infer_shape,
     load_onnx_model,
 )
@@ -43,10 +43,10 @@ def test_shape_inference(onnx_path):
 
     """
     model = load_onnx_model(onnx_path)
-    has_batch_dim = if_has_batch_dim(onnx_path)
+    model_has_batch = has_batch_dim(onnx_path)
 
     # This will raise an exception if shape inference fails
-    data_shapes = infer_shape(model, has_batch_dim, verbose=False)
+    data_shapes = infer_shape(model, model_has_batch, verbose=False)
 
     # Verify we got some shapes back
     assert isinstance(data_shapes, dict)

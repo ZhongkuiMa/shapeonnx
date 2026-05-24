@@ -1,7 +1,10 @@
 """ONNX node attribute extraction and validation."""
 
 __docformat__ = "restructuredtext"
-__all__: list[str] = []
+__all__: list[str] = [
+    "EXTRACT_ATTRS_MAP",
+    "EXTRACT_ATTR_MAP",
+]
 
 from collections.abc import Callable
 from typing import Any
