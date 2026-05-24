@@ -5,7 +5,7 @@ __docformat__ = "restructuredtext"
 import onnx
 import pytest
 
-from shapeonnx.infer_shape import ShapeInferenceContext, _infer_nochange_op_shape
+from shapeonnx.infer_shape import ShapeInferenceContext, _infer_identity_shape
 
 
 class TestActivationFunctions:
@@ -35,7 +35,7 @@ class TestActivationFunctions:
             verbose=False,
         )
         node = onnx.helper.make_node(op_type, inputs=["input"], outputs=["output"])
-        result = _infer_nochange_op_shape(node, ctx)
+        result = _infer_identity_shape(node, ctx)
         assert len(result) >= 1
         assert result[0][0] == shape
 
@@ -61,7 +61,7 @@ class TestActivationEdgeCases:
             verbose=False,
         )
         node = onnx.helper.make_node(op_type, inputs=["input"], outputs=["output"])
-        result = _infer_nochange_op_shape(node, ctx)
+        result = _infer_identity_shape(node, ctx)
         assert len(result) >= 1
         assert result[0][0] == shape
 
@@ -92,7 +92,7 @@ class TestActivationDifferentRanks:
             verbose=False,
         )
         node = onnx.helper.make_node(op_type, inputs=["input"], outputs=["output"])
-        result = _infer_nochange_op_shape(node, ctx)
+        result = _infer_identity_shape(node, ctx)
         assert len(result) >= 1
         assert result[0][0] == shape
 
@@ -105,7 +105,7 @@ class TestActivationDifferentRanks:
             verbose=False,
         )
         node = onnx.helper.make_node("Relu", inputs=["input"], outputs=["output"])
-        result = _infer_nochange_op_shape(node, ctx)
+        result = _infer_identity_shape(node, ctx)
         # Explicit shape preserved
         assert len(result) >= 1
         assert result[0][1] == [2, 3, 4]
@@ -119,7 +119,7 @@ class TestActivationDifferentRanks:
             verbose=False,
         )
         node = onnx.helper.make_node("Sigmoid", inputs=["input"], outputs=["output"])
-        result = _infer_nochange_op_shape(node, ctx)
+        result = _infer_identity_shape(node, ctx)
         # Scalar preserved
         assert len(result) >= 1
         assert result[0][0] == 5
@@ -133,7 +133,7 @@ class TestActivationDifferentRanks:
             verbose=False,
         )
         node = onnx.helper.make_node("Tanh", inputs=["input"], outputs=["output"])
-        result = _infer_nochange_op_shape(node, ctx)
+        result = _infer_identity_shape(node, ctx)
         # Zero dimension preserved
         assert len(result) >= 1
         assert result[0][0] == [0]

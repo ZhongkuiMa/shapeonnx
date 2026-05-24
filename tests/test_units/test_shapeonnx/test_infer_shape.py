@@ -22,10 +22,10 @@ from shapeonnx.infer_shape import (
     _align_shapes,
     _compute_binary_op_value,
     _extract_initializer_shapes,
+    _extract_integer_initializers,
     _get_data_shape,
     _get_explicit_shape,
     _get_shape,
-    _preconvert_integer_initializers,
     _right_align_shapes,
     _store_data_shape,
     _store_explicit_shape,
@@ -167,7 +167,7 @@ class TestStoreShape:
 
 
 class TestPreconvertIntegerInitializers:
-    """Tests for _preconvert_integer_initializers."""
+    """Tests for _extract_integer_initializers."""
 
     @pytest.mark.parametrize(
         ("dtype", "values"),
@@ -189,7 +189,7 @@ class TestPreconvertIntegerInitializers:
         """
         init = _make_int_initializer(values, "k", dtype=dtype)
 
-        result = _preconvert_integer_initializers({"k": init})
+        result = _extract_integer_initializers({"k": init})
 
         assert result["k"] == values
 
@@ -198,7 +198,7 @@ class TestPreconvertIntegerInitializers:
         array = np.array([1.0, 2.0], dtype=np.float32)
         init = onnx.numpy_helper.from_array(array, name="weights")
 
-        result = _preconvert_integer_initializers({"weights": init})
+        result = _extract_integer_initializers({"weights": init})
 
         assert result == {}
 
@@ -208,7 +208,7 @@ class TestPreconvertIntegerInitializers:
         array = np.array([1.0], dtype=np.float32)
         float_init = onnx.numpy_helper.from_array(array, name="w")
 
-        result = _preconvert_integer_initializers({"axes": int_init, "w": float_init})
+        result = _extract_integer_initializers({"axes": int_init, "w": float_init})
 
         assert result == {"axes": [7]}
 

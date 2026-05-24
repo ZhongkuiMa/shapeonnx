@@ -26,6 +26,7 @@ import pytest
 
 from shapeonnx.onnx_attrs import (
     _check_pads_symmetric,
+    _extract_attrs_with_defaults,
     _get_attrs_argmax,
     _get_attrs_avgpool,
     _get_attrs_batchnorm,
@@ -42,11 +43,10 @@ from shapeonnx.onnx_attrs import (
     _get_attrs_scatterelement,
     _get_attrs_scatternd,
     _get_attrs_shape,
-    _get_attrs_simple,
     _get_attrs_transpose,
     _get_onnx_attrs,
     _infer_kernel_defaults,
-    _scan_attrs,
+    _make_default_attrs_extractor,
     _validate_auto_pad,
 )
 
@@ -70,23 +70,23 @@ def _make_weight_tensor(shape: tuple[int, ...], name: str = "weight") -> onnx.Te
 class TestScanAttrs:
     """Test scan_attrs function for attribute extraction and merging."""
 
-    def test_scan_attrs_with_empty_attributes(self):
+    def test_extract_attrs_with_defaults_with_empty_attributes(self):
         """Test scan_attrs returns defaults when no attributes provided."""
         node = onnx.helper.make_node("Conv", inputs=["i"], outputs=["o"])
         defaults = {"auto_pad": "NOTSET", "group": 1}
 
-        result = _scan_attrs(defaults, node.attribute)
+        result = _extract_attrs_with_defaults(defaults, node.attribute)
 
         assert result == defaults
 
-    def test_scan_attrs_overrides_defaults_with_attributes(self):
+    def test_extract_attrs_with_defaults_overrides_defaults_with_attributes(self):
         """Test scan_attrs overrides defaults with node attributes."""
         node = onnx.helper.make_node(
             "Conv", inputs=["i", "w"], outputs=["o"], group=2, auto_pad="NOTSET"
         )
         defaults = {"auto_pad": "NOTSET", "group": 1}
 
-        result = _scan_attrs(defaults, node.attribute)
+        result = _extract_attrs_with_defaults(defaults, node.attribute)
 
         assert result["group"] == 2
 
@@ -98,18 +98,18 @@ class TestScanAttrs:
             pytest.param("Pad", "mode", "constant", id="string_attribute"),
         ],
     )
-    def test_scan_attrs_extracts_basic_types(self, op_type, attr_name, attr_value):
+    def test_extract_attrs_with_defaults_extracts_basic_types(self, op_type, attr_name, attr_value):
         """Test scan_attrs extracts FLOAT, INT, STRING attribute types."""
         node = onnx.helper.make_node(
             op_type, inputs=["i"], outputs=["o"], **{attr_name: attr_value}
         )
         defaults: dict[str, int | float | str] = {}
 
-        result = _scan_attrs(defaults, node.attribute)
+        result = _extract_attrs_with_defaults(defaults, node.attribute)
 
         assert result[attr_name] == attr_value
 
-    def test_scan_attrs_extracts_ints_tuple(self):
+    def test_extract_attrs_with_defaults_extracts_ints_tuple(self):
         """Test scan_attrs extracts INTS attribute as tuple."""
         node = onnx.helper.make_node(
             "Conv",
@@ -120,23 +120,23 @@ class TestScanAttrs:
         )
         defaults: dict[str, tuple[int, ...]] = {}
 
-        result = _scan_attrs(defaults, node.attribute)
+        result = _extract_attrs_with_defaults(defaults, node.attribute)
 
         assert result["kernel_shape"] == (3, 3)
         assert result["strides"] == (1, 1)
         assert isinstance(result["kernel_shape"], tuple)
 
-    def test_scan_attrs_extracts_floats_tuple(self):
+    def test_extract_attrs_with_defaults_extracts_floats_tuple(self):
         """Test scan_attrs extracts FLOATS attribute as tuple."""
         node = onnx.helper.make_node("Gemm", inputs=["i"], outputs=["o"], alpha=2.5, beta=0.5)
         defaults: dict[str, tuple[float, ...]] = {}
 
-        result = _scan_attrs(defaults, node.attribute)
+        result = _extract_attrs_with_defaults(defaults, node.attribute)
 
         assert result["alpha"] == 2.5
         assert result["beta"] == 0.5
 
-    def test_scan_attrs_multiple_attributes_together(self):
+    def test_extract_attrs_with_defaults_multiple_attributes_together(self):
         """Test scan_attrs handles multiple attributes together."""
         node = onnx.helper.make_node(
             "Conv",
@@ -149,7 +149,7 @@ class TestScanAttrs:
         )
         defaults = {"pads": None, "dilations": None}
 
-        result = _scan_attrs(defaults, node.attribute)
+        result = _extract_attrs_with_defaults(defaults, node.attribute)
 
         assert result["kernel_shape"] == (3, 3)
         assert result["strides"] == (1, 1)
@@ -158,7 +158,7 @@ class TestScanAttrs:
         assert result["pads"] is None  # Default preserved
         assert result["dilations"] is None  # Default preserved
 
-    def test_scan_attrs_tensor_attribute(self):
+    def test_extract_attrs_with_defaults_tensor_attribute(self):
         """Test scan_attrs extracts TENSOR attribute type."""
         # Create a node with a tensor attribute (less common)
         node = onnx.helper.make_node("ConstantOfShape", inputs=["shape"], outputs=["output"])
@@ -167,28 +167,28 @@ class TestScanAttrs:
         node.attribute.append(attr)
 
         defaults: dict[str, np.ndarray] = {}
-        result = _scan_attrs(defaults, node.attribute)
+        result = _extract_attrs_with_defaults(defaults, node.attribute)
 
         assert "value" in result
         assert isinstance(result["value"], np.ndarray)
 
-    def test_scan_attrs_with_integer_zero_value(self):
+    def test_extract_attrs_with_defaults_with_integer_zero_value(self):
         """Test scan_attrs preserves zero values for integer attributes."""
         # Regression test: ensure zero values aren't treated as False/missing
         node = onnx.helper.make_node("Flatten", inputs=["input"], outputs=["output"], axis=0)
 
         defaults = {"axis": 1}
-        result = _scan_attrs(defaults, node.attribute)
+        result = _extract_attrs_with_defaults(defaults, node.attribute)
 
         # axis=0 should override the default axis=1
         assert result["axis"] == 0
 
-    def test_scan_attrs_preserves_none_defaults(self):
+    def test_extract_attrs_with_defaults_preserves_none_defaults(self):
         """Test scan_attrs preserves None values in defaults."""
         node = onnx.helper.make_node("Conv", inputs=["i", "w"], outputs=["o"], group=1)
         defaults = {"kernel_shape": None, "pads": None, "strides": None}
 
-        result = _scan_attrs(defaults, node.attribute)
+        result = _extract_attrs_with_defaults(defaults, node.attribute)
 
         assert isinstance(result, dict)
         assert len(result) >= 3
@@ -623,12 +623,13 @@ class TestRequiredAttributeOperators:
 
         assert attrs["perm"] == (0, 2, 1)
 
-    def test_get_attrs_transpose_missing_perm_raises_error(self):
-        """Test Transpose raises ValueError when perm missing."""
+    def test_get_attrs_transpose_missing_perm_is_none(self):
+        """Test Transpose returns None perm when attribute not provided (reverse)."""
         node = onnx.helper.make_node("Transpose", inputs=["input"], outputs=["output"])
 
-        with pytest.raises(ValueError, match="perm is required"):
-            _get_attrs_transpose(node, {})
+        attrs = _get_attrs_transpose(node, {})
+
+        assert attrs["perm"] is None
 
     def test_get_attrs_constantofshape_basic(self):
         """Test ConstantOfShape with value attribute."""
@@ -914,7 +915,7 @@ class TestSimpleOperators:
 
     def test_get_attrs_elu_basic(self):
         """Test Elu with default alpha."""
-        elu_extractor = _get_attrs_simple({"alpha": 1.0})
+        elu_extractor = _make_default_attrs_extractor({"alpha": 1.0})
         node = onnx.helper.make_node("Elu", inputs=["input"], outputs=["output"])
 
         attrs = elu_extractor(node, {})
@@ -923,7 +924,7 @@ class TestSimpleOperators:
 
     def test_get_attrs_elu_custom_alpha(self):
         """Test Elu with custom alpha."""
-        elu_extractor = _get_attrs_simple({"alpha": 1.0})
+        elu_extractor = _make_default_attrs_extractor({"alpha": 1.0})
         node = onnx.helper.make_node("Elu", inputs=["input"], outputs=["output"], alpha=0.5)
 
         attrs = elu_extractor(node, {})
@@ -932,7 +933,7 @@ class TestSimpleOperators:
 
     def test_get_attrs_flatten_basic(self):
         """Test Flatten with default axis."""
-        flatten_extractor = _get_attrs_simple({"axis": 1})
+        flatten_extractor = _make_default_attrs_extractor({"axis": 1})
         node = onnx.helper.make_node("Flatten", inputs=["input"], outputs=["output"])
 
         attrs = flatten_extractor(node, {})
@@ -941,7 +942,7 @@ class TestSimpleOperators:
 
     def test_get_attrs_gather_basic(self):
         """Test Gather with default axis."""
-        gather_extractor = _get_attrs_simple({"axis": 0})
+        gather_extractor = _make_default_attrs_extractor({"axis": 0})
         node = onnx.helper.make_node("Gather", inputs=["input", "indices"], outputs=["output"])
 
         attrs = gather_extractor(node, {})
@@ -950,7 +951,7 @@ class TestSimpleOperators:
 
     def test_get_attrs_gelu_basic(self):
         """Test Gelu with default approximate."""
-        gelu_extractor = _get_attrs_simple({"approximate": "none"})
+        gelu_extractor = _make_default_attrs_extractor({"approximate": "none"})
         node = onnx.helper.make_node("Gelu", inputs=["input"], outputs=["output"])
 
         attrs = gelu_extractor(node, {})
@@ -959,7 +960,9 @@ class TestSimpleOperators:
 
     def test_get_attrs_gemm_basic(self):
         """Test Gemm with default attributes."""
-        gemm_extractor = _get_attrs_simple({"alpha": 1.0, "beta": 1.0, "transA": 0, "transB": 0})
+        gemm_extractor = _make_default_attrs_extractor(
+            {"alpha": 1.0, "beta": 1.0, "transA": 0, "transB": 0}
+        )
         node = onnx.helper.make_node(
             "Gemm",
             inputs=["A", "B", "C"],
@@ -975,7 +978,7 @@ class TestSimpleOperators:
 
     def test_get_attrs_leakyrelu_basic(self):
         """Test LeakyRelu with default alpha."""
-        leakyrelu_extractor = _get_attrs_simple({"alpha": 0.01})
+        leakyrelu_extractor = _make_default_attrs_extractor({"alpha": 0.01})
         node = onnx.helper.make_node("LeakyRelu", inputs=["input"], outputs=["output"])
 
         attrs = leakyrelu_extractor(node, {})
@@ -984,7 +987,7 @@ class TestSimpleOperators:
 
     def test_get_attrs_pad_basic(self):
         """Test Pad with default mode."""
-        pad_extractor = _get_attrs_simple({"mode": "constant"})
+        pad_extractor = _make_default_attrs_extractor({"mode": "constant"})
         node = onnx.helper.make_node("Pad", inputs=["input"], outputs=["output"])
 
         attrs = pad_extractor(node, {})
@@ -993,7 +996,7 @@ class TestSimpleOperators:
 
     def test_get_attrs_softmax_basic(self):
         """Test Softmax with default axis."""
-        softmax_extractor = _get_attrs_simple({"axis": -1})
+        softmax_extractor = _make_default_attrs_extractor({"axis": -1})
         node = onnx.helper.make_node("Softmax", inputs=["input"], outputs=["output"])
 
         attrs = softmax_extractor(node, {})
@@ -1002,7 +1005,7 @@ class TestSimpleOperators:
 
     def test_get_attrs_split_basic(self):
         """Test Split with default axis."""
-        split_extractor = _get_attrs_simple({"axis": 0, "num_outputs": None})
+        split_extractor = _make_default_attrs_extractor({"axis": 0, "num_outputs": None})
         node = onnx.helper.make_node("Split", inputs=["input"], outputs=["output"])
 
         attrs = split_extractor(node, {})

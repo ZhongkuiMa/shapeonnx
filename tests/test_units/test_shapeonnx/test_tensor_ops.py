@@ -151,7 +151,7 @@ class TestTransposeOperation:
         assert result[0][0] == expected
 
     def test_transpose_with_zero_dimension(self):
-        """Test Transpose with zero dimension (1d shape becomes 2d)."""
+        """Test Transpose with zero dimension (1D stays 1D)."""
         ctx = ShapeInferenceContext(
             data_shapes={"input": [0]},
             explicit_shapes={},
@@ -160,8 +160,8 @@ class TestTransposeOperation:
         )
         node = onnx.helper.make_node("Transpose", inputs=["input"], outputs=["output"], perm=[1, 0])
         result = _infer_transpose_shape(node, ctx)
-        # 1D shape becomes [0, 1] (perm is ignored for 1D inputs)
-        assert result[0][0] == [0, 1]
+        # 1D shape stays [0] (transpose of 1D is 1D)
+        assert result[0][0] == [0]
 
 
 class TestSqueezeOperation:

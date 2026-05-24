@@ -215,8 +215,9 @@ class TestInferOnnxShape:
 
         assert shapes["output"] == [3, 224, 224]
 
-    def test_infer_onnx_shape_verbose_mode(self, capsys):
+    def test_infer_onnx_shape_verbose_mode(self, caplog):
         """Test shape inference with verbose output."""
+        caplog.set_level("DEBUG", logger="shapeonnx")
         input_info = onnx.helper.make_tensor_value_info("input", onnx.TensorProto.FLOAT, [1, 3])
         output_info = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.FLOAT, None)
 
@@ -230,9 +231,8 @@ class TestInferOnnxShape:
             verbose=True,
         )
 
-        captured = capsys.readouterr()
-        assert "Input shapes" in captured.out
-        assert "output" in captured.out
+        assert "Input shapes" in caplog.text
+        assert "output" in caplog.text
         assert shapes["output"] == [1, 3]
 
     def test_infer_onnx_shape_constant_node_error(self):
@@ -488,8 +488,9 @@ class TestProcessNodeOutputs:
         assert ctx.explicit_shapes["output"] == [1, 3, 224, 224]
         assert ctx.data_shapes["output"] == [1, 3, 224, 224]
 
-    def test_process_node_outputs_verbose_mode(self, capsys):
+    def test_process_node_outputs_verbose_mode(self, caplog):
         """Test verbose output when storing node results."""
+        caplog.set_level("DEBUG", logger="shapeonnx")
         ctx = ShapeInferenceContext(
             data_shapes={},
             explicit_shapes={},
@@ -502,10 +503,9 @@ class TestProcessNodeOutputs:
 
         _process_node_outputs(node, results, ctx)
 
-        captured = capsys.readouterr()
-        assert "Relu" in captured.out
-        assert "output" in captured.out
-        assert "[2, 3]" in captured.out
+        assert "Relu" in caplog.text
+        assert "output" in caplog.text
+        assert "[2, 3]" in caplog.text
 
 
 # ============================================================================

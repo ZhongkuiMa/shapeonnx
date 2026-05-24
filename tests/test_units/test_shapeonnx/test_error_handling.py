@@ -12,7 +12,7 @@ from shapeonnx.infer_shape import (
     _infer_concat_shape,
     _infer_flatten_shape,
     _infer_gather_shape,
-    _infer_nochange_op_shape,
+    _infer_identity_shape,
     _infer_slice_shape,
     _infer_transpose_shape,
 )
@@ -24,7 +24,7 @@ class TestMissingShapeErrors:
     @pytest.mark.parametrize(
         ("data_shapes", "op_type", "inputs", "infer_fn"),
         [
-            pytest.param({}, "Relu", ["input"], _infer_nochange_op_shape, id="missing_input"),
+            pytest.param({}, "Relu", ["input"], _infer_identity_shape, id="missing_input"),
             pytest.param(
                 {"a": [3, 4]}, "Add", ["a", "b"], _infer_binary_op_shape, id="missing_operand"
             ),
@@ -196,7 +196,7 @@ class TestScalarAndEmptyShapes:
             verbose=False,
         )
         node = onnx.helper.make_node("Relu", inputs=["input"], outputs=["output"])
-        result = _infer_nochange_op_shape(node, ctx)
+        result = _infer_identity_shape(node, ctx)
         # Scalar shape preserved
         assert result[0][0] == []
 
@@ -251,7 +251,7 @@ class TestExplicitShapeOperations:
         )
         node = onnx.helper.make_node("Relu", inputs=["input"], outputs=["output"])
 
-        result = _infer_nochange_op_shape(node, ctx)
+        result = _infer_identity_shape(node, ctx)
         # Result tuple: (data_shape, explicit_shape)
         # When input is explicit, output should have explicit shape
         assert isinstance(result, list)

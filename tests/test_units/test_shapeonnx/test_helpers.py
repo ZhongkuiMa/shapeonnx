@@ -8,10 +8,10 @@ import pytest
 
 from shapeonnx.infer_shape import (
     _align_shapes,
+    _extract_integer_initializers,
     _get_data_shape,
     _get_explicit_shape,
     _get_shape,
-    _preconvert_integer_initializers,
     _right_align_shapes,
 )
 
@@ -125,20 +125,20 @@ class TestPreconvertIntegerInitializers:
 
     def test_preconvert_empty_initializers(self):
         """Test preconverting empty initializers dict."""
-        result = _preconvert_integer_initializers({})
+        result = _extract_integer_initializers({})
         assert result == {}
 
     def test_preconvert_float_initializer(self):
         """Test that float initializers are not converted."""
         weights = np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float32)
         weight_tensor = onnx.numpy_helper.from_array(weights, name="weight")
-        result = _preconvert_integer_initializers({"weight": weight_tensor})
+        result = _extract_integer_initializers({"weight": weight_tensor})
         assert "weight" not in result
 
     def test_preconvert_int_initializer(self):
         """Test preconverting integer initializers."""
         shape_array = np.array([1, 256], dtype=np.int64)
         shape_tensor = onnx.numpy_helper.from_array(shape_array, name="shape")
-        result = _preconvert_integer_initializers({"shape": shape_tensor})
+        result = _extract_integer_initializers({"shape": shape_tensor})
         assert "shape" in result
         assert result["shape"] == [1, 256]

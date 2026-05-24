@@ -1,8 +1,11 @@
 """ONNX node attribute extraction and validation."""
 
 __docformat__ = "restructuredtext"
-__all__: list[str] = []
+__all__: list[str] = [
+    "EXTRACT_ATTRS_MAP",
+]
 
+import warnings
 from collections.abc import Callable
 from typing import Any
 
@@ -10,7 +13,7 @@ import onnx
 from onnx import NodeProto, TensorProto
 
 # Attribute type extractors
-EXTRACT_ATTR_MAP: dict[int, Any] = {
+_ATTR_TYPE_DISPATCH: dict[int, Any] = {
     0: lambda x: None,  # UNDEFINED
     1: lambda x: x.f,  # FLOAT
     2: lambda x: x.i,  # INT
@@ -26,7 +29,7 @@ EXTRACT_ATTR_MAP: dict[int, Any] = {
 }
 
 
-def _scan_attrs(default_attrs: dict[str, Any], attrs) -> dict[str, Any]:
+def _extract_attrs_with_defaults(default_attrs: dict[str, Any], attrs) -> dict[str, Any]:
     """
     Scan and extract ONNX node attributes.
 
@@ -38,12 +41,19 @@ def _scan_attrs(default_attrs: dict[str, Any], attrs) -> dict[str, Any]:
     """
     result = default_attrs.copy()
     for attr in attrs:
-        extract = EXTRACT_ATTR_MAP.get(attr.type)
+        extract = _ATTR_TYPE_DISPATCH.get(attr.type)
         if extract is None:
             raise NotImplementedError(
                 f"Attribute {attr.name} with type {attr.type} is not supported"
             )
-        result[attr.name] = extract(attr)
+        value = extract(attr)
+        if value is None and attr.type >= 8:
+            warnings.warn(
+                f"Attribute {attr.name} with type {attr.type} (STRINGS/TENSORS/GRAPHS/SPARSE_TENSOR) "
+                f"is not supported; defaulting to None",
+                stacklevel=2,
+            )
+        result[attr.name] = value
     return result
 
 
@@ -97,7 +107,9 @@ def _validate_auto_pad(auto_pad: str, op_name: str) -> None:
 
 def _get_attrs_argmax(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract ArgMax operator attributes."""
-    attrs = _scan_attrs({"axis": 0, "keepdims": 1, "select_last_index": 0}, node.attribute)
+    attrs = _extract_attrs_with_defaults(
+        {"axis": 0, "keepdims": 1, "select_last_index": 0}, node.attribute
+    )
     if attrs["select_last_index"] != 0:
         raise ValueError(
             f"ArgMax with select_last_index={attrs['select_last_index']} is not supported"
@@ -107,7 +119,7 @@ def _get_attrs_argmax(node: NodeProto, initializers: dict[str, TensorProto]) -> 
 
 def _get_attrs_avgpool(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract AveragePool operator attributes."""
-    attrs = _scan_attrs(
+    attrs = _extract_attrs_with_defaults(
         {
             "auto_pad": "NOTSET",
             "ceil_mode": 0,
@@ -129,7 +141,9 @@ def _get_attrs_avgpool(node: NodeProto, initializers: dict[str, TensorProto]) ->
 
 def _get_attrs_batchnorm(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract BatchNormalization operator attributes."""
-    attrs = _scan_attrs({"epsilon": 1e-5, "momentum": 0.9, "training_mode": 0}, node.attribute)
+    attrs = _extract_attrs_with_defaults(
+        {"epsilon": 1e-5, "momentum": 0.9, "training_mode": 0}, node.attribute
+    )
     if attrs["training_mode"] != 0:
         raise ValueError(
             f"BatchNormalization with training_mode={attrs['training_mode']} is not supported"
@@ -141,7 +155,7 @@ def _get_attrs_batchnorm(node: NodeProto, initializers: dict[str, TensorProto]) 
 
 def _get_attrs_cast(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract Cast operator attributes."""
-    attrs = _scan_attrs({"saturate": 1, "to": None}, node.attribute)
+    attrs = _extract_attrs_with_defaults({"saturate": 1, "to": None}, node.attribute)
     if attrs["to"] is None:
         raise ValueError("Cast 'to' attribute is required")
     if attrs["saturate"] != 1:
@@ -151,7 +165,7 @@ def _get_attrs_cast(node: NodeProto, initializers: dict[str, TensorProto]) -> di
 
 def _get_attrs_concat(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract Concat operator attributes."""
-    attrs = _scan_attrs({"axis": None}, node.attribute)
+    attrs = _extract_attrs_with_defaults({"axis": None}, node.attribute)
     if attrs["axis"] is None:
         raise ValueError("Concat axis is required")
     return attrs
@@ -159,7 +173,7 @@ def _get_attrs_concat(node: NodeProto, initializers: dict[str, TensorProto]) -> 
 
 def _get_attrs_conv(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract Conv operator attributes."""
-    attrs = _scan_attrs(
+    attrs = _extract_attrs_with_defaults(
         {
             "auto_pad": "NOTSET",
             "dilations": None,
@@ -190,7 +204,7 @@ def _get_attrs_convtranspose(
     node: NodeProto, initializers: dict[str, TensorProto]
 ) -> dict[str, Any]:
     """Extract ConvTranspose operator attributes."""
-    attrs = _scan_attrs(
+    attrs = _extract_attrs_with_defaults(
         {
             "auto_pad": "NOTSET",
             "dilations": None,
@@ -222,13 +236,13 @@ def _get_attrs_constantofshape(
     node: NodeProto, initializers: dict[str, TensorProto]
 ) -> dict[str, Any]:
     """Extract ConstantOfShape operator attributes."""
-    attrs = _scan_attrs({"value": None}, node.attribute)
+    attrs = _extract_attrs_with_defaults({"value": None}, node.attribute)
     if attrs["value"] is None:
         raise ValueError("ConstantOfShape value is required")
     return attrs
 
 
-def _get_attrs_simple(defaults: dict[str, Any]) -> Callable:
+def _make_default_attrs_extractor(defaults: dict[str, Any]) -> Callable:
     """
     Create a simple attribute extractor for operators with only defaults.
 
@@ -238,14 +252,14 @@ def _get_attrs_simple(defaults: dict[str, Any]) -> Callable:
     """
 
     def _extractor(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
-        return _scan_attrs(defaults, node.attribute)
+        return _extract_attrs_with_defaults(defaults, node.attribute)
 
     return _extractor
 
 
 def _get_attrs_maxpool(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract MaxPool operator attributes."""
-    attrs = _scan_attrs(
+    attrs = _extract_attrs_with_defaults(
         {
             "auto_pad": "NOTSET",
             "ceil_mode": 0,
@@ -280,7 +294,9 @@ def _get_attrs_reduce(op_name: str) -> Callable:
     """
 
     def _extractor(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
-        attrs = _scan_attrs({"keepdims": 1, "noop_with_empty_axes": 0}, node.attribute)
+        attrs = _extract_attrs_with_defaults(
+            {"keepdims": 1, "noop_with_empty_axes": 0}, node.attribute
+        )
         if attrs["noop_with_empty_axes"] != 0:
             raise ValueError(
                 f"{op_name} with noop_with_empty_axes={attrs['noop_with_empty_axes']} "
@@ -293,7 +309,7 @@ def _get_attrs_reduce(op_name: str) -> Callable:
 
 def _get_attrs_reshape(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract Reshape operator attributes."""
-    attrs = _scan_attrs({"allowzero": 0}, node.attribute)
+    attrs = _extract_attrs_with_defaults({"allowzero": 0}, node.attribute)
     if attrs["allowzero"] != 0:
         raise ValueError(f"Reshape with allowzero={attrs['allowzero']} is not supported")
     return attrs
@@ -301,7 +317,7 @@ def _get_attrs_reshape(node: NodeProto, initializers: dict[str, TensorProto]) ->
 
 def _get_attrs_resize(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract Resize operator attributes."""
-    return _scan_attrs(
+    return _extract_attrs_with_defaults(
         {
             "antialias": 0,
             "axes": None,
@@ -326,7 +342,7 @@ def _get_attrs_scatterelement(
     node: NodeProto, initializers: dict[str, TensorProto]
 ) -> dict[str, Any]:
     """Extract ScatterElements operator attributes."""
-    attrs = _scan_attrs({"axis": 0, "reduction": "none"}, node.attribute)
+    attrs = _extract_attrs_with_defaults({"axis": 0, "reduction": "none"}, node.attribute)
     if attrs["reduction"] != "none":
         raise ValueError(f"ScatterElements with reduction={attrs['reduction']} is not supported")
     return attrs
@@ -334,7 +350,7 @@ def _get_attrs_scatterelement(
 
 def _get_attrs_scatternd(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract ScatterND operator attributes."""
-    attrs = _scan_attrs({"reduction": "none"}, node.attribute)
+    attrs = _extract_attrs_with_defaults({"reduction": "none"}, node.attribute)
     if attrs["reduction"] != "none":
         raise ValueError(f"ScatterND with reduction={attrs['reduction']} is not supported")
     return attrs
@@ -342,7 +358,7 @@ def _get_attrs_scatternd(node: NodeProto, initializers: dict[str, TensorProto]) 
 
 def _get_attrs_shape(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract Shape operator attributes."""
-    attrs = _scan_attrs({"end": -1, "start": 0}, node.attribute)
+    attrs = _extract_attrs_with_defaults({"end": -1, "start": 0}, node.attribute)
     if attrs["end"] != -1:
         raise ValueError(f"Shape with end={attrs['end']} is not supported")
     if attrs["start"] != 0:
@@ -352,9 +368,9 @@ def _get_attrs_shape(node: NodeProto, initializers: dict[str, TensorProto]) -> d
 
 def _get_attrs_transpose(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
     """Extract Transpose operator attributes."""
-    attrs = _scan_attrs({"perm": None}, node.attribute)
-    if attrs["perm"] is None:
-        raise ValueError("Transpose perm is required")
+    attrs = _extract_attrs_with_defaults({"perm": None}, node.attribute)
+    if attrs["perm"] is not None:
+        attrs["perm"] = tuple(attrs["perm"])
     return attrs
 
 
@@ -365,30 +381,29 @@ EXTRACT_ATTRS_MAP: dict[str, Callable[[NodeProto, dict[str, TensorProto]], dict[
     "Cast": _get_attrs_cast,
     "Concat": _get_attrs_concat,
     "Conv": _get_attrs_conv,
-    "Constant": _get_attrs_constant,
     "ConvTranspose": _get_attrs_convtranspose,
     "ConstantOfShape": _get_attrs_constantofshape,
-    "Elu": _get_attrs_simple({"alpha": 1.0}),
-    "Flatten": _get_attrs_simple({"axis": 1}),
-    "Gather": _get_attrs_simple({"axis": 0}),
-    "Gelu": _get_attrs_simple({"approximate": "none"}),
-    "Gemm": _get_attrs_simple({"alpha": 1.0, "beta": 1.0, "transA": 0, "transB": 0}),
-    "LeakyRelu": _get_attrs_simple({"alpha": 0.01}),
+    "Elu": _make_default_attrs_extractor({"alpha": 1.0}),
+    "Flatten": _make_default_attrs_extractor({"axis": 1}),
+    "Gather": _make_default_attrs_extractor({"axis": 0}),
+    "Gelu": _make_default_attrs_extractor({"approximate": "none"}),
+    "Gemm": _make_default_attrs_extractor({"alpha": 1.0, "beta": 1.0, "transA": 0, "transB": 0}),
+    "LeakyRelu": _make_default_attrs_extractor({"alpha": 0.01}),
     "MaxPool": _get_attrs_maxpool,
-    "Pad": _get_attrs_simple({"mode": "constant"}),
+    "Pad": _make_default_attrs_extractor({"mode": "constant"}),
     "ReduceMean": _get_attrs_reduce("ReduceMean"),
     "ReduceSum": _get_attrs_reduce("ReduceSum"),
     "Reshape": _get_attrs_reshape,
     "Resize": _get_attrs_resize,
     "Shape": _get_attrs_shape,
-    "Scatter": _get_attrs_scatter,
+    "Scatter": _get_attrs_scatterelement,
     "ScatterElements": _get_attrs_scatterelement,
     "ScatterND": _get_attrs_scatternd,
-    "Softmax": _get_attrs_simple({"axis": -1}),
-    "Split": _get_attrs_simple({"axis": 0, "num_outputs": None}),
+    "Softmax": _make_default_attrs_extractor({"axis": -1}),
+    "Split": _make_default_attrs_extractor({"axis": 0, "num_outputs": None}),
     "Transpose": _get_attrs_transpose,
-    "Unsqueeze": _get_attrs_simple({"axes": None}),
-    "Upsample": _get_attrs_simple({"mode": "nearest"}),
+    "Unsqueeze": _make_default_attrs_extractor({"axes": None}),
+    "Upsample": _make_default_attrs_extractor({"mode": "nearest"}),
 }
 
 

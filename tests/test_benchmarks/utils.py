@@ -127,7 +127,7 @@ def load_onnx_model(onnx_path: str):
     return onnx.version_converter.convert_version(model, target_version=21)
 
 
-def if_has_batch_dim(onnx_path: str) -> bool:
+def has_batch_dim(onnx_path: str) -> bool:
     """
     Determine if model has batch dimension.
 

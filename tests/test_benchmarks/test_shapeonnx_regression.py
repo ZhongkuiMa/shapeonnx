@@ -11,7 +11,7 @@ import pytest
 from utils import (
     find_benchmarks_folders,
     get_all_onnx_files,
-    if_has_batch_dim,
+    has_batch_dim,
     load_onnx_model,
 )
 
@@ -240,12 +240,12 @@ def infer_shapeonnx_shapes(onnx_path: str) -> dict[str, int | list[int]]:
 
     :return: Dictionary mapping tensor names to inferred shapes
     """
-    has_batch_dim = if_has_batch_dim(onnx_path)
+    model_has_batch = has_batch_dim(onnx_path)
     model = load_onnx_model(onnx_path)
 
     initializers = get_initializers(model)
-    input_nodes = get_input_nodes(model, initializers, has_batch_dim)
-    output_nodes = get_output_nodes(model, has_batch_dim)
+    input_nodes = get_input_nodes(model, initializers, model_has_batch)
+    output_nodes = get_output_nodes(model, model_has_batch)
     nodes = convert_constant_to_initializer(list(model.graph.node), initializers)
 
     return infer_onnx_shape(
@@ -253,7 +253,7 @@ def infer_shapeonnx_shapes(onnx_path: str) -> dict[str, int | list[int]]:
         output_nodes,
         nodes,
         initializers,
-        has_batch_dim=has_batch_dim,
+        has_batch_dim=model_has_batch,
         verbose=False,
     )
 

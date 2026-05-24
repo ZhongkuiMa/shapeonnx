@@ -3,6 +3,7 @@
 __docformat__ = "restructuredtext"
 __all__ = ["extract_io_shapes", "infer_onnx_shape"]
 
+import logging
 import math
 import warnings
 from collections.abc import Callable, Sequence
@@ -14,6 +15,8 @@ from onnx import NodeProto, TensorProto, ValueInfoProto
 
 from shapeonnx.onnx_attrs import _get_onnx_attrs
 from shapeonnx.utils import _reformat_io_shape
+
+_logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -76,7 +79,7 @@ def _get_data_shape(name: str, shapes: dict[str, int | list[int]]) -> int | list
     return shapes.get(name)
 
 
-def _preconvert_integer_initializers(
+def _extract_integer_initializers(
     initializers: dict[str, TensorProto],
 ) -> dict[str, int | list[int]]:
     """
@@ -244,16 +247,49 @@ def _broadcast_shapes(shape1: list[int], shape2: list[int]) -> list[int]:
     if not shape2:
         return shape1
 
-    if all(s2 in shape1 for s2 in shape2):
-        shape2 = _align_shapes(shape1, shape2)
-    elif all(s1 in shape2 for s1 in shape1):
-        shape1 = _align_shapes(shape2, shape1)
-
     aligned1, aligned2 = _right_align_shapes(shape1, shape2)
     return _compute_broadcasted_shape(aligned1, aligned2)
 
 
-def _infer_nochange_op_shape(
+def _topological_sort(nodes: list[NodeProto]) -> list[NodeProto]:
+    """
+    Topologically sort ONNX nodes using Kahn's algorithm.
+
+    :param nodes: Unsorted list of ONNX nodes.
+    :return: Nodes in topological order.
+    :raises RuntimeError: If the graph contains a cycle.
+    """
+    output_to_idx: dict[str, int] = {}
+    for i, node in enumerate(nodes):
+        for output in node.output:
+            output_to_idx[output] = i
+
+    children: list[list[int]] = [[] for _ in nodes]
+    in_degree = [0] * len(nodes)
+
+    for i, node in enumerate(nodes):
+        for inp in node.input:
+            if inp in output_to_idx:
+                parent = output_to_idx[inp]
+                children[parent].append(i)
+                in_degree[i] += 1
+
+    queue = [i for i, deg in enumerate(in_degree) if deg == 0]
+    result: list[NodeProto] = []
+    while queue:
+        idx = queue.pop(0)
+        result.append(nodes[idx])
+        for child in children[idx]:
+            in_degree[child] -= 1
+            if in_degree[child] == 0:
+                queue.append(child)
+
+    if len(result) != len(nodes):
+        raise RuntimeError("Graph contains a cycle; cannot topologically sort nodes")
+    return result
+
+
+def _infer_identity_shape(
     node: NodeProto, ctx: ShapeInferenceContext
 ) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
     """
@@ -459,14 +495,15 @@ def _infer_argmax_shape(
     if shape is None:
         raise RuntimeError(f"Cannot get shape of {node.input[0]}")
 
-    # Handle scalar shapes
     if isinstance(shape, int):
         return [(shape, None)]
 
     if shape != [0]:
-        shape[axis] = 1
+        shape_copy = list(shape)
+        shape_copy[axis] = 1
         if not keepdims:
-            shape.pop(axis)
+            shape_copy.pop(axis)
+        shape = shape_copy
 
     return [(shape, None)]
 
@@ -474,19 +511,8 @@ def _infer_argmax_shape(
 def _infer_batch_norm_shape(
     node: NodeProto, ctx: ShapeInferenceContext
 ) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
-    """
-    Infer shape for BatchNormalization operator.
-
-    :param node: ONNX node.
-
-    :param ctx: Shape inference context.
-
-    :return: List of (data_shape, explicit_shape) tuples
-    """
-    shape = _get_data_shape(node.input[0], ctx.data_shapes)
-    if shape is None:
-        raise RuntimeError(f"Cannot get shape of {node.input[0]}")
-    return [(shape, None)]
+    """Infer shape for BatchNormalization operator (preserves input shape)."""
+    return _infer_identity_shape(node, ctx)
 
 
 def _collect_concat_input_shapes(
@@ -1067,9 +1093,13 @@ def _infer_reduce_shape(
     # Copy to avoid mutating the original shape in data_shapes
     shape = shape.copy()
     if shape != [0]:
-        for axis in axes:
-            shape[axis] = 1 if keepdims else 0
-        shape = [x for x in shape if x != 0]
+        if keepdims:
+            for axis in axes:
+                shape[axis] = 1
+        else:
+            for axis in sorted(axes, reverse=True):
+                if axis < len(shape):
+                    shape.pop(axis)
 
     return [(shape, None)]
 
@@ -1385,9 +1415,7 @@ def _infer_squeeze_shape(
                 continue
             shape.append(input_shape[i])
     else:
-        shape = [s for s in input_shape if s != 1]
-        if shape:
-            shape = [input_shape[0], *shape]
+        shape = [input_shape[0]] + [s for s in input_shape[1:] if s != 1]
 
     return [(shape, None)]
 
@@ -1409,14 +1437,14 @@ def _infer_transpose_shape(
 
     shape = _get_data_shape(node.input[0], ctx.data_shapes)
     if shape is not None:
-        # Transpose requires list shape
         if isinstance(shape, int):
             raise RuntimeError(f"Transpose input shape cannot be scalar: {shape}")
 
-        if len(shape) == 1:
-            shape = [shape[0], 1]
+        if len(shape) == 1 or shape == [0]:
+            pass
         else:
-            shape = [shape[i] for i in perm] if shape != [0] else [0]
+            effective_perm = perm if perm is not None else tuple(reversed(range(len(shape))))
+            shape = [shape[i] for i in effective_perm]
         return [(shape, None)]
 
     e_shape = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
@@ -1426,10 +1454,11 @@ def _infer_transpose_shape(
     if not isinstance(e_shape, list):
         raise RuntimeError(f"Expected list for transpose, got {e_shape}")
 
-    if len(e_shape) == 1:
-        e_shape = [e_shape[0], 1]
+    if len(e_shape) == 1 or e_shape == [0]:
+        pass
     else:
-        e_shape = [e_shape[i] for i in perm] if e_shape != [0] else [0]
+        effective_perm = perm if perm is not None else tuple(reversed(range(len(e_shape))))
+        e_shape = [e_shape[i] for i in effective_perm]
     return [(None, e_shape)]
 
 
@@ -1529,50 +1558,50 @@ INFER_SHAPE_FUNC_MAPPING: dict[str, ShapeInferFunc] = {
     "ArgMax": _infer_argmax_shape,
     "AveragePool": _infer_pool_shape,
     "BatchNormalization": _infer_batch_norm_shape,
-    "Cast": _infer_nochange_op_shape,
-    "Clip": _infer_nochange_op_shape,
+    "Cast": _infer_identity_shape,
+    "Clip": _infer_identity_shape,
     "Concat": _infer_concat_shape,
     "ConstantOfShape": _infer_constant_of_shape_shape,
     "Conv": _infer_pool_shape,
     "ConvTranspose": _infer_convtranspose_shape,
-    "Cos": _infer_nochange_op_shape,
+    "Cos": _infer_identity_shape,
     "Div": _infer_binary_op_shape,
-    "Dropout": _infer_nochange_op_shape,
+    "Dropout": _infer_identity_shape,
     "Equal": _infer_binary_op_shape,
     "Expand": _infer_expand_shape,
     "Flatten": _infer_flatten_shape,
-    "Floor": _infer_nochange_op_shape,
+    "Floor": _infer_identity_shape,
     "Gather": _infer_gather_shape,
     "Gemm": _infer_gemm_shape,
-    "GlobalAveragePool": _infer_nochange_op_shape,
-    "LeakyRelu": _infer_nochange_op_shape,
+    "GlobalAveragePool": _infer_identity_shape,
+    "LeakyRelu": _infer_identity_shape,
     "MatMul": _infer_matmul_shape,
-    "Max": _infer_nochange_op_shape,
+    "Max": _infer_identity_shape,
     "MaxPool": _infer_pool_shape,
-    "Min": _infer_nochange_op_shape,
+    "Min": _infer_identity_shape,
     "Mul": _infer_binary_op_shape,
-    "Neg": _infer_nochange_op_shape,
+    "Neg": _infer_identity_shape,
     "Pad": _infer_pad_shape,
-    "Pow": _infer_nochange_op_shape,
+    "Pow": _infer_identity_shape,
     "Range": _infer_range_shape,
     "ReduceMean": _infer_reduce_shape,
     "ReduceSum": _infer_reduce_shape,
-    "Relu": _infer_nochange_op_shape,
+    "Relu": _infer_identity_shape,
     "Reshape": _infer_reshape_shape,
     "Resize": _infer_resize_shape,
-    "Scatter": _infer_nochange_op_shape,
-    "ScatterElements": _infer_nochange_op_shape,
-    "ScatterND": _infer_nochange_op_shape,
+    "Scatter": _infer_identity_shape,
+    "ScatterElements": _infer_identity_shape,
+    "ScatterND": _infer_identity_shape,
     "Shape": _infer_shape_op_shape,
-    "Sigmoid": _infer_nochange_op_shape,
-    "Sign": _infer_nochange_op_shape,
-    "Sin": _infer_nochange_op_shape,
+    "Sigmoid": _infer_identity_shape,
+    "Sign": _infer_identity_shape,
+    "Sin": _infer_identity_shape,
     "Slice": _infer_slice_shape,
     "Split": _infer_split_shape,
-    "Softmax": _infer_nochange_op_shape,
+    "Softmax": _infer_identity_shape,
     "Squeeze": _infer_squeeze_shape,
     "Sub": _infer_binary_op_shape,
-    "Tanh": _infer_nochange_op_shape,
+    "Tanh": _infer_identity_shape,
     "Transpose": _infer_transpose_shape,
     "Unsqueeze": _infer_unsqueeze_shape,
     "Where": _infer_where_shape,
@@ -1592,10 +1621,10 @@ def _print_shapes(title: str, shapes: dict[str, list[int]], verbose: bool) -> No
     """
     if not verbose:
         return
-    print(f"{title}")
-    print(f"{'Name':<20} Shape")
+    _logger.debug(title)
+    _logger.debug(f"{'Name':<20} Shape")
     for name, shape in shapes.items():
-        print(f"{name:<20} {shape}")
+        _logger.debug(f"{name:<20} {shape}")
 
 
 def _process_node_outputs(
@@ -1617,12 +1646,12 @@ def _process_node_outputs(
         if data_shape is not None:
             ctx.data_shapes[output_name] = data_shape
             if ctx.verbose:
-                print(f"{node.op_type:<20} {output_name:<20} {data_shape}")
+                _logger.debug(f"{node.op_type:<20} {output_name:<20} {data_shape}")
 
         if explicit_shape is not None:
             ctx.explicit_shapes[output_name] = explicit_shape
             if ctx.verbose:
-                print(f"{node.op_type:<20} {output_name:<20} {explicit_shape} (explicit)")
+                _logger.debug(f"{node.op_type:<20} {output_name:<20} {explicit_shape} (explicit)")
             # Only use explicit_shape as data_shape if data_shape was not set
             if data_shape is None:
                 ctx.data_shapes[output_name] = explicit_shape
@@ -1632,11 +1661,14 @@ def _infer_all_node_shapes(nodes: list[NodeProto], ctx: ShapeInferenceContext) -
     """
     Infer shapes for all nodes in the graph.
 
+    Nodes are topologically sorted first to ensure inputs are available.
+
     :param nodes: List of ONNX nodes.
 
     :param ctx: Shape inference context.
 
     """
+    nodes = _topological_sort(nodes)
     for node in nodes:
         if node.op_type == "Constant":
             raise RuntimeError(
@@ -1692,14 +1724,14 @@ def infer_onnx_shape(
         **output_shapes,
         **initializer_shapes,
     }
-    explicit_shapes = _preconvert_integer_initializers(initializers)
+    explicit_shapes = _extract_integer_initializers(initializers)
 
     if verbose:
         _print_shapes("Input shapes", input_shapes, verbose=True)
         _print_shapes("Output shapes", output_shapes, verbose=True)
         _print_shapes("Initializer shapes", initializer_shapes, verbose=True)
-        print("Inferring node shapes")
-        print(f"{'Op Type':20} {'Name':20} Output Shape")
+        _logger.debug("Inferring node shapes")
+        _logger.debug(f"{'Op Type':20} {'Name':20} Output Shape")
 
     ctx = ShapeInferenceContext(
         data_shapes=data_shapes,

@@ -8,6 +8,8 @@ __all__ = [
     "get_output_nodes",
 ]
 
+import warnings
+
 import onnx
 from onnx import ModelProto, NodeProto, TensorProto, ValueInfoProto
 
@@ -22,7 +24,24 @@ def _reformat_io_shape(node: ValueInfoProto, has_batch_dim: bool = True) -> list
 
     :return: Shape as list of integers
     """
-    shape = [d.dim_value for d in node.type.tensor_type.shape.dim]
+    shape = []
+    for d in node.type.tensor_type.shape.dim:
+        if d.dim_param:
+            warnings.warn(
+                f"Dynamic dimension dim_param={d.dim_param!r} in node {node.name}; "
+                f"using -1 as placeholder",
+                stacklevel=2,
+            )
+            shape.append(-1)
+        elif d.dim_value == 0:
+            warnings.warn(
+                f"Zero-valued dimension in node {node.name}; "
+                f"using -1 as placeholder for dynamic dim",
+                stacklevel=2,
+            )
+            shape.append(-1)
+        else:
+            shape.append(d.dim_value)
     if has_batch_dim:
         # Allow scalar outputs [] - they don't need batch dimension validation
         # (e.g., outputs reduced via Squeeze operations)
@@ -115,7 +134,10 @@ def convert_constant_to_initializer(
     new_nodes = []
     for node in nodes:
         if node.op_type == "Constant":
-            np_array = onnx.numpy_helper.to_array(node.attribute[0].t)
+            value_attr = next((a for a in node.attribute if a.name == "value"), None)
+            if value_attr is None:
+                raise ValueError(f"Constant node {node.name} has no 'value' attribute")
+            np_array = onnx.numpy_helper.to_array(value_attr.t)
             initializer = onnx.numpy_helper.from_array(np_array, node.output[0])
             initializers[node.output[0]] = initializer
             continue
