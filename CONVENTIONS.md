@@ -1,3 +1,10 @@
+---
+type: LAW
+note: "Normative. Code obeys this; change only via deliberate revision. Greater authority than functional code."
+---
+
+> **Law**. Conventions/rules for shapeonnx. Code obeys this. Change via deliberate revision.
+
 # Shapeonnx Conventions
 
 This file defines style and documentation conventions for the shapeonnx package.

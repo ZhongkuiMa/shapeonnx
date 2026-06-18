@@ -1,6 +1,9 @@
-"""Core shape inference module."""
+"""Core shape inference module.
 
-__version__ = "2026.5.4"
+.. seealso:: ``shapeonnx/CONVENTIONS.md`` for code conventions.
+"""
+
+__version__ = "2026.6.0"
 
 __docformat__ = "restructuredtext"
 __all__ = ["__version__", "extract_io_shapes", "infer_onnx_shape"]

@@ -1,3 +1,10 @@
+---
+type: DESCRIPTION
+note: "Descriptive. Mirrors current code; update to follow code changes. < functional code."
+---
+
+> **This file IS**: the shapeonnx-specific contributing workflow and conventions. **It is NOT**: a replacement for the root CONTRIBUTING.md (shared conventions live there).
+
 # Contributing to ShapeONNX
 
 Shared conventions (imports, formatting, docstrings) are in the root [CONTRIBUTING.md](../CONTRIBUTING.md).

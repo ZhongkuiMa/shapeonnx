@@ -1,3 +1,10 @@
+---
+type: DESCRIPTION
+note: "Descriptive. Mirrors current code; update to follow code changes. < functional code."
+---
+
+> **This file IS**: the architectural overview of shapeonnx covering package structure and design decisions. **It is NOT**: a usage guide or API documentation.
+
 # ShapeONNX Architecture
 
 Static shape inference for ONNX models -- resolves shapes that `onnx.shape_inference` leaves dynamic.

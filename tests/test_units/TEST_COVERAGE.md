@@ -1,3 +1,10 @@
+---
+type: DESCRIPTION
+note: "Descriptive. Mirrors current code; update to follow code changes. < functional code."
+---
+
+> **This file IS**: a unit test coverage report for shapeonnx tracking test counts and gaps. **It is NOT**: a test plan, test-writing guide, or quality gate.
+
 # ShapeONNX Unit Test Coverage Report
 
 ## Executive Summary
@@ -414,6 +421,5 @@ pytest -m ""
 
 ---
 
-**Last Updated**: 2025-12-29
 **Python Version**: 3.11+
 **Dependencies**: onnx, numpy, pytest
