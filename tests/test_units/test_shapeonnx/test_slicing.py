@@ -135,6 +135,37 @@ class TestSliceOperation:
         # Slice [0:10:5] produces 2 elements: [0, 5]
         assert result[0][0] == [2, 4]
 
+    def test_slice_attr_starts_ends_opset_lt_10(self):
+        """Slice with starts/ends from node attribute (opset < 10, single input)."""
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [5, 4, 3]},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node(
+            "Slice",
+            inputs=["input"],
+            outputs=["output"],
+            starts=[1],
+            ends=[4],
+            axes=[0],
+        )
+        result = _infer_slice_shape(node, ctx)
+        assert result[0][0] == [3, 4, 3]
+
+    def test_slice_attr_noop_no_starts_ends(self):
+        """Slice with no starts/ends attribute passes through unchanged."""
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [5, 4]},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Slice", inputs=["input"], outputs=["output"])
+        result = _infer_slice_shape(node, ctx)
+        assert result[0][0] == [5, 4]
+
 
 class TestGatherOperation:
     """Test Gather operation shape inference."""
@@ -256,6 +287,40 @@ class TestGatherOperation:
         )
         with pytest.raises(RuntimeError, match="Cannot gather from non-list"):
             _infer_gather_shape(node, ctx)
+
+    @pytest.mark.parametrize(
+        ("input_shape", "indices", "axis", "expected"),
+        [
+            pytest.param([3, 4, 5], [0, 2], -1, [3, 4, 2], id="negative_axis_last"),
+            pytest.param([3, 4, 5], [1, 3], -2, [3, 2, 5], id="negative_axis_middle"),
+            pytest.param([5, 4, 3], 2, -1, [5, 4], id="negative_axis_scalar_index"),
+            pytest.param([3, 4, 5], [0], 0, [1, 4, 5], id="positive_axis_unchanged"),
+            pytest.param(
+                [3, 4, 5],
+                [2, 4, 0],
+                -1,
+                [3, 4, 3],
+                id="negative_axis_array_index",
+            ),
+        ],
+    )
+    def test_gather_negative_axis(self, input_shape, indices, axis, expected):
+        """Gather with a negative axis normalises before indexing."""
+        indices_array = np.array(indices, dtype=np.int64)
+        indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
+
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": input_shape},
+            explicit_shapes={},
+            initializers={"indices": indices_tensor},
+            verbose=False,
+        )
+        node = onnx.helper.make_node(
+            "Gather", inputs=["input", "indices"], outputs=["output"], axis=axis
+        )
+        result = _infer_gather_shape(node, ctx)
+        assert len(result) >= 1
+        assert result[0][0] == expected
 
 
 class TestSliceExplicitShapes:

@@ -295,7 +295,7 @@ def _get_attrs_reduce(op_name: str) -> Callable:
 
     def _extractor(node: NodeProto, initializers: dict[str, TensorProto]) -> dict[str, Any]:
         attrs = _extract_attrs_with_defaults(
-            {"keepdims": 1, "noop_with_empty_axes": 0}, node.attribute
+            {"axes": None, "keepdims": 1, "noop_with_empty_axes": 0}, node.attribute
         )
         if attrs["noop_with_empty_axes"] != 0:
             raise ValueError(
@@ -390,12 +390,15 @@ EXTRACT_ATTRS_MAP: dict[str, Callable[[NodeProto, dict[str, TensorProto]], dict[
     "Gemm": _make_default_attrs_extractor({"alpha": 1.0, "beta": 1.0, "transA": 0, "transB": 0}),
     "LeakyRelu": _make_default_attrs_extractor({"alpha": 0.01}),
     "MaxPool": _get_attrs_maxpool,
-    "Pad": _make_default_attrs_extractor({"mode": "constant"}),
+    "Pad": _make_default_attrs_extractor({"mode": "constant", "pads": None, "value": 0.0}),
     "ReduceMean": _get_attrs_reduce("ReduceMean"),
     "ReduceSum": _get_attrs_reduce("ReduceSum"),
     "Reshape": _get_attrs_reshape,
     "Resize": _get_attrs_resize,
     "Shape": _get_attrs_shape,
+    "Slice": _make_default_attrs_extractor(
+        {"axes": None, "ends": None, "starts": None, "steps": None}
+    ),
     "Scatter": _get_attrs_scatterelement,
     "ScatterElements": _get_attrs_scatterelement,
     "ScatterND": _get_attrs_scatternd,

@@ -124,6 +124,33 @@ class TestFlattenOperation:
         assert result[0][0] == [0]
 
 
+class TestReshapeZeroDimension:
+    """Test Reshape 0-dim target copies input dimension semantics."""
+
+    @pytest.mark.parametrize(
+        ("input_shape", "target_shape", "expected"),
+        [
+            pytest.param([2, 3, 4], [0, 3, 4], [2, 3, 4], id="zero_copy_dim0"),
+            pytest.param([2, 3, 4], [0, -1], [2, 12], id="zero_and_minus_one"),
+            pytest.param([2, 3, 4], [0, 0, -1], [2, 3, 4], id="two_zeros_and_minus_one"),
+            pytest.param([6, 8], [0, 0], [6, 8], id="all_zero_copy"),
+            pytest.param([3, 4, 5], [0, 2, 5], [3, 2, 5], id="zero_then_literal"),
+        ],
+    )
+    def test_reshape_zero_dim_target(self, input_shape, target_shape, expected):
+        """Reshape with a 0 target dim copies the input dim (allowzero=0)."""
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": input_shape},
+            explicit_shapes={"target": target_shape},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Reshape", inputs=["input", "target"], outputs=["output"])
+        result = _infer_reshape_shape(node, ctx)
+        assert len(result) >= 1
+        assert result[0][0] == expected
+
+
 class TestTransposeOperation:
     """Test Transpose operation shape inference."""
 
@@ -299,6 +326,18 @@ class TestSqueezeOperation:
 
 class TestUnsqueezeOperation:
     """Test Unsqueeze operation shape inference."""
+
+    def test_unsqueeze_attr_axes_opset_lt_13(self):
+        """Unsqueeze with axes from node attribute (opset < 13, single input)."""
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [3, 4]},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Unsqueeze", inputs=["input"], outputs=["output"], axes=[0])
+        result = _infer_unsqueeze_shape(node, ctx)
+        assert result[0][0] == [1, 3, 4]
 
     @pytest.mark.parametrize(
         ("input_shape", "axes", "expected"),

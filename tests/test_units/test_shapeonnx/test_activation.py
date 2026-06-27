@@ -5,7 +5,11 @@ __docformat__ = "restructuredtext"
 import onnx
 import pytest
 
-from shapeonnx.infer_shape import ShapeInferenceContext, _infer_identity_shape
+from shapeonnx.infer_shape import (
+    INFER_SHAPE_FUNC_MAPPING,
+    ShapeInferenceContext,
+    _infer_identity_shape,
+)
 
 
 class TestActivationFunctions:
@@ -24,6 +28,13 @@ class TestActivationFunctions:
             pytest.param("Sin", [3, 4], id="sin_2d"),
             pytest.param("Sign", [3, 4], id="sign_2d"),
             pytest.param("Clip", [3, 4], id="clip_2d"),
+            pytest.param("Abs", [3, 4], id="abs_2d"),
+            pytest.param("Elu", [3, 4], id="elu_2d"),
+            pytest.param("Exp", [3, 4], id="exp_2d"),
+            pytest.param("Gelu", [3, 4], id="gelu_2d"),
+            pytest.param("Log", [3, 4], id="log_2d"),
+            pytest.param("Reciprocal", [3, 4], id="reciprocal_2d"),
+            pytest.param("Sqrt", [3, 4], id="sqrt_2d"),
         ],
     )
     def test_activation_shape_preserved(self, op_type, shape):
@@ -137,3 +148,17 @@ class TestActivationDifferentRanks:
         # Zero dimension preserved
         assert len(result) >= 1
         assert result[0][0] == [0]
+
+
+class TestUnaryOpsDispatch:
+    """Verify the 7 new unary ops are registered in the shape inference mapping."""
+
+    _NEW_UNARY = ("Abs", "Elu", "Exp", "Gelu", "Log", "Reciprocal", "Sqrt")
+
+    @pytest.mark.parametrize("op_type", _NEW_UNARY)
+    def test_unary_mapped_to_identity(self, op_type):
+        """Each new elementwise op dispatches to _infer_identity_shape."""
+        assert op_type in INFER_SHAPE_FUNC_MAPPING, f"{op_type} not in INFER_SHAPE_FUNC_MAPPING"
+        assert INFER_SHAPE_FUNC_MAPPING[op_type] is _infer_identity_shape, (
+            f"{op_type} does not map to _infer_identity_shape"
+        )

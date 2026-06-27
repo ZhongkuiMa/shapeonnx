@@ -43,14 +43,11 @@ def _reformat_io_shape(node: ValueInfoProto, has_batch_dim: bool = True) -> list
         else:
             shape.append(d.dim_value)
     if has_batch_dim:
-        # Allow scalar outputs [] - they don't need batch dimension validation
-        # (e.g., outputs reduced via Squeeze operations)
-        if len(shape) == 0:
+        # Allow scalar [] and rank-1 [N] outputs - they carry no separate feature
+        # axis to normalize (e.g. outputs reduced via Squeeze / keepdims=0
+        # reductions down to the surviving batch dim); accept them as-is.
+        if len(shape) <= 1:
             return shape
-        if len(shape) < 2:
-            raise ValueError(
-                f"Expected batch dimension; node {node.name} has invalid shape {shape}"
-            )
         if shape[0] != 1:
             shape[0] = 1
 

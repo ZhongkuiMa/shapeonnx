@@ -35,11 +35,17 @@ class TestReformatIOShape:
         result = _reformat_io_shape(tensor_info, has_batch_dim=has_batch_dim)
         assert result == expected
 
-    def test_reformat_invalid_batch_dim(self):
-        """Test reformatting with invalid batch dimension."""
-        tensor_info = onnx.helper.make_tensor_value_info("test", onnx.TensorProto.FLOAT, [1])
-        with pytest.raises(ValueError, match="Expected batch dimension"):
-            _reformat_io_shape(tensor_info, has_batch_dim=True)
+    @pytest.mark.parametrize("shape", [[1], [512], [32]])
+    def test_reformat_rank1_batch_dim(self, shape):
+        """Rank-1 output under has_batch_dim is the surviving batch dim; accepted as-is.
+
+        A keepdims=0 reduction down to the batch dim yields a rank-1 graph output
+        (e.g. ``[1]`` or ``[512]``); it carries no separate feature axis to
+        normalize.
+        """
+        tensor_info = onnx.helper.make_tensor_value_info("test", onnx.TensorProto.FLOAT, shape)
+        result = _reformat_io_shape(tensor_info, has_batch_dim=True)
+        assert result == shape
 
 
 class TestGetInitializers:

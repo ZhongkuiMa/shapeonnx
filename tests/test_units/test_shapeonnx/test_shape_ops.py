@@ -150,6 +150,18 @@ class TestPadOperation:
         with pytest.raises(KeyError, match="pads"):
             _infer_pad_shape(node, ctx)
 
+    def test_pad_attr_pads_opset_lt_11(self):
+        """Pad with pads from node attribute (opset < 11, single input)."""
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [3, 4]},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Pad", inputs=["input"], outputs=["output"], pads=[0, 0, 1, 2])
+        result = _infer_pad_shape(node, ctx)
+        assert result[0][0] == [4, 6]
+
 
 class TestResizeOperation:
     """Test Resize operation shape inference."""

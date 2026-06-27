@@ -841,11 +841,15 @@ def _infer_gather_shape(
         if isinstance(shape, int):
             return [(shape, None)]
 
+        # ONNX Gather allows a negative axis (counts from the end); normalize
+        # before comparing against positional indices, else a negative axis
+        # matches nothing and the gathered dim is neither replaced nor removed.
+        norm_axis = axis % len(shape) if shape else axis
         if shape != [0]:
             shape = [
-                len(indices) if i == axis and not is_int_indices else shape[i]
+                len(indices) if i == norm_axis and not is_int_indices else shape[i]
                 for i in range(len(shape))
-                if not (i == axis and is_int_indices)
+                if not (i == norm_axis and is_int_indices)
             ]
         return [(shape, None)]
 
@@ -1024,10 +1028,17 @@ def _infer_pad_shape(
     if not isinstance(input_shape, list):
         raise RuntimeError(f"Input shape must be a list, got {input_shape}")
 
-    pads = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
-    if len(node.input) == 4:
-        axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[3]]).tolist()
-        raise NotImplementedError(f"Pad with axes={axes} is not supported")
+    # pads source: input[1] (opset >= 11) or the 'pads' attribute (opset < 11).
+    if len(node.input) == 1:
+        pads_attr = _get_onnx_attrs(node, ctx.initializers)["pads"]
+        if pads_attr is None:
+            raise RuntimeError(f"Pad node {node.name} has no pads input or attribute")
+        pads = list(pads_attr)
+    else:
+        pads = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
+        if len(node.input) == 4:
+            axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[3]]).tolist()
+            raise NotImplementedError(f"Pad with axes={axes} is not supported")
 
     dim = len(pads) // 2
     combined_pads = [pads[i] + pads[i + dim] for i in range(dim)]
@@ -1079,12 +1090,23 @@ def _infer_reduce_shape(
 
     :return: List of (data_shape, explicit_shape) tuples
     """
-    keepdims = _get_onnx_attrs(node, ctx.initializers)["keepdims"]
-    axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
+    attrs = _get_onnx_attrs(node, ctx.initializers)
+    keepdims = attrs["keepdims"]
 
     shape = _get_data_shape(node.input[0], ctx.data_shapes)
     if shape is None:
         raise RuntimeError(f"Cannot get shape of {node.input[0]}")
+
+    # Axes source: input[1] (opset >= 13) or the 'axes' attribute (opset < 13);
+    # absent in both means reduce over all axes.
+    if len(node.input) > 1 and node.input[1] in ctx.initializers:
+        axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
+    elif attrs["axes"] is not None:
+        axes = list(attrs["axes"])
+    elif isinstance(shape, list):
+        axes = list(range(len(shape)))
+    else:
+        axes = [0]
 
     # Handle scalar shapes
     if isinstance(shape, int):
@@ -1117,14 +1139,20 @@ def _infer_reshape_output_shape(ori_shape: list[int], new_shape: list[int]) -> l
     total = math.prod(ori_shape)
     inferred_idx = -1
     remaining = total
+    result = new_shape.copy()
 
     for idx, dim in enumerate(new_shape):
         if dim == -1:
             inferred_idx = idx
+        elif dim == 0:
+            # ONNX Reshape: a 0 target dim copies the corresponding input dim
+            # (allowzero=0, the default). Substitute the input dim and divide by it.
+            copied = ori_shape[idx]
+            result[idx] = copied
+            remaining //= copied
         else:
             remaining //= dim
 
-    result = new_shape.copy()
     if inferred_idx != -1:
         result[inferred_idx] = remaining
 
@@ -1295,25 +1323,42 @@ def _infer_slice_shape(
 
     :return: List of (data_shape, explicit_shape) tuples
     """
-    if any(name not in ctx.initializers for name in node.input[1:]):
-        shape = [0]
-        if node.input[0] in ctx.explicit_shapes:
-            return [(None, shape)]
-        return [(shape, None)]
+    if len(node.input) == 1:
+        # opset < 10: starts/ends/axes carried as node attributes (no steps).
+        attrs = _get_onnx_attrs(node, ctx.initializers)
+        if attrs["starts"] is None or attrs["ends"] is None:
+            # No params at all: slice is a no-op, pass the input shape through.
+            shape = _get_data_shape(node.input[0], ctx.data_shapes)
+            e_shape = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
+            if e_shape is not None:
+                return [(None, e_shape)]
+            if shape is not None:
+                return [(shape, None)]
+            return [([0], None)]
+        starts = list(attrs["starts"])
+        ends = list(attrs["ends"])
+        axes = list(attrs["axes"]) if attrs["axes"] is not None else list(range(len(starts)))
+        steps = [1] * len(axes)
+    else:
+        if any(name not in ctx.initializers for name in node.input[1:]):
+            shape = [0]
+            if node.input[0] in ctx.explicit_shapes:
+                return [(None, shape)]
+            return [(shape, None)]
 
-    starts = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
-    ends = onnx.numpy_helper.to_array(ctx.initializers[node.input[2]]).tolist()
+        starts = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
+        ends = onnx.numpy_helper.to_array(ctx.initializers[node.input[2]]).tolist()
 
-    axes = (
-        onnx.numpy_helper.to_array(ctx.initializers[node.input[3]]).tolist()
-        if len(node.input) > 3
-        else list(range(len(starts)))
-    )
-    steps = (
-        onnx.numpy_helper.to_array(ctx.initializers[node.input[4]]).tolist()
-        if len(node.input) > 4
-        else [1] * len(axes)
-    )
+        axes = (
+            onnx.numpy_helper.to_array(ctx.initializers[node.input[3]]).tolist()
+            if len(node.input) > 3
+            else list(range(len(starts)))
+        )
+        steps = (
+            onnx.numpy_helper.to_array(ctx.initializers[node.input[4]]).tolist()
+            if len(node.input) > 4
+            else [1] * len(axes)
+        )
 
     # Check for explicit shape first (for shape tensors like from Shape op)
     e_shape = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
@@ -1493,7 +1538,14 @@ def _infer_unsqueeze_shape(
     :return: List of (data_shape, explicit_shape) tuples
     """
     shape, is_explicit = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
-    axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
+    # axes source: input[1] (opset >= 13) or the 'axes' attribute (opset < 13).
+    if len(node.input) == 1:
+        axes_attr = _get_onnx_attrs(node, ctx.initializers)["axes"]
+        if axes_attr is None:
+            raise RuntimeError(f"Unsqueeze node {node.name} has no axes input or attribute")
+        axes = list(axes_attr)
+    else:
+        axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
 
     if isinstance(shape, int):
         if axes != [0]:
@@ -1554,6 +1606,7 @@ ShapeInferFunc = Callable[
     list[tuple[int | list[int] | None, int | list[int] | None]],
 ]
 INFER_SHAPE_FUNC_MAPPING: dict[str, ShapeInferFunc] = {
+    "Abs": _infer_identity_shape,
     "Add": _infer_binary_op_shape,
     "ArgMax": _infer_argmax_shape,
     "AveragePool": _infer_pool_shape,
@@ -1567,14 +1620,18 @@ INFER_SHAPE_FUNC_MAPPING: dict[str, ShapeInferFunc] = {
     "Cos": _infer_identity_shape,
     "Div": _infer_binary_op_shape,
     "Dropout": _infer_identity_shape,
+    "Elu": _infer_identity_shape,
     "Equal": _infer_binary_op_shape,
+    "Exp": _infer_identity_shape,
     "Expand": _infer_expand_shape,
     "Flatten": _infer_flatten_shape,
     "Floor": _infer_identity_shape,
     "Gather": _infer_gather_shape,
+    "Gelu": _infer_identity_shape,
     "Gemm": _infer_gemm_shape,
     "GlobalAveragePool": _infer_identity_shape,
     "LeakyRelu": _infer_identity_shape,
+    "Log": _infer_identity_shape,
     "MatMul": _infer_matmul_shape,
     "Max": _infer_identity_shape,
     "MaxPool": _infer_pool_shape,
@@ -1584,6 +1641,7 @@ INFER_SHAPE_FUNC_MAPPING: dict[str, ShapeInferFunc] = {
     "Pad": _infer_pad_shape,
     "Pow": _infer_identity_shape,
     "Range": _infer_range_shape,
+    "Reciprocal": _infer_identity_shape,
     "ReduceMean": _infer_reduce_shape,
     "ReduceSum": _infer_reduce_shape,
     "Relu": _infer_identity_shape,
@@ -1598,6 +1656,7 @@ INFER_SHAPE_FUNC_MAPPING: dict[str, ShapeInferFunc] = {
     "Sin": _infer_identity_shape,
     "Slice": _infer_slice_shape,
     "Split": _infer_split_shape,
+    "Sqrt": _infer_identity_shape,
     "Softmax": _infer_identity_shape,
     "Squeeze": _infer_squeeze_shape,
     "Sub": _infer_binary_op_shape,

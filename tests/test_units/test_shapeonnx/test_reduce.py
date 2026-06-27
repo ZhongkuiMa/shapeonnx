@@ -129,6 +129,32 @@ class TestReduceShape:
         assert len(results) >= 1
         assert results[0][0] == expected
 
+    def test_reduce_attr_axes_opset_lt_13(self):
+        """Reduce with axes from node attribute (opset < 13, single input)."""
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [2, 3, 4]},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node(
+            "ReduceSum", inputs=["input"], outputs=["output"], axes=[1], keepdims=1
+        )
+        result = _infer_reduce_shape(node, ctx)
+        assert result[0][0] == [2, 1, 4]
+
+    def test_reduce_no_axes_defaults_to_all_axes(self):
+        """Reduce with no axes attribute or input reduces over every dimension."""
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [2, 3, 4]},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("ReduceSum", inputs=["input"], outputs=["output"], keepdims=1)
+        result = _infer_reduce_shape(node, ctx)
+        assert result[0][0] == [1, 1, 1]
+
 
 class TestReduceErrors:
     """Error handling for Reduce operations."""

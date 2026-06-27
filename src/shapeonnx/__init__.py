@@ -3,7 +3,7 @@
 .. seealso:: ``shapeonnx/CONVENTIONS.md`` for code conventions.
 """
 
-__version__ = "2026.6.1"
+__version__ = "2026.6.2"
 
 __docformat__ = "restructuredtext"
 __all__ = ["__version__", "extract_io_shapes", "infer_onnx_shape"]
