@@ -20,7 +20,7 @@ def get_onnx_models():
 
     :return: List of ONNX file paths or empty list if benchmarks not found
     """
-    dir_name = "vnncomp2024_benchmarks"
+    dir_name = "vnncomp_benchmarks"
     benchmarks_path = Path(__file__).parent / dir_name
 
     # Skip if benchmarks directory doesn't exist
