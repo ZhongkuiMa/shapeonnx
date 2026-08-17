@@ -126,3 +126,25 @@ class TestConcatOperation:
         # Zero dimension: returns [0]
         assert len(result) >= 1
         assert result[0][0] == [0]
+
+    @pytest.mark.parametrize(
+        ("shapes", "axis", "match"),
+        [
+            pytest.param([[2, 3], [2, 3, 1]], 1, "same rank", id="rank-mismatch"),
+            pytest.param([[2, 3], [4, 3]], 1, "dimension 0=4", id="non-axis-mismatch"),
+            pytest.param([[2, 3], [2, 3]], 2, "out of range", id="axis-too-large"),
+            pytest.param([[2, 3], [2, 3]], -3, "out of range", id="axis-too-negative"),
+        ],
+    )
+    def test_concat_rejects_invalid_geometry(self, shapes, axis, match):
+        """Concat rejects geometry that ONNX does not define."""
+        input_names = [f"input{i}" for i in range(len(shapes))]
+        ctx = ShapeInferenceContext(
+            data_shapes=dict(zip(input_names, shapes, strict=True)),
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Concat", inputs=input_names, outputs=["output"], axis=axis)
+        with pytest.raises(RuntimeError, match=match):
+            _infer_concat_shape(node, ctx)

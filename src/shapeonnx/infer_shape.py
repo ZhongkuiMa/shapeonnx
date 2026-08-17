@@ -558,31 +558,6 @@ def _collect_concat_input_shapes(
     return (shape_list, all_explicit, any_explicit)
 
 
-def _normalize_concat_shapes_different_ranks(shape_list: list[list[int]], axis: int) -> list[int]:
-    """
-    Normalize and concatenate shapes with different ranks.
-
-    :param shape_list: List of input shapes.
-
-    :param axis: Concatenation axis.
-
-    :return: Concatenated shape
-    """
-    max_ndim = max(len(s) for s in shape_list)
-    normalized_shapes = []
-    for s in shape_list:
-        s_len = len(s)
-        diff = max_ndim - s_len
-        normalized = [1] * diff + s
-        normalized_shapes.append(normalized)
-
-    shape = normalized_shapes[0].copy()
-    for other_shape in normalized_shapes[1:]:
-        if axis < len(shape):
-            shape[axis] += other_shape[axis]
-    return shape
-
-
 def _infer_concat_shape(
     node: NodeProto, ctx: ShapeInferenceContext
 ) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
@@ -609,16 +584,26 @@ def _infer_concat_shape(
         shape = np.concatenate(shape_list, axis=axis).tolist()
         return [(None, shape)]
 
-    # Check if all shapes have the same rank
-    if len({len(s) for s in shape_list}) == 1:
-        # All same rank - simple concatenation
-        shape = shape_list[0].copy()
-        for other_shape in shape_list[1:]:
-            if axis < len(shape):
-                shape[axis] += other_shape[axis]
-    else:
-        # Different ranks - normalize and concatenate
-        shape = _normalize_concat_shapes_different_ranks(shape_list, axis)
+    rank = len(shape_list[0])
+    if rank == 0:
+        raise RuntimeError("Cannot concatenate scalar inputs")
+    if any(len(input_shape) != rank for input_shape in shape_list[1:]):
+        raise RuntimeError(
+            f"Concat inputs must have the same rank, got {[len(s) for s in shape_list]}"
+        )
+    if axis < -rank or axis >= rank:
+        raise RuntimeError(f"Concat axis {axis} is out of range for input rank {rank}")
+    axis %= rank
+
+    shape = shape_list[0].copy()
+    for input_index, other_shape in enumerate(shape_list[1:], start=1):
+        for dim, (expected, actual) in enumerate(zip(shape, other_shape, strict=True)):
+            if dim != axis and actual != expected:
+                raise RuntimeError(
+                    f"Concat input {input_index} shape {other_shape} has dimension "
+                    f"{dim}={actual}, expected {expected}"
+                )
+        shape[axis] += other_shape[axis]
 
     # Only mark as explicit if we had any explicit inputs and result is concrete
     if any_explicit:
@@ -712,12 +697,25 @@ def _infer_convtranspose_shape(
     output_padding = attrs["output_padding"]
     pads = attrs["pads"]
     strides = attrs["strides"]
+    group = attrs["group"]
 
-    if not (len(kernel_shape) == len(dilations) == 2 and len(pads) == 4 and len(strides) == 2):
+    if not (
+        len(kernel_shape) == len(dilations) == len(output_padding) == len(strides) == 2
+        and len(pads) == 4
+    ):
         raise NotImplementedError(
             f"ConvTranspose with kernel_shape={kernel_shape}, dilations={dilations}, "
-            f"pads={pads}, strides={strides} is not supported"
+            f"output_padding={output_padding}, pads={pads}, strides={strides} is not supported"
         )
+    if (
+        any(value <= 0 for value in (*kernel_shape, *dilations, *strides))
+        or any(value < 0 for value in (*output_padding, *pads))
+        or any(
+            extra >= max(step, dilation)
+            for extra, step, dilation in zip(output_padding, strides, dilations, strict=True)
+        )
+    ):
+        raise ValueError("ConvTranspose attributes are outside the executable 2D domain")
 
     input_shape = _get_data_shape(node.input[0], ctx.data_shapes)
     if input_shape is None:
@@ -730,16 +728,40 @@ def _infer_convtranspose_shape(
         raise RuntimeError(f"ConvTranspose input shape cannot be scalar: {input_shape}")
 
     weight_shape = list(ctx.initializers[node.input[1]].dims)
-    output_hw = _compute_convtranspose_output_hw(
-        input_shape,
-        weight_shape,
-        kernel_shape,
-        dilations,
-        output_padding,
-        pads,
-        strides,
-    )
-    shape = [input_shape[0], weight_shape[1], *output_hw]
+    if len(input_shape) != 4 or len(weight_shape) != 4:
+        raise NotImplementedError(
+            f"ConvTranspose supports NCHW 2D tensors only, got {input_shape} and {weight_shape}"
+        )
+    if input_shape[1] != weight_shape[0] or weight_shape[0] % group:
+        raise ValueError(
+            f"ConvTranspose input/group geometry is incoherent: input={input_shape}, "
+            f"weight={weight_shape}, group={group}"
+        )
+    out_channels = weight_shape[1] * group
+    if len(node.input) > 2 and node.input[2]:
+        bias_shape = tuple(ctx.initializers[node.input[2]].dims)
+        if bias_shape != (out_channels,):
+            raise ValueError(
+                f"ConvTranspose bias shape {bias_shape} != output channels {(out_channels,)}"
+            )
+
+    if attrs["output_shape"] is not None:
+        output_hw = list(attrs["output_shape"])
+        if len(output_hw) != 2 or any(size <= 0 for size in output_hw):
+            raise ValueError(
+                f"ConvTranspose output_shape must contain two positive integers, got {output_hw}"
+            )
+    else:
+        output_hw = _compute_convtranspose_output_hw(
+            input_shape,
+            weight_shape,
+            kernel_shape,
+            dilations,
+            output_padding,
+            pads,
+            strides,
+        )
+    shape = [input_shape[0], out_channels, *output_hw]
     return [(shape, None)]
 
 
@@ -788,17 +810,18 @@ def _infer_flatten_shape(
     if shape is None:
         raise RuntimeError(f"Cannot get shape of {node.input[0]}")
 
-    # Handle scalar shapes
-    if isinstance(shape, int):
-        return [(shape, None)]
-
     axis = _get_onnx_attrs(node, ctx.initializers)["axis"]
-    if shape != [0]:
-        total = math.prod(shape)
-        prefix = math.prod(shape[:axis])
-        shape = [*shape[:axis], total // prefix]
+    dims = [] if isinstance(shape, int) else shape
+    rank = len(dims)
+    if not isinstance(axis, int) or axis < -rank or axis > rank:
+        raise ValueError(f"Flatten axis {axis!r} is outside [-{rank}, {rank}]")
+    canonical_axis = axis + rank if axis < 0 else axis
 
-    return [(shape, None)]
+    def _product(extents: list[int]) -> int:
+        return -1 if any(extent < 0 for extent in extents) else math.prod(extents)
+
+    output_shape = [_product(dims[:canonical_axis]), _product(dims[canonical_axis:])]
+    return [(output_shape, None)]
 
 
 def _infer_gather_shape(
@@ -877,18 +900,78 @@ def _infer_gemm_shape(
     if [0] in (shape1, shape2):
         return [([0], None)]
 
-    if not isinstance(shape1, list) or not isinstance(shape2, list):
-        raise RuntimeError(f"Cannot perform Gemm with shapes {shape1} and {shape2}")
+    if (
+        not isinstance(shape1, list)
+        or not isinstance(shape2, list)
+        or len(shape1) != 2
+        or len(shape2) != 2
+    ):
+        raise RuntimeError(
+            f"Gemm requires rank-2 A and B tensors, got shapes {shape1} and {shape2}"
+        )
 
     shape1 = shape1.copy()
     shape2 = shape2.copy()
-    if trans_a and len(shape1) >= 2:
+    if trans_a:
         shape1[-2], shape1[-1] = shape1[-1], shape1[-2]
-    if trans_b and len(shape2) >= 2:
+    if trans_b:
         shape2[-2], shape2[-1] = shape2[-1], shape2[-2]
 
-    shape = shape2 if not shape1 else shape1[:-1] + shape2[-1:]
-    return [(shape, None)]
+    if shape1[1] != shape2[0]:
+        raise RuntimeError(
+            f"Gemm inner dimensions must match after transpose, got {shape1} and {shape2}"
+        )
+
+    output_shape = [shape1[0], shape2[1]]
+    if len(node.input) > 2 and node.input[2]:
+        bias_shape, _ = _get_shape(node.input[2], ctx.data_shapes, ctx.explicit_shapes)
+        if bias_shape != [0]:
+            if isinstance(bias_shape, int):
+                bias_shape = []
+            if not isinstance(bias_shape, list) or len(bias_shape) > 2:
+                raise RuntimeError(f"Gemm bias must broadcast to {output_shape}, got {bias_shape}")
+            padded_bias = [1] * (2 - len(bias_shape)) + bias_shape
+            if any(b not in (1, out) for b, out in zip(padded_bias, output_shape, strict=True)):
+                raise RuntimeError(f"Gemm bias must broadcast to {output_shape}, got {bias_shape}")
+
+    return [(output_shape, None)]
+
+
+def _broadcast_matmul_batch_shape(left: list[int], right: list[int]) -> list[int]:
+    """Broadcast two MatMul batch prefixes using ONNX multidirectional rules."""
+    out: list[int] = []
+    for ldim, rdim in zip(reversed(left), reversed(right), strict=False):
+        if ldim == rdim or rdim == 1:
+            out.append(ldim)
+        elif ldim == 1:
+            out.append(rdim)
+        else:
+            raise ValueError(f"MatMul batch dimensions cannot broadcast: {left} and {right}")
+    longer = left if len(left) > len(right) else right
+    out.extend(reversed(longer[: abs(len(left) - len(right))]))
+    return list(reversed(out))
+
+
+def _matmul_output_shape(left: list[int], right: list[int]) -> list[int]:
+    """Return exact ONNX MatMul output geometry for two non-scalar shapes."""
+    if not left or not right:
+        raise ValueError(f"MatMul requires rank >= 1 inputs, got {left} and {right}")
+
+    left_was_vector = len(left) == 1
+    right_was_vector = len(right) == 1
+    promoted_left = [1, *left] if left_was_vector else left
+    promoted_right = [*right, 1] if right_was_vector else right
+
+    if promoted_left[-1] != promoted_right[-2]:
+        raise ValueError(f"MatMul contraction dimensions must match, got {left} and {right}")
+
+    batch = _broadcast_matmul_batch_shape(promoted_left[:-2], promoted_right[:-2])
+    out = [*batch, promoted_left[-2], promoted_right[-1]]
+    if left_was_vector:
+        out.pop(len(batch))
+    if right_was_vector:
+        out.pop()
+    return out
 
 
 def _infer_matmul_shape(
@@ -905,20 +988,13 @@ def _infer_matmul_shape(
     """
     shape1, _ = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
     shape2, _ = _get_shape(node.input[1], ctx.data_shapes, ctx.explicit_shapes)
-    assert isinstance(shape1, list)
-    assert isinstance(shape2, list)
-
     if [0] in (shape1, shape2):
         return [([0], None)]
 
-    if len(shape2) <= 2:
-        shape = [*shape1[:-1], *shape2[1:]]
-    elif len(shape1) == len(shape2) and len(shape1) > 2 and len(shape2) > 2:
-        shape = [*shape1[:-1], shape2[-1]]
-    else:
-        raise ValueError(f"Invalid shapes {shape1} and {shape2} for MatMul")
+    if not isinstance(shape1, list) or not isinstance(shape2, list):
+        raise ValueError(f"MatMul requires tensor inputs, got {shape1} and {shape2}")
 
-    return [(shape, None)]
+    return [(_matmul_output_shape(shape1, shape2), None)]
 
 
 def _compute_pool_output_hw(
@@ -1184,25 +1260,6 @@ def _infer_reshape_shape(
     return [(shape, None)]
 
 
-def _create_resize_rounding_op(nearest_mode: str) -> Callable:
-    """
-    Create rounding function for resize operation.
-
-    :param nearest_mode: Nearest mode strategy.
-
-    :return: Rounding function
-    """
-    if nearest_mode == "floor":
-        return math.floor
-    if nearest_mode == "ceil":
-        return math.ceil
-    if nearest_mode == "round_prefer_floor":
-        return lambda x: int(x + 0.4999999)
-    if nearest_mode == "round_prefer_ceil":
-        return lambda x: int(x + 0.5000001)
-    raise NotImplementedError(f"Resize nearest_mode={nearest_mode} is not supported")
-
-
 def _infer_resize_shape(
     node: NodeProto, ctx: ShapeInferenceContext
 ) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
@@ -1233,16 +1290,39 @@ def _infer_resize_shape(
     if isinstance(input_shape, int):
         raise RuntimeError(f"Resize input shape cannot be scalar: {input_shape}")
 
-    op_round = _create_resize_rounding_op(nearest_mode)
-
-    scales = onnx.numpy_helper.to_array(ctx.initializers[node.input[2]]).tolist()
-    if not scales:
-        raise ValueError("Resize with empty scales is not supported")
-
     if align_mode not in {"asymmetric", "half_pixel"}:
         raise NotImplementedError(f"Resize align_mode={align_mode} is not supported")
+    if nearest_mode not in {"floor", "ceil", "round_prefer_floor", "round_prefer_ceil"}:
+        raise NotImplementedError(f"Resize nearest_mode={nearest_mode} is not supported")
 
-    shape = [op_round(dim * scale) for dim, scale in zip(input_shape, scales, strict=False)]
+    scales_name = node.input[2] if len(node.input) > 2 else ""
+    sizes_name = node.input[3] if len(node.input) > 3 else ""
+    if bool(scales_name) == bool(sizes_name):
+        raise ValueError("Resize requires exactly one of scales or sizes")
+
+    if sizes_name:
+        if sizes_name not in ctx.initializers:
+            raise ValueError("Resize with dynamic sizes is not supported")
+        sizes = onnx.numpy_helper.to_array(ctx.initializers[sizes_name]).tolist()
+        if (
+            not isinstance(sizes, list)
+            or len(sizes) != len(input_shape)
+            or any(not isinstance(size, int) or size <= 0 for size in sizes)
+        ):
+            raise ValueError(f"Resize sizes must be positive full-rank integers, got {sizes!r}")
+        return [(sizes, None)]
+
+    if scales_name not in ctx.initializers:
+        raise ValueError("Resize with dynamic scales is not supported")
+    scales = onnx.numpy_helper.to_array(ctx.initializers[scales_name]).tolist()
+    if not scales:
+        raise ValueError("Resize with empty scales is not supported")
+    if len(scales) != len(input_shape):
+        raise ValueError(f"Resize scales rank {len(scales)} != input rank {len(input_shape)}")
+
+    # ONNX output extent is floor(input * scale); nearest_mode controls only
+    # source-index selection and must never change tensor geometry.
+    shape = [math.floor(dim * scale) for dim, scale in zip(input_shape, scales, strict=True)]
     return [(shape, None)]
 
 
@@ -1384,6 +1464,56 @@ def _infer_slice_shape(
     raise RuntimeError(f"Cannot get shape of {node.input[0]}")
 
 
+def _make_equal_split_sizes(axis_len: int, count: int) -> list[int]:
+    """Compute ONNX equal sections with a possibly smaller final chunk."""
+    if count <= 0:
+        raise ValueError(f"Split output count must be positive, got {count}")
+    chunk = (axis_len + count - 1) // count
+    sizes = [chunk] * (count - 1) + [axis_len - chunk * (count - 1)]
+    if any(size <= 0 for size in sizes):
+        raise ValueError(f"Split axis length {axis_len} cannot produce {count} positive outputs")
+    return sizes
+
+
+def _resolve_split_sizes(
+    node: NodeProto,
+    ctx: ShapeInferenceContext,
+    attrs: dict[str, object],
+    axis_len: int,
+) -> list[int]:
+    """Resolve exact section sizes from Split attributes or initializer input."""
+    input_name = node.input[1] if len(node.input) > 1 else ""
+    split_attr = attrs["split"]
+    num_outputs = attrs["num_outputs"]
+    if sum(value is not None for value in (split_attr, num_outputs)) + bool(input_name) > 1:
+        raise ValueError(
+            "Split accepts exactly one of split input, split attribute, or num_outputs"
+        )
+    if input_name:
+        if input_name not in ctx.initializers:
+            raise RuntimeError(f"Split input[1]={input_name} must be an initializer")
+        values = np.asarray(onnx.numpy_helper.to_array(ctx.initializers[input_name]))
+        if values.ndim != 1 or values.dtype not in (np.int32, np.int64):
+            raise ValueError("Split input must be a 1D int32/int64 tensor")
+        sizes = [int(value) for value in values.tolist()]
+    elif split_attr is not None:
+        if not isinstance(split_attr, (list, tuple)) or any(
+            not isinstance(size, int) for size in split_attr
+        ):
+            raise ValueError("Split attribute must contain integer sizes")
+        sizes = [int(size) for size in split_attr]
+    else:
+        if num_outputs is not None and not isinstance(num_outputs, int):
+            raise ValueError("Split num_outputs must be an integer")
+        count = len(node.output) if num_outputs is None else num_outputs
+        sizes = _make_equal_split_sizes(axis_len, count)
+    if len(sizes) != len(node.output) or any(size <= 0 for size in sizes):
+        raise ValueError("Split sizes must contain one positive entry per output")
+    if sum(sizes) != axis_len:
+        raise ValueError(f"Split sizes {sizes} do not sum to axis length {axis_len}")
+    return sizes
+
+
 def _infer_split_shape(
     node: NodeProto, ctx: ShapeInferenceContext
 ) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
@@ -1409,14 +1539,10 @@ def _infer_split_shape(
 
     attrs = _get_onnx_attrs(node, ctx.initializers)
     axis = attrs["axis"]
-    if attrs["num_outputs"] is not None:
-        raise NotImplementedError(f"Split with num_outputs={attrs['num_outputs']} is not supported")
-    if node.input[1] not in ctx.initializers:
-        raise RuntimeError(f"Split input[1]={node.input[1]} must be an initializer")
-
-    split_sizes = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
-    if axis < 0:
-        axis += len(shape)
+    if not isinstance(axis, int) or not -len(shape) <= axis < len(shape):
+        raise ValueError(f"Split axis {axis!r} is invalid for rank {len(shape)}")
+    axis %= len(shape)
+    split_sizes = _resolve_split_sizes(node, ctx, attrs, shape[axis])
 
     output_shapes: list[tuple[int | list[int] | None, int | list[int] | None]] = []
     for split_size in split_sizes:

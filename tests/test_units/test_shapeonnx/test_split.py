@@ -421,23 +421,18 @@ class TestSplitIntegration:
         with pytest.raises(RuntimeError, match="Cannot get shape"):
             _infer_split_shape(node, ctx)
 
-    def test_split_num_outputs_not_supported_error(self):
-        """Test Split with num_outputs raises NotImplementedError."""
-        split_initializer = onnx.numpy_helper.from_array(
-            np.array([2, 2], dtype=np.int64), name="split"
-        )
-
+    def test_split_num_outputs_keeps_smaller_final_chunk(self):
+        """Test uneven num_outputs uses ONNX's smaller final chunk."""
         ctx = ShapeInferenceContext(
-            data_shapes={"input": [4, 5]},
+            data_shapes={"input": [5, 4]},
             explicit_shapes={},
-            initializers={"split": split_initializer},
+            initializers={},
             verbose=False,
         )
-
-        # num_outputs attribute instead of split tensor
         node = onnx.helper.make_node(
-            "Split", inputs=["input", "split"], outputs=["o1", "o2"], axis=0, num_outputs=2
+            "Split", inputs=["input"], outputs=["o1", "o2"], axis=0, num_outputs=2
         )
 
-        with pytest.raises(NotImplementedError, match="Split with num_outputs"):
-            _infer_split_shape(node, ctx)
+        results = _infer_split_shape(node, ctx)
+
+        assert [result[0] for result in results] == [[3, 4], [2, 4]]

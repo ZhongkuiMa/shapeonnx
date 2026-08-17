@@ -228,7 +228,7 @@ class TestComplexBranchingLogic:
         assert result[0][0] == [2, 12]
 
     def test_concat_different_ranks(self):
-        """Test Concat with inputs of different ranks."""
+        """Concat rejects inputs of different ranks."""
         ctx = ShapeInferenceContext(
             data_shapes={"a": [3, 4], "b": [3, 4, 2]},  # Different ranks: 2D and 3D
             explicit_shapes={},
@@ -237,13 +237,8 @@ class TestComplexBranchingLogic:
         )
         node = onnx.helper.make_node("Concat", inputs=["a", "b"], outputs=["output"], axis=1)
 
-        try:
-            result = _infer_concat_shape(node, ctx)
-            # Different rank handling - should normalize ranks
-            assert isinstance(result[0][0], list)
-        except RuntimeError:
-            # If different ranks are not supported, that's expected
-            pass
+        with pytest.raises(RuntimeError, match="same rank"):
+            _infer_concat_shape(node, ctx)
 
     def test_squeeze_with_axes(self):
         """Test Squeeze with explicit axes to remove."""

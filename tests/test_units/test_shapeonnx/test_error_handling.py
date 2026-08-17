@@ -166,8 +166,7 @@ class TestZeroDimensionHandling:
         )
         node = onnx.helper.make_node("Flatten", inputs=["input"], outputs=["output"], axis=0)
         result = _infer_flatten_shape(node, ctx)
-        # [0] preserved through flatten
-        assert result[0][0] == [0]
+        assert result[0][0] == [1, 0]
 
     def test_zero_dim_concat(self):
         """Test concat with zero dimension inputs returns [0]."""
@@ -308,7 +307,7 @@ class TestNegativeStepHandling:
             _infer_flatten_shape(node, ctx)
 
     def test_flatten_scalar_input(self):
-        """Test Flatten with scalar input returns scalar."""
+        """Test Flatten with scalar input returns the required rank-two shape."""
         ctx = ShapeInferenceContext(
             data_shapes={"input": 5},  # Scalar input
             explicit_shapes={},
@@ -318,8 +317,7 @@ class TestNegativeStepHandling:
         node = onnx.helper.make_node("Flatten", inputs=["input"], outputs=["output"], axis=0)
 
         result = _infer_flatten_shape(node, ctx)
-        # Scalar returns scalar
-        assert result[0][0] == 5
+        assert result[0][0] == [1, 1]
 
     def test_transpose_scalar_input_error(self):
         """Test Transpose raises error for scalar input."""

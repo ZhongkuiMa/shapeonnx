@@ -205,7 +205,7 @@ class TestResizeOperation:
                 [1, 3, 5, 5],
                 [1.0, 1.0, 1.5, 1.5],
                 "ceil",
-                [1, 3, 8, 8],
+                [1, 3, 7, 7],
                 id="resize_ceil",
             ),
             pytest.param(
@@ -219,13 +219,13 @@ class TestResizeOperation:
                 [1, 3, 5, 5],
                 [1.0, 1.0, 1.5, 1.5],
                 "round_prefer_ceil",
-                [1, 3, 8, 8],
+                [1, 3, 7, 7],
                 id="resize_round_prefer_ceil",
             ),
         ],
     )
     def test_resize_different_nearest_modes(self, input_shape, scales, nearest_mode, expected):
-        """Test Resize with different nearest_mode values."""
+        """Nearest-mode sampling choices do not alter Resize output extent."""
         scales_array = np.array(scales, dtype=np.float32)
         scales_tensor = onnx.numpy_helper.from_array(scales_array, name="scales")
 
@@ -246,6 +246,28 @@ class TestResizeOperation:
         result = _infer_resize_shape(node, ctx)
         assert len(result) >= 1
         assert result[0][0] == expected
+
+    def test_resize_static_sizes_define_output_extent(self):
+        """Static sizes bypass scale-derived geometry exactly."""
+        sizes_tensor = onnx.numpy_helper.from_array(
+            np.array([1, 1, 1, 4], dtype=np.int64), name="sizes"
+        )
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [1, 1, 1, 3]},
+            explicit_shapes={},
+            initializers={"sizes": sizes_tensor},
+            verbose=False,
+        )
+        node = onnx.helper.make_node(
+            "Resize",
+            inputs=["input", "", "", "sizes"],
+            outputs=["output"],
+            coordinate_transformation_mode="asymmetric",
+            mode="nearest",
+            nearest_mode="floor",
+        )
+
+        assert _infer_resize_shape(node, ctx) == [([1, 1, 1, 4], None)]
 
     @pytest.mark.parametrize(
         ("data_shapes", "scales", "node_kwargs", "exc_type", "match_pattern"),

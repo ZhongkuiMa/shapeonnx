@@ -313,6 +313,26 @@ class TestConvTransposeWithOutputPadding:
         assert len(results) >= 1
         assert results[0][0] == expected
 
+    def test_convtranspose_grouped_output_channels(self):
+        """Grouped ConvTranspose multiplies weight channels per group."""
+        weight_tensor = _make_weight_tensor((4, 2, 2, 2))
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [1, 4, 2, 2]},
+            explicit_shapes={},
+            initializers={"weight": weight_tensor},
+            verbose=False,
+        )
+        node = onnx.helper.make_node(
+            "ConvTranspose",
+            inputs=["input", "weight"],
+            outputs=["output"],
+            group=2,
+        )
+
+        results = _infer_convtranspose_shape(node, ctx)
+
+        assert results[0][0] == [1, 4, 3, 3]
+
 
 class TestConvErrors:
     """Test error handling for Conv operations."""

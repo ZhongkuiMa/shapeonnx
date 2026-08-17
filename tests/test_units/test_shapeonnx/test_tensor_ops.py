@@ -90,12 +90,14 @@ class TestFlattenOperation:
     @pytest.mark.parametrize(
         ("input_shape", "axis", "expected"),
         [
-            pytest.param([2, 3, 4], 0, [24], id="flatten_axis_0"),
+            pytest.param([2, 3, 4], 0, [1, 24], id="flatten_axis_0"),
             pytest.param([2, 3, 4], 1, [2, 12], id="flatten_axis_1"),
-            pytest.param([2, 3, 4], 2, [2, 3, 4], id="flatten_axis_2"),
-            pytest.param([2, 3, 4], 3, [2, 3, 4, 1], id="flatten_axis_3"),
+            pytest.param([2, 3, 4], 2, [6, 4], id="flatten_axis_2"),
+            pytest.param([2, 3, 4], 3, [24, 1], id="flatten_axis_3"),
+            pytest.param([2, 3, 4], -1, [6, 4], id="flatten_axis_neg_1"),
+            pytest.param([2, 3, 4], -3, [1, 24], id="flatten_axis_neg_3"),
             pytest.param([3, 4], 1, [3, 4], id="flatten_2d_axis_1"),
-            pytest.param([12], 0, [12], id="flatten_1d_axis_0"),
+            pytest.param([12], 0, [1, 12], id="flatten_1d_axis_0"),
         ],
     )
     def test_flatten_different_axes(self, input_shape, axis, expected):
@@ -121,7 +123,20 @@ class TestFlattenOperation:
         )
         node = onnx.helper.make_node("Flatten", inputs=["input"], outputs=["output"], axis=0)
         result = _infer_flatten_shape(node, ctx)
-        assert result[0][0] == [0]
+        assert result[0][0] == [1, 0]
+
+    @pytest.mark.parametrize("axis", [-4, 4])
+    def test_flatten_rejects_out_of_range_axis(self, axis):
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [2, 3, 4]},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Flatten", inputs=["input"], outputs=["output"], axis=axis)
+
+        with pytest.raises(ValueError, match=r"outside \[-3, 3\]"):
+            _infer_flatten_shape(node, ctx)
 
 
 class TestReshapeZeroDimension:

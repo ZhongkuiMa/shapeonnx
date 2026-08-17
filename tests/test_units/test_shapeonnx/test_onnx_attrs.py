@@ -477,8 +477,9 @@ class TestConvolutionOperators:
         assert attrs["kernel_shape"] == (3, 3)
         assert attrs["output_padding"] == (0, 0)
 
-    def test_get_attrs_convtranspose_group_not_one_raises_error(self):
-        """Test ConvTranspose raises ValueError for group != 1."""
+    def test_get_attrs_convtranspose_preserves_positive_group(self):
+        """Test ConvTranspose preserves grouped channel semantics."""
+        weight = _make_weight_tensor((4, 2, 3, 3))
         node = onnx.helper.make_node(
             "ConvTranspose",
             inputs=["input", "weight"],
@@ -486,8 +487,9 @@ class TestConvolutionOperators:
             group=2,
         )
 
-        with pytest.raises(ValueError, match="group=2 is not supported"):
-            _get_attrs_convtranspose(node, {})
+        attrs = _get_attrs_convtranspose(node, {"weight": weight})
+
+        assert attrs["group"] == 2
 
     def test_get_attrs_avgpool_basic(self):
         """Test AveragePool basic attributes."""
@@ -1005,7 +1007,9 @@ class TestSimpleOperators:
 
     def test_get_attrs_split_basic(self):
         """Test Split with default axis."""
-        split_extractor = _make_default_attrs_extractor({"axis": 0, "num_outputs": None})
+        split_extractor = _make_default_attrs_extractor(
+            {"axis": 0, "num_outputs": None, "split": None}
+        )
         node = onnx.helper.make_node("Split", inputs=["input"], outputs=["output"])
 
         attrs = split_extractor(node, {})

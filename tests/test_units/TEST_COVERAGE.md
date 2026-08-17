@@ -75,7 +75,7 @@ note: "Descriptive. Mirrors current code; update to follow code changes. < funct
 | Operation | Tests | Coverage |
 |-----------|-------|----------|
 | Reshape | 8 | Basic reshape, -1 inference, scalar, zero dimensions |
-| Flatten | 5 | Different axes, axis normalization, zero dimensions |
+| Flatten | 10 | Two-sided products, negative axes, range checks, zero dimensions |
 | Transpose | 6 | Identity, swaps, negative indices, zero dimensions |
 | Squeeze | 8 | With/without axes, different axes, zero dimensions |
 | Unsqueeze | 8 | Different axes, multiple axes, zero dimensions |
@@ -83,7 +83,7 @@ note: "Descriptive. Mirrors current code; update to follow code changes. < funct
 
 **Key Test Cases**:
 - Reshape -1 inference: `[24] → [-1, 4]` infers to `[6, 4]`
-- Flatten axis: `[2, 3, 4]` with axis=1 → `[2, 12]`
+- Flatten axis: `[2, 3, 4]` with axis=2 → `[6, 4]`
 - Transpose swap: `[2, 3, 4]` with perm=[0, 2, 1] → `[2, 4, 3]`
 - Squeeze: `[1, 3, 1, 4]` → `[3, 4]`
 - Unsqueeze: `[3, 4]` with axis=0 → `[1, 3, 4]`
@@ -190,7 +190,7 @@ note: "Descriptive. Mirrors current code; update to follow code changes. < funct
 |-----------|-------|----------|
 | Shape Alignment | 8 | Rank differences, zeros, padding |
 | Right Alignment | 6 | Different rank padding |
-| Flatten | 5 | Different axes, edge cases |
+| Flatten | 10 | Different axes, exact rank-two geometry, edge cases |
 | Axis Normalization | 5 | Negative indices, bounds |
 
 **Key Test Cases**:
