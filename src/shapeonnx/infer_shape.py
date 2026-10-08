@@ -18,15 +18,28 @@ from shapeonnx.utils import _reformat_io_shape
 
 _logger = logging.getLogger(__name__)
 
+INTEGER_TENSOR_TYPES = frozenset(
+    {
+        TensorProto.INT8,
+        TensorProto.INT16,
+        TensorProto.INT32,
+        TensorProto.INT64,
+        TensorProto.UINT8,
+        TensorProto.UINT16,
+        TensorProto.UINT32,
+        TensorProto.UINT64,
+    }
+)
+
 
 @dataclass(frozen=True)
 class ShapeInferenceContext:
     """
     Immutable context for shape inference.
 
-    :param data_shapes: Maps tensor names to their inferred shapes.
+    :param data_shapes: Maps tensor names to their runtime tensor shapes.
 
-    :param explicit_shapes: Maps tensor names to constant shape values.
+    :param explicit_shapes: Maps tensor names to compile-time integer tensor values.
 
     :param initializers: ONNX model initializers.
 
@@ -90,18 +103,8 @@ def _extract_integer_initializers(
     :return: Dictionary mapping initializer names to converted values
     """
     converted = {}
-    integer_types = (
-        TensorProto.INT8,
-        TensorProto.INT16,
-        TensorProto.INT32,
-        TensorProto.INT64,
-        TensorProto.UINT8,
-        TensorProto.UINT16,
-        TensorProto.UINT32,
-        TensorProto.UINT64,
-    )
     for name, initializer in initializers.items():
-        if initializer.data_type in integer_types:
+        if initializer.data_type in INTEGER_TENSOR_TYPES:
             converted[name] = onnx.numpy_helper.to_array(initializer).tolist()
     return converted
 
@@ -120,6 +123,11 @@ def _get_explicit_shape(
     :return: Constant value if found, None otherwise
     """
     return explicit_shapes.get(name)
+
+
+def _shape_of_explicit_value(value: int | list[int]) -> list[int]:
+    """Infer the runtime tensor shape of a supported compile-time value."""
+    return list(np.asarray(value).shape)
 
 
 def _get_shape(
@@ -307,6 +315,39 @@ def _infer_identity_shape(
     return [(shape, None)]
 
 
+def _infer_identity_value_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
+    """Infer Identity while preserving a supported compile-time value."""
+    data_shape = _get_data_shape(node.input[0], ctx.data_shapes)
+    explicit_value = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
+    if data_shape is None and explicit_value is None:
+        raise RuntimeError(f"Cannot get shape of {node.input[0]}")
+    if data_shape is None and explicit_value is not None:
+        data_shape = _shape_of_explicit_value(explicit_value)
+    return [(data_shape, explicit_value)]
+
+
+def _infer_cast_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
+    """Infer runtime shape and supported compile-time value for Cast."""
+    data_shape = _get_data_shape(node.input[0], ctx.data_shapes)
+    explicit_value = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
+    if data_shape is None and explicit_value is None:
+        raise RuntimeError(f"Cannot get shape of {node.input[0]}")
+    if data_shape is None and explicit_value is not None:
+        data_shape = _shape_of_explicit_value(explicit_value)
+
+    target_type = _get_onnx_attrs(node, ctx.initializers)["to"]
+    if target_type not in INTEGER_TENSOR_TYPES:
+        explicit_value = None
+    elif explicit_value is not None:
+        target_dtype = onnx.helper.tensor_dtype_to_np_dtype(target_type)
+        explicit_value = np.asarray(explicit_value).astype(target_dtype).tolist()
+    return [(data_shape, explicit_value)]
+
+
 def _compute_binary_op_value(op_type: str, value1: int | float, value2: int | float) -> int | float:
     """
     Compute binary operation on scalar values.
@@ -474,6 +515,25 @@ def _infer_binary_op_shape(
         node.op_type, node.input[0], node.input[1], ctx.explicit_shapes
     )
     return [(shape, binary_explicit_shape)]
+
+
+def _infer_variadic_broadcast_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
+    """Infer the common broadcast shape of all variadic inputs."""
+    if not node.input:
+        raise ValueError(f"{node.op_type} requires at least one input")
+
+    output_shape: list[int] = []
+    for input_name in node.input:
+        input_shape = _get_data_shape(input_name, ctx.data_shapes)
+        if input_shape is None:
+            raise RuntimeError(f"Cannot get shape of {input_name}")
+        if not isinstance(input_shape, list):
+            raise RuntimeError(f"Expected tensor shape for {input_name}, got {input_shape}")
+        output_shape = _broadcast_shapes(output_shape, input_shape)
+
+    return [(output_shape, None)]
 
 
 def _infer_argmax_shape(
@@ -837,46 +897,54 @@ def _infer_gather_shape(
     :return: List of (data_shape, explicit_shape) tuples
     """
     axis = _get_onnx_attrs(node, ctx.initializers)["axis"]
-    indices = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
-    is_int_indices = isinstance(indices, int)
+    indices_name = node.input[1]
+    indices_value = _get_explicit_shape(indices_name, ctx.explicit_shapes)
+    if indices_value is None:
+        try:
+            indices_tensor = ctx.initializers[indices_name]
+        except KeyError as exc:
+            raise RuntimeError(f"Cannot get constant indices from {indices_name}") from exc
+        indices_array = onnx.numpy_helper.to_array(indices_tensor)
+        indices_value = indices_array.tolist()
+        indices_shape = list(indices_array.shape)
+    else:
+        stored_indices_shape = _get_data_shape(indices_name, ctx.data_shapes)
+        if stored_indices_shape is None:
+            stored_indices_shape = _shape_of_explicit_value(indices_value)
+        if not isinstance(stored_indices_shape, list):
+            raise RuntimeError(
+                f"Expected list shape for Gather indices, got {stored_indices_shape}"
+            )
+        indices_shape = stored_indices_shape
 
-    # Check for explicit shape first (for shape tensors like from Shape op)
-    e_shape = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
-    if e_shape is not None:
-        # Gathering from a shape tensor (explicit shape)
-        if e_shape != [0]:
-            if axis != 0:
-                raise ValueError(f"Invalid axis {axis} for gather from explicit shape")
-            if not isinstance(e_shape, list):
-                raise RuntimeError(f"Cannot gather from non-list explicit shape {e_shape}")
-            if is_int_indices:
-                e_shape = e_shape[indices]
-            else:
-                e_shape = [
-                    e_shape[i] for i in indices if isinstance(indices, list) and i < len(e_shape)
-                ]
-        return [(None, e_shape)]
+    data_shape = _get_data_shape(node.input[0], ctx.data_shapes)
+    explicit_value = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
+    if data_shape is None and explicit_value is not None:
+        data_shape = _shape_of_explicit_value(explicit_value)
+    if data_shape is None:
+        raise RuntimeError(f"Cannot get shape of {node.input[0]}")
+    if explicit_value is not None and not isinstance(explicit_value, list):
+        raise RuntimeError(f"Cannot gather from non-list explicit shape {explicit_value}")
+    if isinstance(data_shape, int):
+        raise RuntimeError(f"Gather input shape cannot be scalar: {data_shape}")
 
-    # Fallback to data shape (for regular data tensors)
-    shape = _get_data_shape(node.input[0], ctx.data_shapes)
-    if shape is not None:
-        # Handle scalar shapes
-        if isinstance(shape, int):
-            return [(shape, None)]
+    rank = len(data_shape)
+    if axis < -rank or axis >= rank:
+        raise ValueError(f"Invalid axis {axis} for Gather input rank {rank}")
+    canonical_axis = axis % rank
+    output_shape = [
+        *data_shape[:canonical_axis],
+        *indices_shape,
+        *data_shape[canonical_axis + 1 :],
+    ]
 
-        # ONNX Gather allows a negative axis (counts from the end); normalize
-        # before comparing against positional indices, else a negative axis
-        # matches nothing and the gathered dim is neither replaced nor removed.
-        norm_axis = axis % len(shape) if shape else axis
-        if shape != [0]:
-            shape = [
-                len(indices) if i == norm_axis and not is_int_indices else shape[i]
-                for i in range(len(shape))
-                if not (i == norm_axis and is_int_indices)
-            ]
-        return [(shape, None)]
+    output_value: int | list[int] | None = None
+    if explicit_value is not None:
+        output_value = np.take(
+            np.asarray(explicit_value), indices_value, axis=canonical_axis
+        ).tolist()
 
-    raise RuntimeError(f"Cannot get shape of {node.input[0]}")
+    return [(output_shape, output_value)]
 
 
 def _infer_gemm_shape(
@@ -1028,7 +1096,10 @@ def _compute_pool_output_hw(
         temp1 = pads[i] + pads[i + dim]
         temp2 = dilations[i] * (kernel_shape[i] - 1)
         size = (input_shape[i + 2] + temp1 - temp2 - 1) / strides[i] + 1
-        output_hw.append(math.ceil(size) if ceil_mode else math.floor(size))
+        output_size = math.ceil(size) if ceil_mode else math.floor(size)
+        if ceil_mode and (output_size - 1) * strides[i] >= input_shape[i + 2] + pads[i]:
+            output_size -= 1
+        output_hw.append(output_size)
     return output_hw
 
 
@@ -1081,6 +1152,26 @@ def _infer_pool_shape(
     )
     shape = [input_shape[0], output_channel, *output_hw]
     return [(shape, None)]
+
+
+def _infer_global_average_pool_shape(
+    node: NodeProto, ctx: ShapeInferenceContext
+) -> list[tuple[int | list[int] | None, int | list[int] | None]]:
+    """Infer GlobalAveragePool output geometry.
+
+    ONNX preserves the batch and channel dimensions and reduces every spatial
+    dimension to one.
+
+    :param node: ONNX node.
+    :param ctx: Shape inference context.
+
+    :return: List containing the inferred data shape.
+    """
+    input_shape = _get_data_shape(node.input[0], ctx.data_shapes)
+    if not isinstance(input_shape, list) or len(input_shape) < 3:
+        raise ValueError(f"GlobalAveragePool requires input rank >= 3, got shape {input_shape}")
+
+    return [([*input_shape[:2], *([1] * (len(input_shape) - 2))], None)]
 
 
 def _infer_pad_shape(
@@ -1175,8 +1266,13 @@ def _infer_reduce_shape(
 
     # Axes source: input[1] (opset >= 13) or the 'axes' attribute (opset < 13);
     # absent in both means reduce over all axes.
-    if len(node.input) > 1 and node.input[1] in ctx.initializers:
-        axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
+    axes_input = node.input[1] if len(node.input) > 1 else ""
+    if axes_input:
+        if axes_input not in ctx.initializers:
+            raise RuntimeError(
+                f"Reduce axes input {axes_input} must be an initializer for static shape inference"
+            )
+        axes = onnx.numpy_helper.to_array(ctx.initializers[axes_input]).tolist()
     elif attrs["axes"] is not None:
         axes = list(attrs["axes"])
     elif isinstance(shape, list):
@@ -1191,13 +1287,26 @@ def _infer_reduce_shape(
     # Copy to avoid mutating the original shape in data_shapes
     shape = shape.copy()
     if shape != [0]:
+        rank = len(shape)
+        if not axes:
+            axes = list(range(rank))
+
+        normalized_axes = []
+        for axis in axes:
+            axis = int(axis)
+            if axis < -rank or axis >= rank:
+                raise ValueError(f"Reduce axis {axis} is out of range for rank {rank}")
+            normalized_axis = axis % rank
+            if normalized_axis in normalized_axes:
+                raise ValueError(f"Reduce axes contain duplicate axis {normalized_axis}")
+            normalized_axes.append(normalized_axis)
+
         if keepdims:
-            for axis in axes:
+            for axis in normalized_axes:
                 shape[axis] = 1
         else:
-            for axis in sorted(axes, reverse=True):
-                if axis < len(shape):
-                    shape.pop(axis)
+            for axis in sorted(normalized_axes, reverse=True):
+                shape.pop(axis)
 
     return [(shape, None)]
 
@@ -1338,24 +1447,15 @@ def _infer_shape_op_shape(
 
     :return: List of (data_shape, explicit_shape) tuples
     """
-    shape, is_explicit = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
-
-    if not is_explicit:
-        if not isinstance(shape, list):
-            raise RuntimeError(f"Expected list shape, got {shape}")
-        return [(None, shape)]
-
-    if isinstance(shape, int):
-        result_shape = []
-    elif isinstance(shape, list) and shape == [0]:
-        result_shape = [0]
-    elif isinstance(shape, list):
-        # Return the actual shape values, not [1, len(shape)]
-        result_shape = shape
-    else:
-        raise RuntimeError(f"Unexpected explicit shape type {type(shape)}")
-
-    return [(None, result_shape)]
+    input_shape = _get_data_shape(node.input[0], ctx.data_shapes)
+    if input_shape is None:
+        explicit_value = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
+        if explicit_value is None:
+            raise RuntimeError(f"Cannot get shape of {node.input[0]}")
+        input_shape = _shape_of_explicit_value(explicit_value)
+    if not isinstance(input_shape, list):
+        raise RuntimeError(f"Expected list shape, got {input_shape}")
+    return [([len(input_shape)], input_shape)]
 
 
 def _infer_sliced_shape(
@@ -1571,22 +1671,31 @@ def _infer_squeeze_shape(
     if not isinstance(input_shape, list):
         raise RuntimeError(f"Input shape must be a list, got {input_shape}")
 
-    if len(node.input) > 1:
-        axes = _get_explicit_shape(node.input[1], ctx.explicit_shapes)
-        if axes is None:
-            axes = [i for i in range(len(input_shape)) if input_shape[i] == 1]
-        elif not isinstance(axes, list):
-            axes = [axes] if isinstance(axes, int) else []
+    if len(node.input) <= 1:
+        shape = [extent for extent in input_shape if extent != 1]
+        return [(shape, None)]
 
-        shape = []
-        for i in range(len(input_shape)):
-            if i in axes:
-                if input_shape[i] != 1:
-                    raise ValueError(f"Cannot squeeze axis {i} with size {input_shape[i]}")
-                continue
-            shape.append(input_shape[i])
-    else:
-        shape = [input_shape[0]] + [s for s in input_shape[1:] if s != 1]
+    axes = _get_explicit_shape(node.input[1], ctx.explicit_shapes)
+    if axes is None:
+        axes = [axis for axis, extent in enumerate(input_shape) if extent == 1]
+    if isinstance(axes, int):
+        axes = [axes]
+    if not isinstance(axes, list) or any(not isinstance(axis, int) for axis in axes):
+        raise ValueError(f"Squeeze axes must be integers, got {axes!r}")
+
+    rank = len(input_shape)
+    normalized_axes: set[int] = set()
+    for axis in axes:
+        if axis < -rank or axis >= rank:
+            raise ValueError(f"Squeeze axis {axis} is outside [-{rank}, {rank - 1}]")
+        normalized_axis = axis % rank
+        if normalized_axis in normalized_axes:
+            raise ValueError(f"Squeeze axes must be unique, got {axes}")
+        if input_shape[normalized_axis] != 1:
+            raise ValueError(f"Cannot squeeze axis {axis} with size {input_shape[normalized_axis]}")
+        normalized_axes.add(normalized_axis)
+
+    shape = [extent for axis, extent in enumerate(input_shape) if axis not in normalized_axes]
 
     return [(shape, None)]
 
@@ -1643,12 +1752,20 @@ def _infer_unsqueeze_output_shape(ori_shape: list[int], axes: list[int]) -> list
 
     :return: Unsqueezed shape
     """
-    new_shape = list(ori_shape)
-    for axis in sorted(axes, reverse=True):
-        if axis < 0:
-            axis += len(ori_shape) + 1
-        new_shape.insert(axis, 1)
-    return new_shape
+    output_rank = len(ori_shape) + len(axes)
+    normalized_axes: set[int] = set()
+    for axis in axes:
+        if axis < -output_rank or axis >= output_rank:
+            raise ValueError(
+                f"Unsqueeze axis {axis} is outside [-{output_rank}, {output_rank - 1}]"
+            )
+        normalized_axis = axis % output_rank
+        if normalized_axis in normalized_axes:
+            raise ValueError(f"Unsqueeze axes must be unique, got {axes}")
+        normalized_axes.add(normalized_axis)
+
+    input_extents = iter(ori_shape)
+    return [1 if axis in normalized_axes else next(input_extents) for axis in range(output_rank)]
 
 
 def _infer_unsqueeze_shape(
@@ -1663,7 +1780,13 @@ def _infer_unsqueeze_shape(
 
     :return: List of (data_shape, explicit_shape) tuples
     """
-    shape, is_explicit = _get_shape(node.input[0], ctx.data_shapes, ctx.explicit_shapes)
+    data_shape = _get_data_shape(node.input[0], ctx.data_shapes)
+    explicit_value = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
+    if data_shape is None:
+        if explicit_value is None:
+            raise RuntimeError(f"Cannot get shape of {node.input[0]}")
+        data_shape = _shape_of_explicit_value(explicit_value)
+
     # axes source: input[1] (opset >= 13) or the 'axes' attribute (opset < 13).
     if len(node.input) == 1:
         axes_attr = _get_onnx_attrs(node, ctx.initializers)["axes"]
@@ -1673,21 +1796,18 @@ def _infer_unsqueeze_shape(
     else:
         axes = onnx.numpy_helper.to_array(ctx.initializers[node.input[1]]).tolist()
 
-    if isinstance(shape, int):
-        if axes != [0]:
-            raise ValueError(f"Invalid axes {axes} for scalar unsqueeze")
-        result_shape = [shape]
-        return [(None, result_shape)]
+    if not isinstance(data_shape, list):
+        raise RuntimeError(f"Expected list shape for unsqueeze, got {data_shape}")
 
-    if not isinstance(shape, list):
-        raise RuntimeError(f"Expected list shape for unsqueeze, got {shape}")
+    output_shape = data_shape
+    if data_shape != [0]:
+        output_shape = _infer_unsqueeze_output_shape(data_shape, axes)
 
-    if shape != [0]:
-        shape = _infer_unsqueeze_output_shape(shape, axes)
+    output_value: int | list[int] | None = None
+    if explicit_value is not None:
+        output_value = np.expand_dims(np.asarray(explicit_value), axis=tuple(axes)).tolist()
 
-    if is_explicit:
-        return [(None, shape)]
-    return [(shape, None)]
+    return [(output_shape, output_value)]
 
 
 def _infer_where_shape(
@@ -1702,29 +1822,34 @@ def _infer_where_shape(
 
     :return: List of (data_shape, explicit_shape) tuples
     """
-    shape1, is_e = _get_shape(node.input[1], ctx.data_shapes, ctx.explicit_shapes)
-    shape2, _ = _get_shape(node.input[2], ctx.data_shapes, ctx.explicit_shapes)
+    input_shapes: list[list[int]] = []
+    for input_name in node.input[:3]:
+        input_shape = _get_data_shape(input_name, ctx.data_shapes)
+        explicit_value = _get_explicit_shape(input_name, ctx.explicit_shapes)
+        if input_shape is None:
+            if explicit_value is None:
+                raise RuntimeError(f"Cannot get shape of {input_name}")
+            input_shape = _shape_of_explicit_value(explicit_value)
+        if not isinstance(input_shape, list):
+            raise RuntimeError(f"Expected list shape for Where input, got {input_shape}")
+        input_shapes.append(input_shape)
 
-    if not isinstance(shape1, list) or not isinstance(shape2, list):
-        shape = [0]
-    else:
-        shape = shape1 if shape1 != [0] else (shape2 if shape2 != [0] else [0])
-
-    if is_e:
-        return [(None, shape)]
+    condition_shape, value1_shape, value2_shape = input_shapes
+    output_shape = _broadcast_shapes(condition_shape, value1_shape)
+    output_shape = _broadcast_shapes(output_shape, value2_shape)
 
     condition = _get_explicit_shape(node.input[0], ctx.explicit_shapes)
     value1 = _get_explicit_shape(node.input[1], ctx.explicit_shapes)
     value2 = _get_explicit_shape(node.input[2], ctx.explicit_shapes)
+    output_value: int | list[int] | None = None
+    if condition is not None and value1 is not None and value2 is not None:
+        output_value = np.where(
+            np.asarray(condition, dtype=bool),
+            np.asarray(value1),
+            np.asarray(value2),
+        ).tolist()
 
-    if isinstance(condition, list) and isinstance(value1, list) and isinstance(value2, list):
-        new_shape = value1.copy()
-        for i in range(len(condition)):
-            if condition[i] == 0:
-                new_shape[i] = value2[i]
-        return [(shape, new_shape)]
-
-    return [(shape, None)]
+    return [(output_shape, output_value)]
 
 
 ShapeInferFunc = Callable[
@@ -1737,7 +1862,7 @@ INFER_SHAPE_FUNC_MAPPING: dict[str, ShapeInferFunc] = {
     "ArgMax": _infer_argmax_shape,
     "AveragePool": _infer_pool_shape,
     "BatchNormalization": _infer_batch_norm_shape,
-    "Cast": _infer_identity_shape,
+    "Cast": _infer_cast_shape,
     "Clip": _infer_identity_shape,
     "Concat": _infer_concat_shape,
     "ConstantOfShape": _infer_constant_of_shape_shape,
@@ -1755,13 +1880,14 @@ INFER_SHAPE_FUNC_MAPPING: dict[str, ShapeInferFunc] = {
     "Gather": _infer_gather_shape,
     "Gelu": _infer_identity_shape,
     "Gemm": _infer_gemm_shape,
-    "GlobalAveragePool": _infer_identity_shape,
+    "GlobalAveragePool": _infer_global_average_pool_shape,
+    "Identity": _infer_identity_value_shape,
     "LeakyRelu": _infer_identity_shape,
     "Log": _infer_identity_shape,
     "MatMul": _infer_matmul_shape,
-    "Max": _infer_identity_shape,
+    "Max": _infer_variadic_broadcast_shape,
     "MaxPool": _infer_pool_shape,
-    "Min": _infer_identity_shape,
+    "Min": _infer_variadic_broadcast_shape,
     "Mul": _infer_binary_op_shape,
     "Neg": _infer_identity_shape,
     "Pad": _infer_pad_shape,
@@ -1837,9 +1963,10 @@ def _process_node_outputs(
             ctx.explicit_shapes[output_name] = explicit_shape
             if ctx.verbose:
                 _logger.debug(f"{node.op_type:<20} {output_name:<20} {explicit_shape} (explicit)")
-            # Only use explicit_shape as data_shape if data_shape was not set
+            # Compile-time values and runtime tensor shapes are independent state.
+            # Derive only the value's tensor rank here; never use its contents as extents.
             if data_shape is None:
-                ctx.data_shapes[output_name] = explicit_shape
+                ctx.data_shapes[output_name] = _shape_of_explicit_value(explicit_shape)
 
 
 def _infer_all_node_shapes(nodes: list[NodeProto], ctx: ShapeInferenceContext) -> None:

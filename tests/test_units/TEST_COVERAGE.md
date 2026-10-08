@@ -139,15 +139,15 @@ note: "Descriptive. Mirrors current code; update to follow code changes. < funct
 - Three inputs: `[2, 3, 4] + [2, 3, 4] + [2, 3, 4]` on axis=0 → `[6, 3, 4]`
 - Zero dimension: `[0] + [0]` → `[0]`
 
-### 8. Pooling Operations (11 tests)
+### 8. Pooling Operations
 **File**: `test_pool.py`
 **Operations Covered**: MaxPool, AveragePool, GlobalAveragePool
 
-| Operation | Tests | Coverage |
-|-----------|-------|----------|
-| MaxPool | 4 | Different kernels, strides, padding |
-| AveragePool | 4 | Different kernels, strides |
-| GlobalAveragePool | 3 | Batched input, different ranks |
+| Operation | Coverage |
+|-----------|----------|
+| MaxPool | 1D/2D/3D kernels, strides, padding, dilation, ceil mode |
+| AveragePool | Kernels, strides, padding, dilation, ceil mode |
+| GlobalAveragePool | ONNX-reference geometry for rank 3/4/5; invalid lower ranks |
 
 **Key Test Cases**:
 - MaxPool 2x2: `[1, 3, 32, 32]` → `[1, 3, 16, 16]`

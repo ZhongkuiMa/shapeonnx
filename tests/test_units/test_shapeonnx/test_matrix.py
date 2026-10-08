@@ -288,8 +288,7 @@ class TestGatherVariants:
             "Gather", inputs=["input", "indices"], outputs=["output"], axis=1
         )
         result = _infer_gather_shape(node, ctx)
-        # Gather uses len(indices) which is 2 (first dimension of 3D array)
-        assert result[0][0] == [5, 2]
+        assert result[0][0] == [5, 2, 2, 2]
 
     def test_gather_missing_input_error(self):
         """Test Gather raises error when input is missing."""

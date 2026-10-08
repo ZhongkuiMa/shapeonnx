@@ -155,6 +155,54 @@ class TestReduceShape:
         result = _infer_reduce_shape(node, ctx)
         assert result[0][0] == [1, 1, 1]
 
+    @pytest.mark.parametrize("op_type", ["ReduceMean", "ReduceSum"])
+    def test_multiple_negative_axes_match_onnx_reference(
+        self, op_type: str, infer_onnx_reference_shape
+    ) -> None:
+        """Resolve negative axes before removing multiple dimensions."""
+        input_shape = [2, 3, 4, 5]
+        axes = _make_axes_initializer([-1, -2])
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": input_shape},
+            explicit_shapes={},
+            initializers={"axes": axes},
+            verbose=False,
+        )
+        node = onnx.helper.make_node(
+            op_type,
+            inputs=["input", "axes"],
+            outputs=["output"],
+            keepdims=0,
+        )
+
+        reference = infer_onnx_reference_shape(node, {"input": input_shape}, [axes])
+        result = _infer_reduce_shape(node, ctx)
+
+        assert result == [(reference, None)]
+
+    @pytest.mark.parametrize("keepdims", [0, 1])
+    def test_empty_axes_reduce_all(self, keepdims: int, infer_onnx_reference_shape) -> None:
+        """Treat an explicit empty axes tensor as reduce-all by default."""
+        input_shape = [2, 3, 4]
+        axes = _make_axes_initializer([])
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": input_shape},
+            explicit_shapes={},
+            initializers={"axes": axes},
+            verbose=False,
+        )
+        node = onnx.helper.make_node(
+            "ReduceSum",
+            inputs=["input", "axes"],
+            outputs=["output"],
+            keepdims=keepdims,
+        )
+
+        reference = infer_onnx_reference_shape(node, {"input": input_shape}, [axes])
+        result = _infer_reduce_shape(node, ctx)
+
+        assert result == [(reference, None)]
+
 
 class TestReduceErrors:
     """Error handling for Reduce operations."""
@@ -177,6 +225,25 @@ class TestReduceErrors:
         )
 
         with pytest.raises(RuntimeError, match="Cannot get shape"):
+            _infer_reduce_shape(node, ctx)
+
+    @pytest.mark.parametrize("op_type", ["ReduceMean", "ReduceSum"])
+    def test_dynamic_axes_input_raises(self, op_type: str) -> None:
+        """Reject a runtime axes input whose output shape is not statically knowable."""
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [2, 3, 4], "axes": [1]},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node(
+            op_type,
+            inputs=["input", "axes"],
+            outputs=["output"],
+            keepdims=0,
+        )
+
+        with pytest.raises(RuntimeError, match=r"axes input.*initializer"):
             _infer_reduce_shape(node, ctx)
 
 

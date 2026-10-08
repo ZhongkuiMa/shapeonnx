@@ -5,7 +5,11 @@ __docformat__ = "restructuredtext"
 import onnx
 import pytest
 
-from shapeonnx.infer_shape import ShapeInferenceContext, _infer_pool_shape
+from shapeonnx.infer_shape import (
+    ShapeInferenceContext,
+    _infer_global_average_pool_shape,
+    _infer_pool_shape,
+)
 
 
 class TestMaxPoolOperation:
@@ -215,3 +219,86 @@ class TestAveragePoolOperation:
         result = _infer_pool_shape(node, ctx)
         # With dilation=2 and ceil_mode: ceil((10 + 0 + 0 - 2*(3-1) - 1) / 1 + 1) = ceil(6) = 6
         assert result[0][0] == [1, 3, 6, 6]
+
+    @pytest.mark.parametrize("op_type", ["MaxPool", "AveragePool"])
+    def test_ceil_mode_excludes_window_starting_past_input(
+        self, op_type, infer_onnx_reference_shape
+    ):
+        """Ceil mode drops a final window whose start lies outside the input."""
+        input_shape = [1, 1, 4]
+        node = onnx.helper.make_node(
+            op_type,
+            inputs=["input"],
+            outputs=["output"],
+            kernel_shape=[1],
+            strides=[2],
+            ceil_mode=1,
+        )
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": input_shape},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+
+        reference = infer_onnx_reference_shape(node, {"input": input_shape})
+        result = _infer_pool_shape(node, ctx)
+
+        assert reference == [1, 1, 2]
+        assert result == [(reference, None)]
+
+
+class TestGlobalAveragePoolOperation:
+    """Test GlobalAveragePool shape inference."""
+
+    @pytest.mark.parametrize(
+        "input_shape",
+        [
+            pytest.param([2, 3, 5], id="rank_three"),
+            pytest.param([2, 3, 5, 7], id="rank_four"),
+            pytest.param([2, 3, 4, 5, 6], id="rank_five"),
+        ],
+    )
+    def test_matches_onnx_reference(self, input_shape, infer_onnx_reference_shape):
+        """Preserve N/C and reduce every spatial dimension to one."""
+        node = onnx.helper.make_node(
+            "GlobalAveragePool",
+            inputs=["input"],
+            outputs=["output"],
+        )
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": input_shape},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+
+        reference = infer_onnx_reference_shape(node, {"input": input_shape})
+        result = _infer_global_average_pool_shape(node, ctx)
+
+        assert result == [(reference, None)]
+
+    @pytest.mark.parametrize(
+        "input_shape",
+        [
+            pytest.param([], id="scalar"),
+            pytest.param([3], id="rank_one"),
+            pytest.param([2, 3], id="rank_two"),
+        ],
+    )
+    def test_rejects_inputs_without_spatial_dimensions(self, input_shape):
+        """Reject inputs that cannot contain an ONNX spatial dimension."""
+        node = onnx.helper.make_node(
+            "GlobalAveragePool",
+            inputs=["input"],
+            outputs=["output"],
+        )
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": input_shape},
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+
+        with pytest.raises(ValueError, match="input rank >= 3"):
+            _infer_global_average_pool_shape(node, ctx)

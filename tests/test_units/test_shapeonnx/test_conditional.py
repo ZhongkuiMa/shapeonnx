@@ -25,11 +25,11 @@ class TestWhereBasic:
         ("condition_shape", "x_shape", "y_shape", "expected"),
         [
             pytest.param([2, 3, 4], [2, 3, 4], [2, 3, 4], [2, 3, 4], id="same_shape"),
-            pytest.param([2, 3, 4], [1], [2, 3, 4], [1], id="x_broadcast"),
+            pytest.param([2, 3, 4], [1], [2, 3, 4], [2, 3, 4], id="x_broadcast"),
             pytest.param([2, 3, 4], [2, 3, 4], [3, 1], [2, 3, 4], id="y_broadcast"),
-            pytest.param([2, 3, 4], [1, 1], [4], [1, 1], id="both_broadcast"),
-            pytest.param(1, [2, 3, 4], [2, 3, 4], [2, 3, 4], id="scalar_condition"),
-            pytest.param([1, 4, 1], [3], [2, 3, 4], [3], id="different_ranks"),
+            pytest.param([2, 3, 4], [1, 1], [4], [2, 3, 4], id="both_broadcast"),
+            pytest.param([], [2, 3, 4], [2, 3, 4], [2, 3, 4], id="scalar_condition"),
+            pytest.param([1, 3, 1], [4], [2, 3, 4], [2, 3, 4], id="different_ranks"),
             pytest.param(
                 [4, 3, 224, 224],
                 [4, 3, 224, 224],
@@ -94,7 +94,7 @@ class TestWhereErrors:
     """Test Where operation error handling."""
 
     def test_where_missing_condition_shape(self):
-        """Test Where when condition shape is missing (not required)."""
+        """All three Where input shapes are required."""
         ctx = ShapeInferenceContext(
             data_shapes={
                 "x": [2, 3, 4],
@@ -109,9 +109,8 @@ class TestWhereErrors:
             "Where", inputs=["missing_condition", "x", "y"], outputs=["output"]
         )
 
-        # Where doesn't validate condition shape, only uses x and y for output
-        results = _infer_where_shape(node, ctx)
-        assert results[0][0] == [2, 3, 4]
+        with pytest.raises(RuntimeError, match="Cannot get shape"):
+            _infer_where_shape(node, ctx)
 
     @pytest.mark.parametrize(
         "node_inputs",
@@ -138,6 +137,23 @@ class TestWhereErrors:
         with pytest.raises(RuntimeError, match="Cannot get shape"):
             _infer_where_shape(node, ctx)
 
+    def test_where_incompatible_shapes_raise(self):
+        """Reject inputs that cannot be multidirectionally broadcast."""
+        ctx = ShapeInferenceContext(
+            data_shapes={
+                "condition": [2, 3],
+                "x": [4],
+                "y": [2, 3],
+            },
+            explicit_shapes={},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
+
+        with pytest.raises(RuntimeError, match="Cannot broadcast"):
+            _infer_where_shape(node, ctx)
+
 
 class TestWhereIntegration:
     """Integration tests for Where operation."""
@@ -146,10 +162,10 @@ class TestWhereIntegration:
         ("condition_shape", "x_shape", "y_shape", "expected"),
         [
             pytest.param(
-                [1, 1, 4, 1], [2, 1, 1, 5], [1, 3, 4, 5], [2, 1, 1, 5], id="broadcast_all_axes"
+                [1, 1, 4, 1], [2, 1, 1, 5], [1, 3, 4, 5], [2, 3, 4, 5], id="broadcast_all_axes"
             ),
             pytest.param([32, 10], [32, 10], [32, 1], [32, 10], id="preserve_batch_size"),
-            pytest.param([3, 4], 5, [3, 4], [0], id="x_scalar_returns_zero"),
+            pytest.param([3, 4], [], [3, 4], [3, 4], id="scalar_x"),
             pytest.param([0], [0], [0], [0], id="all_zero_dimension"),
         ],
     )
@@ -205,3 +221,21 @@ class TestWhereIntegration:
         results = _infer_where_shape(node, ctx)
 
         assert results[0][1] == expected
+
+    def test_where_explicit_values_broadcast_and_keep_runtime_shape(self):
+        """Derive missing runtime shapes without confusing values with extents."""
+        ctx = ShapeInferenceContext(
+            data_shapes={},
+            explicit_shapes={
+                "condition": [1, 0],
+                "x": 10,
+                "y": [30, 40],
+            },
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Where", inputs=["condition", "x", "y"], outputs=["output"])
+
+        results = _infer_where_shape(node, ctx)
+
+        assert results == [([2], [10, 40])]

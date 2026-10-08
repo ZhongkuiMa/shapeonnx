@@ -40,17 +40,18 @@ class TestShapeOperation:
         node = onnx.helper.make_node("Shape", inputs=["input"], outputs=["output"])
         result = _infer_shape_op_shape(node, ctx)
         assert len(result) >= 1
+        assert result[0][0] == [len(input_shape)]
         assert result[0][1] == expected_shape
 
     @pytest.mark.parametrize(
-        ("explicit_input", "expected_explicit"),
+        ("explicit_input", "expected_shape"),
         [
-            pytest.param([2, 3, 4], [2, 3, 4], id="list_3d"),
+            pytest.param([2, 3, 4], [3], id="list_3d"),
             pytest.param(5, [], id="scalar"),
-            pytest.param([0], [0], id="zero_dimension"),
+            pytest.param([0], [1], id="zero_dimension"),
         ],
     )
-    def test_shape_with_explicit_input(self, explicit_input, expected_explicit):
+    def test_shape_with_explicit_input(self, explicit_input, expected_shape):
         """Test Shape with various explicit shape inputs."""
         ctx = ShapeInferenceContext(
             data_shapes={},
@@ -60,7 +61,7 @@ class TestShapeOperation:
         )
         node = onnx.helper.make_node("Shape", inputs=["input"], outputs=["output"])
         result = _infer_shape_op_shape(node, ctx)
-        assert result[0][1] == expected_explicit
+        assert result[0] == ([len(expected_shape)], expected_shape)
 
     def test_shape_data_shape_not_list_error(self):
         """Test Shape raises error when data shape is not a list."""

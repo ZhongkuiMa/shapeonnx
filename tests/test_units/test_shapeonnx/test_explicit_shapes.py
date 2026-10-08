@@ -256,19 +256,22 @@ class TestComplexBranchingLogic:
         # Remove dims at indices 0 and 2: [1,3,1,4] -> [3,4]
         assert result[0][0] == [3, 4]
 
-    def test_squeeze_without_axes(self):
-        """Test Squeeze without axes (removes trailing size-1 dimensions)."""
+    def test_squeeze_without_axes(self, infer_onnx_reference_shape):
+        """Test Squeeze without axes removes all size-one dimensions."""
+        input_shape = [1, 3, 1, 1, 4]
         ctx = ShapeInferenceContext(
-            data_shapes={"input": [1, 3, 1, 1, 4]},
+            data_shapes={"input": input_shape},
             explicit_shapes={},
             initializers={},
             verbose=False,
         )
         node = onnx.helper.make_node("Squeeze", inputs=["input"], outputs=["output"])
+
+        reference = infer_onnx_reference_shape(node, {"input": input_shape})
         result = _infer_squeeze_shape(node, ctx)
-        # Squeeze without axes removes trailing size-1 dims: [1,3,1,1,4] -> [1,3,4]
-        # (removes the two 1s before the 4, but keeps leading 1)
-        assert result[0][0] == [1, 3, 4]
+
+        assert reference == [3, 4]
+        assert result == [(reference, None)]
 
     @pytest.mark.parametrize(
         ("input_shape", "perm", "expected"),

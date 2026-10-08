@@ -215,7 +215,7 @@ class TestSqueezeOperation:
             pytest.param([1, 3, 4], [0], [3, 4], id="squeeze_axis_0"),
             pytest.param([3, 1, 4], [1], [3, 4], id="squeeze_axis_1"),
             pytest.param([1, 1, 4], [0, 1], [4], id="squeeze_multiple_axes"),
-            pytest.param([1, 3, 1], [], [1, 3], id="squeeze_remove_trailing_ones"),
+            pytest.param([1, 3, 1], [], [3], id="squeeze_all_singletons"),
             pytest.param([1], [0], [], id="squeeze_scalar_to_empty"),
         ],
     )
@@ -310,7 +310,7 @@ class TestSqueezeOperation:
             _infer_squeeze_shape(node, ctx)
 
     def test_squeeze_no_axes_auto_detect(self):
-        """Test Squeeze without axes auto-detects 1 dimensions."""
+        """Squeeze without axes removes every singleton dimension."""
         ctx = ShapeInferenceContext(
             data_shapes={"input": [1, 3, 1, 4, 1]},  # Multiple 1 dimensions
             explicit_shapes={},
@@ -319,8 +319,24 @@ class TestSqueezeOperation:
         )
         node = onnx.helper.make_node("Squeeze", inputs=["input"], outputs=["output"])
         result = _infer_squeeze_shape(node, ctx)
-        # Removes all 1s then prepends first element
-        assert result[0][0] == [1, 3, 4]
+        assert result[0][0] == [3, 4]
+
+    def test_squeeze_negative_axis_matches_onnx_reference(self, infer_onnx_reference_shape):
+        """A negative axis selects the same singleton as its normalized index."""
+        axes = onnx.numpy_helper.from_array(np.array([-1], dtype=np.int64), name="axes")
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [2, 3, 1]},
+            explicit_shapes={"axes": [-1]},
+            initializers={"axes": axes},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Squeeze", inputs=["input", "axes"], outputs=["output"])
+
+        reference = infer_onnx_reference_shape(node, {"input": [2, 3, 1]}, [axes])
+        result = _infer_squeeze_shape(node, ctx)
+
+        assert reference == [2, 3]
+        assert result == [(reference, None)]
 
     def test_squeeze_axes_is_scalar_int(self):
         """Test Squeeze when axes is a single scalar int."""
@@ -343,16 +359,16 @@ class TestUnsqueezeOperation:
     """Test Unsqueeze operation shape inference."""
 
     def test_unsqueeze_attr_axes_opset_lt_13(self):
-        """Unsqueeze with axes from node attribute (opset < 13, single input)."""
+        """Unsqueeze with multiple attribute axes uses output coordinates."""
         ctx = ShapeInferenceContext(
             data_shapes={"input": [3, 4]},
             explicit_shapes={},
             initializers={},
             verbose=False,
         )
-        node = onnx.helper.make_node("Unsqueeze", inputs=["input"], outputs=["output"], axes=[0])
+        node = onnx.helper.make_node("Unsqueeze", inputs=["input"], outputs=["output"], axes=[0, 2])
         result = _infer_unsqueeze_shape(node, ctx)
-        assert result[0][0] == [1, 3, 4]
+        assert result[0][0] == [1, 3, 1, 4]
 
     @pytest.mark.parametrize(
         ("input_shape", "axes", "expected"),
@@ -360,7 +376,9 @@ class TestUnsqueezeOperation:
             pytest.param([3, 4], [0], [1, 3, 4], id="unsqueeze_axis_0"),
             pytest.param([3, 4], [1], [3, 1, 4], id="unsqueeze_axis_1"),
             pytest.param([3, 4], [2], [3, 4, 1], id="unsqueeze_axis_2"),
-            pytest.param([3, 4], [0, 2], [1, 3, 4, 1], id="unsqueeze_multiple_axes"),
+            pytest.param([3, 4], [0, 2], [1, 3, 1, 4], id="unsqueeze_multiple_axes"),
+            pytest.param([3, 4], [-4, -2], [1, 3, 1, 4], id="negative_multiple_axes"),
+            pytest.param([3, 4], [1, 3], [3, 1, 4, 1], id="trailing_multiple_axes"),
             pytest.param([3], [0], [1, 3], id="unsqueeze_1d_axis_0"),
             pytest.param([3], [1], [3, 1], id="unsqueeze_1d_axis_1"),
         ],
@@ -379,6 +397,46 @@ class TestUnsqueezeOperation:
         node = onnx.helper.make_node("Unsqueeze", inputs=["input", "axes"], outputs=["output"])
         result = _infer_unsqueeze_shape(node, ctx)
         assert result[0][0] == expected
+
+    def test_unsqueeze_multiple_axes_matches_onnx_reference(self, infer_onnx_reference_shape):
+        """Use final output coordinates for all Unsqueeze axes."""
+        axes_array = np.array([0, 2], dtype=np.int64)
+        axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [3, 4]},
+            explicit_shapes={},
+            initializers={"axes": axes_tensor},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Unsqueeze", inputs=["input", "axes"], outputs=["output"])
+
+        reference = infer_onnx_reference_shape(node, {"input": [3, 4]}, [axes_tensor])
+        result = _infer_unsqueeze_shape(node, ctx)
+
+        assert reference == [1, 3, 1, 4]
+        assert result == [(reference, None)]
+
+    @pytest.mark.parametrize(
+        ("axes", "match"),
+        [
+            pytest.param([0, 0], "unique", id="duplicate"),
+            pytest.param([0, 4], "outside", id="positive_out_of_range"),
+            pytest.param([-5, 0], "outside", id="negative_out_of_range"),
+        ],
+    )
+    def test_unsqueeze_rejects_invalid_axes(self, axes, match):
+        """Reject duplicate and out-of-range output axes."""
+        axes_tensor = onnx.numpy_helper.from_array(np.array(axes, dtype=np.int64), name="axes")
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [3, 4]},
+            explicit_shapes={},
+            initializers={"axes": axes_tensor},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Unsqueeze", inputs=["input", "axes"], outputs=["output"])
+
+        with pytest.raises(ValueError, match=match):
+            _infer_unsqueeze_shape(node, ctx)
 
     def test_unsqueeze_with_zero_dimension(self):
         """Test Unsqueeze with zero dimension."""
@@ -442,6 +500,22 @@ class TestUnsqueezeOperation:
         # Unsqueeze of scalar [5] with axis 0 gives [5]
         assert result[0][1] == [5]
 
+    def test_unsqueeze_preserves_scalar_compile_time_value_with_data_shape(self):
+        """Transform a scalar value even when its runtime shape is already known."""
+        axes_array = np.array([0], dtype=np.int64)
+        axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": []},
+            explicit_shapes={"input": 5},
+            initializers={"axes": axes_tensor},
+            verbose=False,
+        )
+        node = onnx.helper.make_node("Unsqueeze", inputs=["input", "axes"], outputs=["output"])
+
+        result = _infer_unsqueeze_shape(node, ctx)
+
+        assert result == [([1], [5])]
+
     def test_unsqueeze_scalar_input_invalid_axes_error(self):
         """Test Unsqueeze with scalar input and invalid axes."""
         axes_array = np.array([1], dtype=np.int64)
@@ -454,7 +528,7 @@ class TestUnsqueezeOperation:
             verbose=False,
         )
         node = onnx.helper.make_node("Unsqueeze", inputs=["input", "axes"], outputs=["output"])
-        with pytest.raises(ValueError, match="Invalid axes"):
+        with pytest.raises(ValueError, match="outside"):
             _infer_unsqueeze_shape(node, ctx)
 
 
@@ -542,7 +616,7 @@ class TestUnsqueezeEdgeCases:
     """Test Unsqueeze edge cases and error conditions."""
 
     def test_unsqueeze_with_explicit_shape(self):
-        """Test Unsqueeze with explicit shape input."""
+        """Unsqueeze both the tensor shape and its compile-time value."""
         axes_array = np.array([1], dtype=np.int64)
         axes_tensor = onnx.numpy_helper.from_array(axes_array, name="axes")
 
@@ -554,5 +628,4 @@ class TestUnsqueezeEdgeCases:
         )
         node = onnx.helper.make_node("Unsqueeze", inputs=["input", "axes"], outputs=["output"])
         result = _infer_unsqueeze_shape(node, ctx)
-        # Unsqueeze on axis 1: [3, 4] -> [3, 1, 4]
-        assert result[0][1] == [3, 1, 4]
+        assert result == [([2, 1], [[3], [4]])]

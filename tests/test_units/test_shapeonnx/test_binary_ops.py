@@ -9,6 +9,7 @@ from shapeonnx.infer_shape import (
     ShapeInferenceContext,
     _compute_binary_op_value,
     _infer_binary_op_shape,
+    infer_onnx_shape,
 )
 
 
@@ -68,6 +69,32 @@ class TestBinaryOpShapes:
         node = onnx.helper.make_node(operation, inputs=["a", "b"], outputs=["output"])
         with pytest.raises(RuntimeError, match="Cannot broadcast"):
             _infer_binary_op_shape(node, ctx)
+
+
+class TestVariadicMinMaxShapes:
+    """Test ONNX variadic Min/Max broadcasting."""
+
+    @pytest.mark.parametrize("op_type", ["Min", "Max"])
+    def test_broadcasts_all_inputs(self, op_type, infer_onnx_reference_shape):
+        """Infer the broadcast result across more than two inputs."""
+        input_shapes = {"a": [2, 1], "b": [1, 3], "c": []}
+        input_infos = [
+            onnx.helper.make_tensor_value_info(name, onnx.TensorProto.FLOAT, shape)
+            for name, shape in input_shapes.items()
+        ]
+        output_info = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.FLOAT, None)
+        node = onnx.helper.make_node(op_type, list(input_shapes), ["output"])
+
+        reference = infer_onnx_reference_shape(node, input_shapes)
+        shapes = infer_onnx_shape(
+            input_nodes=input_infos,
+            output_nodes=[output_info],
+            nodes=[node],
+            initializers={},
+            has_batch_dim=False,
+        )
+
+        assert shapes["output"] == reference
 
 
 class TestBinaryOperationsEdgeCases:

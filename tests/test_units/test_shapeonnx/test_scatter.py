@@ -79,7 +79,6 @@ class TestScatterIndexing:
 
     def test_scatter_multidimensional_indices(self):
         """Test gather with 2D indices array."""
-        # 2D indices - gather treats it as a flat list by default
         indices = [[0, 1], [2, 3]]
         indices_array = np.array(indices, dtype=np.int64)
         indices_tensor = onnx.numpy_helper.from_array(indices_array, name="indices")
@@ -94,9 +93,7 @@ class TestScatterIndexing:
             "Gather", inputs=["data", "indices"], outputs=["output"], axis=0
         )
         result = _infer_gather_shape(node, ctx)
-        # Output shape: [2, 8] (2 selected rows with 8 columns each)
-        # The indices shape [2, 2] is flattened in counting
-        assert result[0][0] == [2, 8]
+        assert result[0][0] == [2, 2, 8]
 
     def test_scatter_negative_axis(self):
         """Test gather with negative axis indexing."""

@@ -113,6 +113,261 @@ class TestInferOnnxShape:
         assert shapes["relu_out"] == [1, 10]
         assert shapes["output"] == [1, 10]
 
+    def test_where_broadcast_matches_onnx_reference(self):
+        """Infer the same three-input broadcast shape as ONNX Where."""
+        condition = onnx.helper.make_tensor_value_info(
+            "condition", onnx.TensorProto.BOOL, [2, 3, 4]
+        )
+        x = onnx.helper.make_tensor_value_info("x", onnx.TensorProto.FLOAT, [1])
+        y = onnx.helper.make_tensor_value_info("y", onnx.TensorProto.FLOAT, [2, 3, 4])
+        output = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.FLOAT, None)
+        node = onnx.helper.make_node("Where", ["condition", "x", "y"], ["output"])
+
+        shapes = infer_onnx_shape(
+            input_nodes=[condition, x, y],
+            output_nodes=[output],
+            nodes=[node],
+            initializers={},
+            has_batch_dim=False,
+        )
+        model = onnx.helper.make_model(
+            onnx.helper.make_graph([node], "where_broadcast", [condition, x, y], [output]),
+            opset_imports=[onnx.helper.make_opsetid("", 18)],
+        )
+        inferred = onnx.shape_inference.infer_shapes(model)
+        reference_shape = [
+            dimension.dim_value for dimension in inferred.graph.output[0].type.tensor_type.shape.dim
+        ]
+
+        assert shapes["output"] == reference_shape == [2, 3, 4]
+
+    def test_global_average_pool_reduces_spatial_dimensions(self):
+        """Route GlobalAveragePool through its non-identity shape rule."""
+        input_info = onnx.helper.make_tensor_value_info(
+            "input", onnx.TensorProto.FLOAT, [2, 3, 5, 7]
+        )
+        output_info = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.FLOAT, None)
+        node = onnx.helper.make_node(
+            "GlobalAveragePool",
+            inputs=["input"],
+            outputs=["output"],
+        )
+
+        shapes = infer_onnx_shape(
+            input_nodes=[input_info],
+            output_nodes=[output_info],
+            nodes=[node],
+            initializers={},
+            has_batch_dim=False,
+        )
+
+        assert shapes["output"] == [2, 3, 1, 1]
+
+    def test_reduce_normalizes_negative_axes_before_removal(self):
+        """Preserve axis identity while removing multiple negative axes."""
+        input_info = onnx.helper.make_tensor_value_info(
+            "input", onnx.TensorProto.FLOAT, [2, 3, 4, 5]
+        )
+        output_info = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.FLOAT, None)
+        axes = _make_int_initializer([-1, -2], "axes")
+        node = onnx.helper.make_node(
+            "ReduceSum",
+            inputs=["input", "axes"],
+            outputs=["output"],
+            keepdims=0,
+        )
+
+        shapes = infer_onnx_shape(
+            input_nodes=[input_info],
+            output_nodes=[output_info],
+            nodes=[node],
+            initializers={"axes": axes},
+            has_batch_dim=False,
+        )
+
+        assert shapes["output"] == [2, 3]
+
+    def test_shape_cast_gather_preserves_value_and_tensor_shape(self):
+        """Keep Shape values distinct from their runtime tensor shapes."""
+        input_info = onnx.helper.make_tensor_value_info("input", onnx.TensorProto.FLOAT, [1, 3, 4])
+        output_info = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.INT64, None)
+        indices = _make_int_initializer([1], "indices")
+        nodes = [
+            onnx.helper.make_node("Shape", inputs=["input"], outputs=["shape"]),
+            onnx.helper.make_node(
+                "Cast", inputs=["shape"], outputs=["cast_shape"], to=onnx.TensorProto.INT64
+            ),
+            onnx.helper.make_node(
+                "Gather", inputs=["cast_shape", "indices"], outputs=["output"], axis=0
+            ),
+        ]
+
+        shapes = infer_onnx_shape(
+            input_nodes=[input_info],
+            output_nodes=[output_info],
+            nodes=nodes,
+            initializers={"indices": indices},
+        )
+
+        assert shapes["shape"] == [3]
+        assert shapes["cast_shape"] == [3]
+        assert shapes["output"] == [1]
+
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [1, 3, 4], "indices": [1]},
+            explicit_shapes={"indices": [1]},
+            initializers={"indices": indices},
+        )
+        _infer_all_node_shapes(nodes, ctx)
+        assert ctx.explicit_shapes["output"] == [3]
+
+    def test_shape_identity_gather_preserves_compile_time_value(self):
+        """Propagate an integer shape value through ONNX Identity."""
+        input_info = onnx.helper.make_tensor_value_info("input", onnx.TensorProto.FLOAT, [1, 3, 4])
+        output_info = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.INT64, None)
+        indices = _make_int_initializer([2], "indices")
+        nodes = [
+            onnx.helper.make_node("Shape", inputs=["input"], outputs=["shape"]),
+            onnx.helper.make_node("Identity", inputs=["shape"], outputs=["identity_shape"]),
+            onnx.helper.make_node(
+                "Gather", inputs=["identity_shape", "indices"], outputs=["output"], axis=0
+            ),
+        ]
+
+        shapes = infer_onnx_shape(
+            input_nodes=[input_info],
+            output_nodes=[output_info],
+            nodes=nodes,
+            initializers={"indices": indices},
+        )
+
+        assert shapes["identity_shape"] == [3]
+        assert shapes["output"] == [1]
+
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [1, 3, 4], "indices": [1]},
+            explicit_shapes={"indices": [2]},
+            initializers={"indices": indices},
+        )
+        _infer_all_node_shapes(nodes, ctx)
+        assert ctx.explicit_shapes["output"] == [4]
+
+    def test_unsqueezed_shape_scalar_drives_constant_of_shape(self):
+        """Keep a gathered scalar value through ViT-style shape construction."""
+        input_info = onnx.helper.make_tensor_value_info(
+            "input", onnx.TensorProto.FLOAT, [1, 3, 32, 32]
+        )
+        output_info = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.FLOAT, None)
+        initializers = {
+            "batch_index": onnx.numpy_helper.from_array(
+                np.array(0, dtype=np.int64), name="batch_index"
+            ),
+            "one": _make_int_initializer([1], "one"),
+            "width": _make_int_initializer([48], "width"),
+            "cls_token": onnx.numpy_helper.from_array(
+                np.zeros(48, dtype=np.float32), name="cls_token"
+            ),
+        }
+        fill = onnx.numpy_helper.from_array(np.array([0], dtype=np.float32), name="fill")
+        nodes = [
+            onnx.helper.make_node("Shape", inputs=["input"], outputs=["input_shape"]),
+            onnx.helper.make_node(
+                "Gather",
+                inputs=["input_shape", "batch_index"],
+                outputs=["batch"],
+                axis=0,
+            ),
+            onnx.helper.make_node("Unsqueeze", inputs=["batch"], outputs=["batch_axis"], axes=[0]),
+            onnx.helper.make_node(
+                "Concat",
+                inputs=["batch_axis", "one", "width"],
+                outputs=["token_shape"],
+                axis=0,
+            ),
+            onnx.helper.make_node(
+                "ConstantOfShape", inputs=["token_shape"], outputs=["tokens"], value=fill
+            ),
+            onnx.helper.make_node("Add", inputs=["tokens", "cls_token"], outputs=["output"]),
+        ]
+
+        shapes = infer_onnx_shape(
+            input_nodes=[input_info],
+            output_nodes=[output_info],
+            nodes=nodes,
+            initializers=initializers,
+        )
+
+        assert shapes["batch"] == []
+        assert shapes["batch_axis"] == [1]
+        assert shapes["token_shape"] == [3]
+        assert shapes["tokens"] == [1, 1, 48]
+        assert shapes["output"] == [1, 1, 48]
+
+    def test_shape_value_arithmetic_drives_reshape(self):
+        """Propagate shape arithmetic values through the main API."""
+        input_info = onnx.helper.make_tensor_value_info("input", onnx.TensorProto.FLOAT, [1, 3, 4])
+        payload_info = onnx.helper.make_tensor_value_info("payload", onnx.TensorProto.FLOAT, [1, 6])
+        output_info = onnx.helper.make_tensor_value_info("output", onnx.TensorProto.FLOAT, None)
+        indices = _make_int_initializer([1], "indices")
+        factor = onnx.numpy_helper.from_array(np.array(2, dtype=np.int64), name="factor")
+        nodes = [
+            onnx.helper.make_node("Shape", inputs=["input"], outputs=["shape"]),
+            onnx.helper.make_node(
+                "Gather", inputs=["shape", "indices"], outputs=["channel"], axis=0
+            ),
+            onnx.helper.make_node("Mul", inputs=["channel", "factor"], outputs=["target"]),
+            onnx.helper.make_node("Reshape", inputs=["payload", "target"], outputs=["output"]),
+        ]
+
+        shapes = infer_onnx_shape(
+            input_nodes=[input_info, payload_info],
+            output_nodes=[output_info],
+            nodes=nodes,
+            initializers={"indices": indices, "factor": factor},
+        )
+
+        assert shapes["channel"] == [1]
+        assert shapes["target"] == [1]
+        assert shapes["output"] == [6]
+
+    def test_cast_to_float_drops_integer_compile_time_value(self):
+        """Do not preserve an integer value across a non-integer Cast."""
+        nodes = [
+            onnx.helper.make_node("Shape", inputs=["input"], outputs=["shape"]),
+            onnx.helper.make_node(
+                "Cast", inputs=["shape"], outputs=["cast_shape"], to=onnx.TensorProto.FLOAT
+            ),
+        ]
+        ctx = ShapeInferenceContext(
+            data_shapes={"input": [1, 3, 4]},
+            explicit_shapes={},
+            initializers={},
+        )
+
+        _infer_all_node_shapes(nodes, ctx)
+
+        assert ctx.data_shapes["cast_shape"] == [3]
+        assert "cast_shape" not in ctx.explicit_shapes
+
+    def test_integer_cast_applies_target_dtype_to_compile_time_value(self):
+        """Compile-time propagation follows ONNX integer Cast conversion."""
+        node = onnx.helper.make_node(
+            "Cast",
+            inputs=["values"],
+            outputs=["cast_values"],
+            to=onnx.TensorProto.UINT8,
+        )
+        ctx = ShapeInferenceContext(
+            data_shapes={"values": [2]},
+            explicit_shapes={"values": [-1, 257]},
+            initializers={},
+        )
+
+        _infer_all_node_shapes([node], ctx)
+
+        assert ctx.data_shapes["cast_values"] == [2]
+        assert ctx.explicit_shapes["cast_values"] == [255, 1]
+
     def test_infer_onnx_shape_flatten_operation(self):
         """Test shape inference on Flatten operation."""
         input_info = onnx.helper.make_tensor_value_info(
@@ -411,7 +666,7 @@ class TestProcessNodeOutputs:
         assert "output" not in ctx.explicit_shapes
 
     def test_process_node_outputs_single_output_explicit_shape(self):
-        """Test storing single output with explicit shape."""
+        """Store a compile-time value separately from its tensor shape."""
         ctx = ShapeInferenceContext(
             data_shapes={},
             explicit_shapes={},
@@ -425,7 +680,7 @@ class TestProcessNodeOutputs:
         _process_node_outputs(node, results, ctx)
 
         assert ctx.explicit_shapes["shape_out"] == [2, 3]
-        assert ctx.data_shapes["shape_out"] == [2, 3]
+        assert ctx.data_shapes["shape_out"] == [2]
 
     def test_process_node_outputs_multiple_outputs(self):
         """Test storing multiple outputs from single node."""
@@ -470,8 +725,8 @@ class TestProcessNodeOutputs:
         assert ctx.data_shapes["output"] == [10]
         assert ctx.explicit_shapes["output"] == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-    def test_process_node_outputs_explicit_fallback_to_data_shape(self):
-        """Test that explicit shape becomes data shape when data shape is None."""
+    def test_process_node_outputs_derives_shape_from_explicit_value(self):
+        """Derive tensor shape from an explicit value without copying its contents."""
         ctx = ShapeInferenceContext(
             data_shapes={},
             explicit_shapes={},
@@ -486,7 +741,7 @@ class TestProcessNodeOutputs:
         _process_node_outputs(node, results, ctx)
 
         assert ctx.explicit_shapes["output"] == [1, 3, 224, 224]
-        assert ctx.data_shapes["output"] == [1, 3, 224, 224]
+        assert ctx.data_shapes["output"] == [4]
 
     def test_process_node_outputs_verbose_mode(self, caplog):
         """Test verbose output when storing node results."""

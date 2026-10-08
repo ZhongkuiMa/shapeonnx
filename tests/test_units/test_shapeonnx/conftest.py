@@ -13,6 +13,42 @@ from shapeonnx.infer_shape import ShapeInferenceContext
 
 
 @pytest.fixture
+def infer_onnx_reference_shape() -> Callable[..., list[int]]:
+    """Build an independent ONNX shape-inference oracle for one-node graphs.
+
+    :return: Callable accepting a node, graph input shapes, and optional initializers.
+    """
+
+    def _infer(
+        node: onnx.NodeProto,
+        input_shapes: dict[str, list[int]],
+        initializers: list[onnx.TensorProto] | None = None,
+    ) -> list[int]:
+        graph_inputs = [
+            onnx.helper.make_tensor_value_info(name, onnx.TensorProto.FLOAT, shape)
+            for name, shape in input_shapes.items()
+        ]
+        graph_output = onnx.helper.make_tensor_value_info(
+            node.output[0], onnx.TensorProto.FLOAT, None
+        )
+        graph = onnx.helper.make_graph(
+            [node],
+            "shape_reference",
+            graph_inputs,
+            [graph_output],
+            initializer=initializers or [],
+        )
+        model = onnx.helper.make_model(
+            graph,
+            opset_imports=[onnx.helper.make_opsetid("", 21)],
+        )
+        inferred = onnx.shape_inference.infer_shapes(model).graph.output[0]
+        return [dimension.dim_value for dimension in inferred.type.tensor_type.shape.dim]
+
+    return _infer
+
+
+@pytest.fixture
 def empty_context() -> ShapeInferenceContext:
     """Create an empty ShapeInferenceContext.
 
