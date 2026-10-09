@@ -224,6 +224,29 @@ class TestComparisonOperators:
 class TestBinaryOpExplicitShapes:
     """Test binary operations with explicit shape handling."""
 
+    @pytest.mark.parametrize(
+        ("operation", "value1", "value2", "expected"),
+        [
+            pytest.param("Add", 12, 3, 15, id="add"),
+            pytest.param("Sub", 12, 3, 9, id="sub"),
+            pytest.param("Mul", 12, 3, 36, id="mul"),
+            pytest.param("Div", 12, 3, 4, id="div"),
+        ],
+    )
+    def test_scalar_shape_arithmetic_remains_explicit(
+        self, operation: str, value1: int, value2: int, expected: int
+    ) -> None:
+        """Keep scalar tensor geometry separate from its compile-time value."""
+        ctx = ShapeInferenceContext(
+            data_shapes={"a": [], "b": []},
+            explicit_shapes={"a": value1, "b": value2},
+            initializers={},
+            verbose=False,
+        )
+        node = onnx.helper.make_node(operation, inputs=["a", "b"], outputs=["output"])
+
+        assert _infer_binary_op_shape(node, ctx) == [([], expected)]
+
     def test_add_explicit_shapes_not_used(self):
         """Test that explicit shapes are not used in Add (data shapes only)."""
         ctx = ShapeInferenceContext(

@@ -374,7 +374,7 @@ def _compute_binary_op_value(op_type: str, value1: int | float, value2: int | fl
 
 def _compute_explicit_binary_shape(
     op_type: str, e_shape1: int | list[int], e_shape2: int | list[int]
-) -> list[int]:
+) -> int | list[int]:
     """
     Compute explicit shape for binary operations.
 
@@ -386,6 +386,12 @@ def _compute_explicit_binary_shape(
 
     :return: Computed explicit shape
     """
+    if (
+        op_type in {"Add", "Sub", "Mul", "Div"}
+        and isinstance(e_shape1, int)
+        and isinstance(e_shape2, int)
+    ):
+        return int(_compute_binary_op_value(op_type, e_shape1, e_shape2))
     if op_type == "Mul":
         if isinstance(e_shape1, int) and isinstance(e_shape2, list):
             return [e_shape1 * s for s in e_shape2]
