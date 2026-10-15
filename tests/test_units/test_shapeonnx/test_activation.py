@@ -24,6 +24,7 @@ class TestActivationFunctions:
             pytest.param("LeakyRelu", [3, 4], id="leaky_relu_2d"),
             pytest.param("Sigmoid", [3, 4], id="sigmoid_2d"),
             pytest.param("Tanh", [3, 4], id="tanh_2d"),
+            pytest.param("Atan", [3, 4], id="atan_2d"),
             pytest.param("Cos", [3, 4], id="cos_2d"),
             pytest.param("Sin", [3, 4], id="sin_2d"),
             pytest.param("Sign", [3, 4], id="sign_2d"),
@@ -151,9 +152,9 @@ class TestActivationDifferentRanks:
 
 
 class TestUnaryOpsDispatch:
-    """Verify the 7 new unary ops are registered in the shape inference mapping."""
+    """Verify unary ops are registered in the shape inference mapping."""
 
-    _NEW_UNARY = ("Abs", "Elu", "Exp", "Gelu", "Log", "Reciprocal", "Sqrt")
+    _NEW_UNARY = ("Abs", "Atan", "Elu", "Exp", "Gelu", "Log", "Reciprocal", "Sqrt")
 
     @pytest.mark.parametrize("op_type", _NEW_UNARY)
     def test_unary_mapped_to_identity(self, op_type):

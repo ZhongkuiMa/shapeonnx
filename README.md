@@ -71,12 +71,12 @@ for name, shape in shapes.items():
 | `get_output_nodes` | `shapeonnx.utils` | Get output nodes with normalized shapes |
 | `convert_constant_to_initializer` | `shapeonnx.utils` | Move Constant nodes to initializer dict (modifies in-place) |
 
-## Supported Operators (51)
+## Supported Operators (52)
 
 | Category | Operators |
 |----------|-----------|
 | Arithmetic | Add, Sub, Mul, Div, DivCst, Pow, Neg |
-| Activation | Relu, LeakyRelu, Sigmoid, Tanh, Clip, Sin, Cos, Sign |
+| Activation | Relu, LeakyRelu, Sigmoid, Tanh, Atan, Clip, Sin, Cos, Sign |
 | Conv/Pool | Conv, Conv1d, ConvTranspose, MaxPool, AveragePool, GlobalAveragePool |
 | Normalization | BatchNormalization |
 | Shape manipulation | Reshape, Transpose, Squeeze, Unsqueeze, Flatten, Expand |

@@ -1866,6 +1866,7 @@ INFER_SHAPE_FUNC_MAPPING: dict[str, ShapeInferFunc] = {
     "Abs": _infer_identity_shape,
     "Add": _infer_binary_op_shape,
     "ArgMax": _infer_argmax_shape,
+    "Atan": _infer_identity_shape,
     "AveragePool": _infer_pool_shape,
     "BatchNormalization": _infer_batch_norm_shape,
     "Cast": _infer_cast_shape,
