@@ -31,10 +31,12 @@ class TestActivationFunctions:
             pytest.param("Clip", [3, 4], id="clip_2d"),
             pytest.param("Abs", [3, 4], id="abs_2d"),
             pytest.param("Elu", [3, 4], id="elu_2d"),
+            pytest.param("Erf", [3, 4], id="erf_2d"),
             pytest.param("Exp", [3, 4], id="exp_2d"),
             pytest.param("Gelu", [3, 4], id="gelu_2d"),
             pytest.param("Log", [3, 4], id="log_2d"),
             pytest.param("Reciprocal", [3, 4], id="reciprocal_2d"),
+            pytest.param("Round", [3, 4], id="round_2d"),
             pytest.param("Sqrt", [3, 4], id="sqrt_2d"),
         ],
     )
@@ -154,7 +156,18 @@ class TestActivationDifferentRanks:
 class TestUnaryOpsDispatch:
     """Verify unary ops are registered in the shape inference mapping."""
 
-    _NEW_UNARY = ("Abs", "Atan", "Elu", "Exp", "Gelu", "Log", "Reciprocal", "Sqrt")
+    _NEW_UNARY = (
+        "Abs",
+        "Atan",
+        "Elu",
+        "Erf",
+        "Exp",
+        "Gelu",
+        "Log",
+        "Reciprocal",
+        "Round",
+        "Sqrt",
+    )
 
     @pytest.mark.parametrize("op_type", _NEW_UNARY)
     def test_unary_mapped_to_identity(self, op_type):
